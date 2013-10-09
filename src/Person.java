@@ -13,6 +13,12 @@ public class Person {
         zPos = z;
     }
 
+    public Person(double x, double y) {
+        xPos = x;
+        yPos = y;
+        zPos = 0;
+    }
+
     public void draw(GraphicsContext gc) {
         gc.fillOval(xPos - (size / 2.0), yPos - (size / 2.0), size, size);
     }
