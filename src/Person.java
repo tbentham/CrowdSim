@@ -4,11 +4,13 @@ public class Person {
 
     public double xPos;
     public double yPos;
+    public int = zPos;    // i.e. floor
     public double size = 5.0;
 
-    public Person(double x, double y) {
+    public Person(double x, double y, int z) {
         xPos = x;
         yPos = y;
+        zPos = z;
     }
 
     public void draw(GraphicsContext gc) {
