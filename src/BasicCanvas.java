@@ -23,7 +23,7 @@ public class BasicCanvas extends Application {
         objects.add(new Wall(20, 20, 220, 220));
         people = new People();
         try {
-            people.add(objects, new Person(50, 40));
+            people.add(objects, new Person(50, 40, 0));
         }
         catch (Exception e) {
            e.printStackTrace();
