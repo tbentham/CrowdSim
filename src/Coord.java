@@ -2,17 +2,17 @@ public class Coord {
 
     public double x;
     public double y;
-    public double z;
+    public int z;
 
     public Coord(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public Coord(double x, double y, double z) {
+    public Coord(double x, double y, int z) {
         this.x = x;
         this.y = y;
-        this.z = x;
+        this.z = z;
     }
 
     public double getX() {
@@ -23,7 +23,7 @@ public class Coord {
         return y;
     }
 
-    public double getZ() {
+    public int getZ() {
         return z;
     }
 

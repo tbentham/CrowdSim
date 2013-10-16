@@ -23,7 +23,9 @@ public class BasicCanvas extends Application {
         objects.add(new Door(new Coord(90, 220), new Coord(110, 220)));
         people = new People();
         try {
-            people.add(objects, new Person(50, 40, 0));
+            Person p1 = new Person(new Coord(50, 40));
+            p1.setGoal(new Coord(90, 90));
+            people.add(objects, p1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,7 +47,6 @@ public class BasicCanvas extends Application {
     public void drawShapes(GraphicsContext gc) {
         for (BuildingObject buildingObject : objects) {
             buildingObject.draw(gc);
-            System.out.println(buildingObject.touches(people.get(0)));
         }
         gc.setFill(Color.BLUE);
         for (Person person : people) {

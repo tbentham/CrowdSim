@@ -20,17 +20,17 @@ public class Wall implements BuildingObject {
     public boolean touches(Person person) {
         // Case: Line is horizontal
         if (endCoord.getY() == startCoord.getY()) {
-            return (person.getSize() > Math.abs(endCoord.getY() - person.getPosY()));
+            return (person.getSize() > Math.abs(endCoord.getY() - person.getCoord().getY()));
         }
         // Case: Line is vertical
         if (endCoord.getX() == startCoord.getX()) {
-            return (person.getSize() > Math.abs(endCoord.getX() - person.getPosX()));
+            return (person.getSize() > Math.abs(endCoord.getX() - person.getCoord().getX()));
         }
         // Otherwise
         // http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
         double gradient = (endCoord.getY() - startCoord.getY()) / (endCoord.getX() - startCoord.getX());
         double c = startCoord.getY() - (gradient * startCoord.getX());
-        double distance = Math.abs((gradient * person.getPosX() - person.getPosY() + c)) / Math.sqrt(gradient * gradient + 1);
+        double distance = Math.abs((gradient * person.getCoord().getX() - person.getCoord().getY() + c)) / Math.sqrt(gradient * gradient + 1);
         return (distance < person.getSize());
     }
 }
