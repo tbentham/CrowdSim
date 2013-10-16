@@ -1,37 +1,36 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class Wall implements BuildingObject {
 
-    public double xStartPos;
-    public double xEndPos;
-    public double yStartPos;
-    public double yEndPos;
+    public Coord startCoord;
+    public Coord endCoord;
 
-    public Wall(double x1, double y1, double x2, double y2) {
-        xStartPos = x1;
-        yStartPos = y1;
-        xEndPos = x2;
-        yEndPos = y2;
+    public Wall(Coord c1, Coord c2) {
+        startCoord = c1;
+        endCoord = c2;
     }
 
     public void draw(GraphicsContext gc) {
-        gc.strokeLine(xStartPos, yStartPos, xEndPos, yEndPos);
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
+        gc.strokeLine(startCoord.getX(), startCoord.getY(), endCoord.getX(), endCoord.getY());
     }
 
     public boolean touches(Person person) {
         // Case: Line is horizontal
-        if (yEndPos == yStartPos) {
-           return (person.getSize() > Math.abs(yEndPos - person.getPosY()));
+        if (endCoord.getY() == startCoord.getY()) {
+            return (person.getSize() > Math.abs(endCoord.getY() - person.getPosY()));
         }
         // Case: Line is vertical
-        if (xEndPos == xStartPos) {
-            return (person.getSize() > Math.abs(xEndPos - person.getPosX()));
+        if (endCoord.getX() == startCoord.getX()) {
+            return (person.getSize() > Math.abs(endCoord.getX() - person.getPosX()));
         }
         // Otherwise
         // http://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-        double gradient = (yEndPos - yStartPos) / (xEndPos - xStartPos);
-        double c = yStartPos - (gradient * xStartPos);
-        double distance = Math.abs((gradient * person.getPosX() - person.getPosY() + c)) / Math.sqrt(gradient*gradient + 1);
+        double gradient = (endCoord.getY() - startCoord.getY()) / (endCoord.getX() - startCoord.getX());
+        double c = startCoord.getY() - (gradient * startCoord.getX());
+        double distance = Math.abs((gradient * person.getPosX() - person.getPosY() + c)) / Math.sqrt(gradient * gradient + 1);
         return (distance < person.getSize());
     }
 }

@@ -16,17 +16,16 @@ public class BasicCanvas extends Application {
 
     public static void main(String[] args) {
         objects = new ArrayList<BuildingObject>();
-        objects.add(new Wall(20, 20, 220, 20));
-        objects.add(new Wall(220, 20, 220, 220));
-        objects.add(new Wall(220, 220, 20, 220));
-        objects.add(new Wall(20, 220, 20, 20));
-        objects.add(new Wall(20, 20, 220, 220));
+        objects.add(new Wall(new Coord(20, 20), new Coord(220, 20)));
+        objects.add(new Wall(new Coord(220, 20), new Coord(220, 220)));
+        objects.add(new Wall(new Coord(220, 220), new Coord(20, 220)));
+        objects.add(new Wall(new Coord(20, 220), new Coord(20, 20)));
+        objects.add(new Door(new Coord(90, 220), new Coord(110, 220)));
         people = new People();
         try {
             people.add(objects, new Person(50, 40, 0));
-        }
-        catch (Exception e) {
-           e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         launch();
     }
@@ -44,14 +43,12 @@ public class BasicCanvas extends Application {
     }
 
     public void drawShapes(GraphicsContext gc) {
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
-        for(BuildingObject buildingObject : objects) {
+        for (BuildingObject buildingObject : objects) {
             buildingObject.draw(gc);
             System.out.println(buildingObject.touches(people.get(0)));
         }
         gc.setFill(Color.BLUE);
-        for(Person person : people) {
+        for (Person person : people) {
             person.draw(gc);
         }
     }
