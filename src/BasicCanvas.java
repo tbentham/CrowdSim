@@ -14,7 +14,7 @@ public class BasicCanvas extends Application {
     private static List<BuildingObject> objects;
     private static People people;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         objects = new ArrayList<BuildingObject>();
         objects.add(new Wall(new Coord(20, 20), new Coord(220, 20)));
         objects.add(new Wall(new Coord(220, 20), new Coord(220, 220)));
@@ -22,13 +22,9 @@ public class BasicCanvas extends Application {
         objects.add(new Wall(new Coord(20, 220), new Coord(20, 20)));
         objects.add(new Door(new Coord(90, 220), new Coord(110, 220)));
         people = new People();
-        try {
-            Person p1 = new Person(new Coord(50, 40));
-            p1.setGoal(new Coord(90, 90));
-            people.add(objects, p1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Person p1 = new Person(new Coord(50, 40));
+        p1.setGoal(new Coord(90, 90));
+        people.add(objects, p1);
         launch();
     }
 

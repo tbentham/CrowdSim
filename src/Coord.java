@@ -27,4 +27,8 @@ public class Coord {
         return z;
     }
 
+    public double distanceFrom(Coord c1) {
+        return Math.sqrt(Math.pow(Math.abs(x - c1.getX()), 2) + Math.pow(Math.abs(y - c1.getY()), 2));
+    }
+
 }
