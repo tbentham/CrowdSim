@@ -16,14 +16,14 @@ public class BasicCanvas extends Application {
 
     public static void main(String[] args) throws Exception {
         objects = new ArrayList<BuildingObject>();
-        objects.add(new Wall(new Coord(20, 20), new Coord(220, 20)));
-        objects.add(new Wall(new Coord(220, 20), new Coord(220, 220)));
-        objects.add(new Wall(new Coord(220, 220), new Coord(20, 220)));
-        objects.add(new Wall(new Coord(20, 220), new Coord(20, 20)));
-        objects.add(new Door(new Coord(90, 220), new Coord(110, 220)));
+        objects.add(new Wall(20, 20, 220, 20));
+        objects.add(new Wall(220, 220, 20, 220));
+        objects.add(new Wall(220, 20, 220, 220));
+        objects.add(new Wall(20, 220, 20, 20));
+        objects.add(new Door(90, 220, 110, 220));
         people = new People();
-        Person p1 = new Person(new Coord(50, 40));
-        p1.setGoal(new Coord(90, 90));
+        Person p1 = new Person(50, 40);
+        p1.setGoal(90, 90);
         people.add(objects, p1);
         launch();
     }

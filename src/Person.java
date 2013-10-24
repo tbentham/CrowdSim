@@ -1,32 +1,34 @@
 import javafx.scene.canvas.GraphicsContext;
 
+import javax.vecmath.Point2d;
+
 public class Person {
 
-    private Coord coord;
+    private Point2d location;
     private double size = 5.0;
-    private Coord goal;
+    private Point2d goal;
     private boolean goalSet;
 
-    public Person(Coord c1) {
-        coord = c1;
+    public Person(double x1, double y1) {
+        location = new Point2d(x1, y1);
         goalSet = false;
     }
 
-    public void setGoal(Coord c1) {
-        goal = c1;
+    public void setGoal(double x1, double y1) {
+        goal = new Point2d(x1, y1);
         goalSet = true;
     }
 
-    public Coord getGoal() {
+    public Point2d getGoal() {
         return goal;
     }
 
-    public void setCoord(Coord c1) {
-        coord = c1;
+    public void setLocation(double x1, double y1) {
+        location = new Point2d(x1, y1);
     }
 
-    public Coord getCoord() {
-        return coord;
+    public Point2d getLocation() {
+        return location;
     }
 
     public double getSize() {
@@ -38,19 +40,13 @@ public class Person {
     }
 
     public void advance(double distanceToMove) throws NoGoalException {
-        if (!this.hasGoal()) {
-            throw new NoGoalException("Person.advance() called with no goal set");
-        } else {
-            Coord diff = new Coord(goal.getX() - coord.getX(), goal.getY() - coord.getY());
-            double distance = Math.sqrt((diff.getX() * diff.getX()) + (diff.getY() * diff.getY()));
-            Coord norm = new Coord(diff.getX() / distance, diff.getY() / distance);
-            coord = new Coord(coord.getX() + norm.getX() * distanceToMove, coord.getY() + norm.getY() * distanceToMove);
-        }
-
+        // TODO: Advance towards goal naively
     }
 
     public void draw(GraphicsContext gc) {
-        gc.fillOval(coord.getX() - (size / 2.0), coord.getY() - (size / 2.0), size, size);
+        double[] t = new double[2];
+        location.get(t);
+        gc.fillOval(t[0] - (size / 2.0), t[1] - (size / 2.0), size, size);
     }
 
 
