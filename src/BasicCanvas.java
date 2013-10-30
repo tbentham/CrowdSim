@@ -18,11 +18,14 @@ public class BasicCanvas {
         world.createEdges();
         world.printFloorPlan();
         world.setGoal(3, 10);
-        LinkedList<Vertex> path = world.getPath(10, 15).getPath();
+        LinkedList<Vertex> path = world.getPath(20, 20).getVertices();
         for (Vertex v : path) {
             System.out.println(v);
         }
-        LinkedList<Vertex> path2 = world.getPath(20, 20).getPath();
+        System.out.println();
+        System.out.println("Subgoals:");
+
+        LinkedList<Vertex> path2 = world.getPath(20, 20).getSubGoals();
         for (Vertex v : path2) {
             System.out.println(v);
         }

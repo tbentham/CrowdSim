@@ -14,6 +14,13 @@ public class Vertex {
 
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 
     public String getId() {
         return id;
