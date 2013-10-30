@@ -56,6 +56,16 @@ public class Wall implements BuildingObject {
         return person.getLocation().distance(p1);
     }
 
+    private double distance(Point2d point2d) {
+        double[] points = new double[2];
+        point2d.get(points);
+        return distance(new Person(points[0], points[1]));
+    }
+
+    public boolean touches(Point2d point2d, double size) {
+        return size > distance(point2d);
+    }
+
     public boolean touches(Person person) {
         return person.getSize() > distance(person);
     }
