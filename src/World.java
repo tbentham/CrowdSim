@@ -5,7 +5,6 @@ import Dijkstra.Vertex;
 
 import javax.vecmath.Point2d;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class World {
@@ -29,6 +28,7 @@ public class World {
 
     public void addWall(double x1, double y1, double x2, double y2) {
         walls.add(new Wall(x1, y1, x2, y2));
+    }
 
     public void populateFloorPlan() {
         for (int i = 0; i < sideLength; i++) {
@@ -61,7 +61,7 @@ public class World {
             for (int j = 0; j < sideLength; j++) {
                 nodeArray[i][j] = null;
                 if (floorPlan[i][j] == 0) {
-                    Vertex location = new Vertex(i + "_" + j);
+                    Vertex location = new Vertex(i, j);
                     nodes.add(location);
                     nodeArray[i][j] = location;
                 }
@@ -107,8 +107,8 @@ public class World {
         dijkstra.execute(nodeArray[x][y]);
     }
 
-    public LinkedList<Vertex> getPath(int x, int y) {
-        return dijkstra.getPath(nodeArray[x][y]);
+    public Path getPath(int x, int y) {
+        return new Path(dijkstra.getPath(nodeArray[x][y]));
     }
 
 }

@@ -1,26 +1,24 @@
 package Dijkstra;
 
 public class Vertex {
-    final private String id;
-    final private String name;
+    private String id;
 
-    public Vertex(String id, String name) {
-        this.id = id;
-        this.name = name;
+    private int x;
+    private int y;
+
+
+    public Vertex(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.id = x + "_" + y;
+
     }
 
-    public Vertex(String id) {
-        this.id = id;
-        this.name = "Node_" + id;
-    }
 
     public String getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
 
     @Override
     public int hashCode() {
@@ -49,7 +47,7 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return name;
+        return "Vertex at: ("+x+", "+y+")";
     }
 
 } 

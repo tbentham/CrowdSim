@@ -21,7 +21,7 @@ public class TestDijkstraAlgorithm {
         nodes = new ArrayList<Vertex>();
         edges = new ArrayList<Edge>();
         for (int i = 0; i < 11; i++) {
-            Vertex location = new Vertex("Node_" + i, "Node_" + i);
+            Vertex location = new Vertex(i, i);
             nodes.add(location);
         }
 
