@@ -71,4 +71,11 @@ public class WallTest {
         Person person5 = new Person(50, 150);
         assertFalse(wall.touches(person5));
     }
+
+    @Test
+    public void wallOfZeroLengthReturnsPointDistance() {
+        Wall wall = new Wall(1, 1, 1, 1);
+        Person person = new Person(1, 2);
+        assertTrue(wall.distance(person) == 1);
+    }
 }

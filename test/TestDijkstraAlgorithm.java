@@ -1,3 +1,7 @@
+import Dijkstra.DijkstraAlgorithm;
+import Dijkstra.Edge;
+import Dijkstra.Graph;
+import Dijkstra.Vertex;
 import org.junit.Test;
 
 import java.util.ArrayList;

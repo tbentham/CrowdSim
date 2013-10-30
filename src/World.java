@@ -1,3 +1,8 @@
+import Dijkstra.DijkstraAlgorithm;
+import Dijkstra.Edge;
+import Dijkstra.Graph;
+import Dijkstra.Vertex;
+
 import javax.vecmath.Point2d;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -24,7 +29,6 @@ public class World {
 
     public void addWall(double x1, double y1, double x2, double y2) {
         walls.add(new Wall(x1, y1, x2, y2));
-    }
 
     public void populateFloorPlan() {
         for (int i = 0; i < sideLength; i++) {

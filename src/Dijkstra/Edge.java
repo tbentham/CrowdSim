@@ -1,3 +1,5 @@
+package Dijkstra;
+
 public class Edge {
     private final String id;
     private final Vertex source;
