@@ -2,10 +2,10 @@ import javax.vecmath.Point2d;
 
 public class Person {
 
-    private Point2d location;
+    public Point2d location;
     private double size = 5.0;
-    private Point2d goal;
-    private boolean goalSet;
+    public Point2d goal;
+    public boolean goalSet;
 
     public Person(double x1, double y1) {
         location = new Point2d(x1, y1);
