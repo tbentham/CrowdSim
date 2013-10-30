@@ -112,13 +112,11 @@ public class BasicCanvas extends Application {
 
         Graph graph = new Graph(nodes, edges);
         DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
-        dijkstra.execute(nodes.get(0));
-        LinkedList<Vertex> path = dijkstra.getPath(nodes.get(810));
+        dijkstra.execute(nodes.get(2010));
+        LinkedList<Vertex> path = dijkstra.getPath(nodes.get(10050));
         for (Vertex vertex : path) {
             System.out.println(vertex);
         }
-
-
 //        people = new People();
 //        Person p1 = new Person(50, 40);
 //        p1.setGoal(90, 90);
