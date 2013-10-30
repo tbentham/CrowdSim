@@ -1,5 +1,7 @@
 import org.junit.Test;
 
+import javax.vecmath.Point2d;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -77,5 +79,19 @@ public class WallTest {
         Wall wall = new Wall(1, 1, 1, 1);
         Person person = new Person(1, 2);
         assertTrue(wall.distance(person) == 1);
+    }
+
+    @Test
+    public void wallReturnsCorrectDistanceToPoint() {
+        Wall wall = new Wall(1, 1, 1, 1);
+        Point2d point2d = new Point2d(1, 2);
+        assertTrue(wall.distance(point2d) == 1);
+    }
+
+    @Test
+    public void wallTouchesNearbyPoint() {
+        Wall wall = new Wall(1, 1, 2, 2);
+        Point2d point2d = new Point2d(1, 2);
+        assertTrue(wall.touches(point2d, 2));
     }
 }
