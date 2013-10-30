@@ -1,6 +1,3 @@
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 
@@ -22,11 +19,6 @@ public class Wall implements BuildingObject {
         endY = y2;
     }
 
-    public void draw(GraphicsContext gc) {
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
-        gc.strokeLine(startX, startY, endX, startX);
-    }
 
     private double distance(Person person) {
         Vector2d v = new Vector2d(endX, endY);

@@ -1,5 +1,3 @@
-import javafx.scene.canvas.GraphicsContext;
-
 import javax.vecmath.Point2d;
 
 public class Person {
@@ -38,16 +36,5 @@ public class Person {
     public boolean hasGoal() {
         return goalSet;
     }
-
-    public void advance(double distanceToMove) throws NoGoalException {
-        // TODO: Advance towards goal naively
-    }
-
-    public void draw(GraphicsContext gc) {
-        double[] t = new double[2];
-        location.get(t);
-        gc.fillOval(t[0] - (size / 2.0), t[1] - (size / 2.0), size, size);
-    }
-
 
 }
