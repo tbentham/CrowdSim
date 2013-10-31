@@ -13,11 +13,9 @@ public class BasicCanvas {
         world.addWall(40, 40, 1, 40);
         world.addWall(1, 40, 1, 1);
 
-        world.populateFloorPlan();
-        world.populateVertexArray();
-        world.createEdges();
+        world.setUp();
         world.printFloorPlan();
-        world.setGoal(3, 10);
+        world.computeDijsktraTowards(3, 10);
         LinkedList<Vertex> path = world.getPath(20, 20).getVertices();
         for (Vertex v : path) {
             System.out.println(v);
