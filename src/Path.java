@@ -10,7 +10,8 @@ public class Path {
     public Path(List<Vertex> vertexList) {
         vertices = new LinkedList<Vertex>();
         subgoals = new LinkedList<Vertex>();
-        vertices.addAll(vertexList);
+        if (vertexList.size() > 0)
+            vertices.addAll(vertexList);
         generateSubGoals();
     }
 
