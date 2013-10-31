@@ -95,13 +95,11 @@ public class World {
                     if (j < (sideLength - 1)) {
                         if (floorPlan[i][j + 1] == 0) {
                             edges.add(new Edge(nodeArray[i][j], nodeArray[i][j + 1], 1));
-                            edges.add(new Edge(nodeArray[i][j + 1], nodeArray[i][j], 1));
                         }
                         // check bottom right
                         if (i < (sideLength - 1)) {
                             if (floorPlan[i + 1][j + 1] == 0) {
                                 edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j + 1], Math.sqrt(2)));
-                                edges.add(new Edge(nodeArray[i + 1][j + 1], nodeArray[i][j], Math.sqrt(2)));
                             }
                         }
                     }
@@ -109,12 +107,10 @@ public class World {
                     if (i < sideLength - 1) {
                         if (floorPlan[i + 1][j] == 0) {
                             edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j], 1));
-                            edges.add(new Edge(nodeArray[i + 1][j], nodeArray[i][j], 1));
                         }
                         // check bottom left
                         if (j != 0 && floorPlan[i + 1][j - 1] == 0) {
                             edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j - 1], Math.sqrt(2)));
-                            edges.add(new Edge(nodeArray[i + 1][j - 1], nodeArray[i][j], Math.sqrt(2)));
                         }
                     }
                 }

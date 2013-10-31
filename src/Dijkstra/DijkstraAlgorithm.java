@@ -51,6 +51,9 @@ public class DijkstraAlgorithm {
             if (edge.getSource().equals(node)
                     && edge.getDestination().equals(target)) {
                 return edge.getWeight();
+            } else if (edge.getDestination().equals(node)
+                    && edge.getSource().equals(target)) {
+                return edge.getWeight();
             }
         }
         throw new RuntimeException("Should not happen");
@@ -62,6 +65,9 @@ public class DijkstraAlgorithm {
             if (edge.getSource().equals(node)
                     && !isSettled(edge.getDestination())) {
                 neighbors.add(edge.getDestination());
+            } else if (edge.getDestination().equals(node)
+                    && !isSettled(edge.getSource())) {
+                neighbors.add(edge.getSource());
             }
         }
         return neighbors;
