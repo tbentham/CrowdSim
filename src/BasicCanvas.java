@@ -14,14 +14,14 @@ public class BasicCanvas {
         world.printFloorPlan();
         world.computeDijsktraTowards(0, 2);
         Thread.sleep(5);
-        LinkedList<Vertex> path = world.getPath(2, 2).getVertices();
+        LinkedList<Vertex> path = world.getPath(0, 1).getVertices();
         for (Vertex v : path) {
             System.out.println(v);
         }
         System.out.println();
         System.out.println("Subgoals:");
 
-        LinkedList<Vertex> path2 = world.getPath(2, 2).getSubGoals();
+        LinkedList<Vertex> path2 = world.getPath(0, 1).getSubGoals();
         for (Vertex v : path2) {
             System.out.println(v);
         }

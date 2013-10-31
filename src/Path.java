@@ -5,11 +5,11 @@ import java.util.List;
 
 public class Path {
     private LinkedList<Vertex> vertices;
-    private LinkedList<Vertex> subGoals;
+    private LinkedList<Vertex> subgoals;
 
     public Path(List<Vertex> vertexList) {
         vertices = new LinkedList<Vertex>();
-        subGoals = new LinkedList<Vertex>();
+        subgoals = new LinkedList<Vertex>();
         vertices.addAll(vertexList);
         generateSubGoals();
     }
@@ -19,7 +19,7 @@ public class Path {
     }
 
     public LinkedList<Vertex> getSubGoals() {
-        return subGoals;
+        return subgoals;
     }
 
     private void generateSubGoals() {
@@ -49,16 +49,16 @@ public class Path {
 
                 // if either has changed, add a subgoal
                 if (curDiffX != lastDiffX || curDiffY != lastDiffY) {
-                    subGoals.add(lastVertex);
+                    subgoals.add(lastVertex);
                     //System.out.print("Added: "+lastVertex.toString());
                 }
 
                 //System.out.println();
             }
         }if (vertices.size() > 1) {
-            subGoals.add(vertices.get(vertices.size() - 1));
+            subgoals.add(vertices.get(vertices.size()-1));
         } else {
-            System.err.println("Not enough vertices in list to generate sub-goals from.");
+            System.err.println("No vertices in list to generate sub-goals from.");
         }
     }
 }
