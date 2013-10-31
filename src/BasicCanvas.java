@@ -1,30 +1,25 @@
 import Dijkstra.Vertex;
 
-import java.util.LinkedList;
+import java.util.Collections;
 
 public class BasicCanvas {
 
     public static void main(String[] args) throws Exception {
         double d = System.currentTimeMillis();
 
-        World world = new World(3);
-        world.addWall(1, 1, 1, 2);
+        World world = new World(5);
 
         world.setUp();
         world.printFloorPlan();
-        world.computeDijsktraTowards(0, 2);
-        Thread.sleep(5);
-        LinkedList<Vertex> path = world.getPath(0, 1).getVertices();
-        for (Vertex v : path) {
+        world.computeDijsktraTowards(4, 4);
+        Person p1 = new Person(1, 1);
+        p1.goalList = world.getPath(1, 1).getVertices();
+        Collections.reverse(p1.goalList);
+        for (Vertex v : p1.goalList) {
             System.out.println(v);
         }
-        System.out.println();
-        System.out.println("Subgoals:");
 
-        LinkedList<Vertex> path2 = world.getPath(0, 1).getSubGoals();
-        for (Vertex v : path2) {
-            System.out.println(v);
-        }
+        System.out.println(p1.desiredMotion());
 
         System.out.println("Executed in: " + (System.currentTimeMillis() - d) + "ms");
     }
