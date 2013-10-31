@@ -12,7 +12,6 @@ public class BasicCanvas {
         world.addWall(40, 1, 40, 40);
         world.addWall(40, 40, 1, 40);
         world.addWall(1, 40, 1, 1);
-        world.addWall(1, 15, 30, 15);
 
         world.populateFloorPlan();
         world.populateVertexArray();
