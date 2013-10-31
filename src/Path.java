@@ -1,5 +1,6 @@
 import Dijkstra.Vertex;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class Path {
         vertices = new LinkedList<Vertex>();
         subgoals = new LinkedList<Vertex>();
         vertices.addAll(vertexList);
+        Collections.reverse(vertices);
         generateSubGoals();
     }
 
@@ -55,8 +57,9 @@ public class Path {
 
                 //System.out.println();
             }
-        }if (vertices.size() > 1) {
-            subgoals.add(vertices.get(vertices.size()-1));
+        }
+        if (vertices.size() > 1) {
+            subgoals.add(vertices.get(vertices.size() - 1));
         } else {
             System.err.println("No vertices in list to generate sub-goals from.");
         }

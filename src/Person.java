@@ -7,7 +7,7 @@ import java.util.LinkedList;
 public class Person {
 
     public Point2d location;
-    private double size = 5.0;
+    private double size = 2.0;
     public Point2d goal;
     public boolean goalSet;
     public LinkedList<Vertex> goalList;
@@ -18,7 +18,7 @@ public class Person {
         location = new Point2d(x1, y1);
         goalSet = false;
         goalList = new LinkedList<Vertex>();
-        desiredSpeed = 10;
+        desiredSpeed = 5;
         currentVelocity = new Vector2d(0, 0);
     }
 
@@ -48,7 +48,7 @@ public class Person {
     }
 
     public Vector2d desiredMotion() {
-        Vertex nextGoal = goalList.get(1);
+        Vertex nextGoal = goalList.get(0);
         Vector2d currentVector = new Vector2d(location);
         Vector2d nextGoalVector = new Vector2d(nextGoal.getX(), nextGoal.getY());
         nextGoalVector.sub(currentVector);
@@ -58,6 +58,14 @@ public class Person {
         nextGoalVector.sub(currentVelocity);
         nextGoalVector.scale(1 / 4.0);
         return nextGoalVector;
+    }
+
+    public void advance() {
+        if (location.distance(new Point2d(goalList.get(0).getX(), goalList.get(0).getY())) < size) {
+            return;
+        }
+        currentVelocity.add(desiredMotion());
+        location.add(currentVelocity);
     }
 
 }
