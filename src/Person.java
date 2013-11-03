@@ -8,9 +8,11 @@ public class Person {
 
     public Point2d location;
     private double size = 2.0;
+
     public Point2d goal;
     public boolean goalSet;
     public LinkedList<Vertex> goalList;
+
     public double desiredSpeed;
     public Vector2d currentVelocity;
 
@@ -49,21 +51,20 @@ public class Person {
 
     public Vector2d desiredMotion() {
         Vertex nextGoal = goalList.get(0);
-        Vector2d currentVector = new Vector2d(location);
         Vector2d nextGoalVector = new Vector2d(nextGoal.getX(), nextGoal.getY());
+
+        Vector2d currentVector = new Vector2d(location);
         nextGoalVector.sub(currentVector);
-        double length = nextGoalVector.length();
-        nextGoalVector.scale(1 / length);
-        nextGoalVector.scale(desiredSpeed);
+        nextGoalVector.scale(desiredSpeed / nextGoalVector.length());
+
         nextGoalVector.sub(currentVelocity);
         nextGoalVector.scale(1 / 4.0);
         return nextGoalVector;
     }
 
     public void advance() {
-        if (location.distance(new Point2d(goalList.get(0).getX(), goalList.get(0).getY())) < size) {
+        if (location.distance(new Point2d(goalList.get(0).getX(), goalList.get(0).getY())) < size)
             return;
-        }
         currentVelocity.add(desiredMotion());
         location.add(currentVelocity);
     }
