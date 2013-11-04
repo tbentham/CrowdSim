@@ -50,7 +50,7 @@ public class Wall implements BuildingObject {
     }
 
     public boolean touches(Person person) {
-        return person.getRadius() > distance(person);
+        return (person.getSize() / 2.0) > distance(person);
     }
     
     public Vector2d getStartVector() {

@@ -1,5 +1,7 @@
 package Dijkstra;
 
+import javax.vecmath.Point2d;
+
 public class Vertex {
     private String id;
 
@@ -55,6 +57,10 @@ public class Vertex {
     @Override
     public String toString() {
         return "("+x+", "+y+")";
+    }
+
+    public Point2d toPoint2d() {
+        return (new Point2d(x, y));
     }
 
 } 
