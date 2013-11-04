@@ -54,7 +54,7 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return "Vertex at: ("+x+", "+y+")";
+        return "("+x+", "+y+")";
     }
 
 } 
