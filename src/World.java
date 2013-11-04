@@ -9,38 +9,45 @@ import java.util.List;
 
 public class World {
 
+    private int sideLength;
+
     private List<Wall> walls;
     private int[][] floorPlan;
-    private int sideLength;
+
+    private Vertex[][] nodeArray;
     private List<Vertex> nodes;
     private List<Edge> edges;
-    private Vertex[][] nodeArray;
+
     private DijkstraAlgorithm dijkstra;
-    private boolean setUp;
+    
+    private boolean isSetUp;
     private boolean routesComputed;
 
     public World(int sideLength) {
         this.sideLength = sideLength;
+        
         walls = new ArrayList<Wall>();
         floorPlan = new int[sideLength][sideLength];
+        
+        nodeArray = new Vertex[sideLength][sideLength];
         nodes = new ArrayList<Vertex>();
         edges = new ArrayList<Edge>();
-        nodeArray = new Vertex[sideLength][sideLength];
-        setUp = false;
+        
+        isSetUp = false;
         routesComputed = false;
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
-        setUp = false;
+        isSetUp = false;
         routesComputed = false;
         walls.add(new Wall(x1, y1, x2, y2));
     }
 
     public void setUp() {
         populateFloorPlan();
-        populateVertexArray();
+        populateNodeArray();
         createEdges();
-        setUp = true;
+        isSetUp = true;
         routesComputed = false;
     }
 
@@ -60,27 +67,22 @@ public class World {
     }
 
     public void printFloorPlan() throws WorldNotSetUpException {
-        if (!setUp) {
+        if (!isSetUp)
             throw new WorldNotSetUpException("printFloorPlan called before setting up world");
-        }
         for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
+            for (int j = 0; j < sideLength; j++)
                 System.out.print(floorPlan[i][j]);
-                if (j == (sideLength - 1)) {
-                    System.out.println("");
-                }
-            }
+            System.out.println();
         }
     }
 
-    private void populateVertexArray() {
+    private void populateNodeArray() {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
                 nodeArray[i][j] = null;
                 if (floorPlan[i][j] == 0) {
-                    Vertex location = new Vertex(i, j);
-                    nodes.add(location);
-                    nodeArray[i][j] = location;
+                	nodeArray[i][j] = new Vertex(i, j);
+                    nodes.add(nodeArray[i][j]);
                 }
             }
         }
@@ -90,26 +92,25 @@ public class World {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
                 if (floorPlan[i][j] == 0) {
-                    // check right
-                    // if not at far right edge
+                    // if not at right-most node
                     if (j < (sideLength - 1)) {
+                        // check right
                         if (floorPlan[i][j + 1] == 0) {
                             edges.add(new Edge(nodeArray[i][j], nodeArray[i][j + 1], 1));
                         }
                         // check bottom right
-                        if (i < (sideLength - 1)) {
-                            if (floorPlan[i + 1][j + 1] == 0) {
-                                edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j + 1], Math.sqrt(2)));
-                            }
+                        if (i < (sideLength - 1) && floorPlan[i + 1][j + 1] == 0) {
+                            edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j + 1], Math.sqrt(2)));
                         }
                     }
-                    // check bottom
+                    // if not at bottom node
                     if (i < sideLength - 1) {
+                        // check bottom
                         if (floorPlan[i + 1][j] == 0) {
                             edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j], 1));
                         }
                         // check bottom left
-                        if (j != 0 && floorPlan[i + 1][j - 1] == 0) {
+                        if (j > 0 && floorPlan[i + 1][j - 1] == 0) {
                             edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j - 1], Math.sqrt(2)));
                         }
                     }
@@ -119,20 +120,16 @@ public class World {
     }
 
     public void computeDijsktraTowards(int x, int y) throws WorldNotSetUpException {
-        if (!setUp) {
+        if (!isSetUp)
             throw new WorldNotSetUpException("computerDijsktraTowards called before setting up world");
-        }
-        Graph graph = new Graph(nodes, edges);
-        dijkstra = new DijkstraAlgorithm(graph);
+        dijkstra = new DijkstraAlgorithm(new Graph(nodes, edges));
         dijkstra.execute(nodeArray[x][y]);
         routesComputed = true;
     }
 
-
     public Path getPath(int x, int y) throws RoutesNotComputedException {
-        if (!routesComputed) {
+        if (!routesComputed)
             throw new RoutesNotComputedException("getPath called before routes were computed");
-        }
         return new Path(dijkstra.getPath(nodeArray[x][y]));
     }
 

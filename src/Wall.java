@@ -3,43 +3,34 @@ import javax.vecmath.Vector2d;
 
 public class Wall implements BuildingObject {
 
-    public Vector2d startVector;
-    public double startX;
-    public double startY;
-    public double endX;
-    public double endY;
-    public Vector2d endVector;
-
+    private Vector2d startVector;
+    private Vector2d endVector;
+    
     public Wall(double x1, double y1, double x2, double y2) {
         startVector = new Vector2d(x1, y1);
         endVector = new Vector2d(x2, y2);
-        startX = x1;
-        startY = y1;
-        endX = x2;
-        endY = y2;
     }
 
-
     public double distance(Person person) {
-        Vector2d v = new Vector2d(endX, endY);
-        v.sub(new Vector2d(startX, startY));
+        Vector2d v = new Vector2d(endVector);
+        v.sub(new Vector2d(startVector));
         double l2 = v.lengthSquared();
         if (l2 == 0.0) {
-            return person.getLocation().distance(new Point2d(startX, startY));
+            return person.getLocation().distance(new Point2d(startVector));
         }
         Vector2d p = new Vector2d(person.getLocation());
-        v = new Vector2d(startX, startY);
+        v = new Vector2d(startVector);
         p.sub(v);
-        Vector2d w = new Vector2d(endX, endY);
+        Vector2d w = new Vector2d(endVector);
         w.sub(v);
         double t = p.dot(w) / l2;
         if (t < 0.0) {
-            return person.getLocation().distance(new Point2d(startX, startY));
+            return person.getLocation().distance(new Point2d(startVector));
         } else if (t > 1.0) {
-            return person.getLocation().distance(new Point2d(endX, endY));
+            return person.getLocation().distance(new Point2d(endVector));
         }
-        v = new Vector2d(startX, startY);
-        w = new Vector2d(endX, endY);
+        v = new Vector2d(startVector);
+        w = new Vector2d(endVector);
         w.sub(v);
         w.scale(t);
         w.add(v);
@@ -54,12 +45,20 @@ public class Wall implements BuildingObject {
         return distance(new Person(points[0], points[1]));
     }
 
-    public boolean touches(Point2d point2d, double size) {
-        return size > distance(point2d);
+    public boolean touches(Point2d point2d, double radius) {
+        return radius > distance(point2d);
     }
 
     public boolean touches(Person person) {
-        return person.getSize() > distance(person);
+        return person.getRadius() > distance(person);
+    }
+    
+    public Vector2d getStartVector() {
+    	return startVector;
+    }
+
+    public Vector2d getEndVector() {
+    	return endVector;
     }
 
 }

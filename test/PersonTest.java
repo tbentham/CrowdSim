@@ -16,9 +16,9 @@ public class PersonTest {
     @Test
     public void setGoalSetsBooleanAndCorrectGoal() {
         person.setGoal(2.0, 2.0);
-        assertTrue(person.goal.x == 2.0);
-        assertTrue(person.goal.y == 2.0);
-        assertTrue(person.goalSet);
+        assertTrue(person.getGoal().x == 2.0);
+        assertTrue(person.getGoal().y == 2.0);
+        assertTrue(person.isGoalSet());
     }
 
     @Test
@@ -36,9 +36,9 @@ public class PersonTest {
     }
 
     @Test
-    public void hasGoalReturnsCorrectAnswer() {
-        assertFalse(person.hasGoal());
+    public void isGoalSetReturnsCorrectAnswer() {
+        assertFalse(person.isGoalSet());
         person.setGoal(2, 2);
-        assertTrue(person.hasGoal());
+        assertTrue(person.isGoalSet());
     }
 }
