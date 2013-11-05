@@ -5,7 +5,7 @@ public class BasicCanvas {
     public static void main(String[] args) throws Exception {
         double d = System.currentTimeMillis();
 
-        World world = new World(10);
+        World world = new World(100);
 
         world.setUp();
         world.printFloorPlan();
