@@ -1,0 +1,43 @@
+<!doctype html>
+
+<html>
+<head>
+	<title>CrowdSim Client</title>
+	<link rel="stylesheet" type="text/css" href="client.css">
+	<script src="scripts/jquery.js"></script>
+	<script src="scripts/interface.js"></script>
+	<script src="scripts/canvas.js"></script>
+	<script src="scripts/json.js"></script>
+	<script src="scripts/json.js"></script>
+	<script src="resources/easeljs.js"></script>
+	<script src="resources/jquery.min.js"></script>
+</head>
+
+<body onload="javascript:init()">
+	<script type="text/javascript">
+	  function readSingleFile(evt) {
+	    //Retrieve the first (and only!) File from the FileList object
+	    var f = evt[0]; 
+
+	    alert(f.name);
+	  }
+	</script>
+
+    <div id="main">
+    	<canvas id="mainCanvas" height="300" width="300"> </canvas>
+    </div>
+
+    <div id="panel">
+    	<input type="file" id="fileinput" onchange="readSingleFile(this.files);">
+    	OPTIONS PANEL (?)
+
+        <!-- Can we have some canvas controls somewhere? somwehre to clear the canvas, load previously made canvases, and have sliders to control certain drawing variables e.g. line thickness. -->
+    	<div id="simulatebutton">
+    		SIMULATE
+    	</div>
+    	<div id="evacuatebutton">
+    		EVACUATE
+    	</div>
+    </div>
+</body>
+</html>
