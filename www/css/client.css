@@ -1,0 +1,57 @@
+body {
+	margin: 0px 0px 0px 0px;
+	background-color: #EFEFEF;
+	font-family: calibri;
+}
+
+#main {
+	position: fixed;
+	margin: 0px 0px 0px 0px;
+	top: 0%;
+	right: 20%;
+	bottom: 0%;
+	left: 0%;
+}
+
+#panel {
+	border-left: 2px solid black;
+	position: absolute;
+	margin: 0px 0px 0px 0px;
+	top: 0%;
+	right: 0%;
+	bottom: 0%;
+	left: 80%;
+	background-color: #FFFFFF;
+}
+
+#generalControls {
+	margin: 0px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid black;
+	text-align: center;
+}
+
+#specificControls {
+	margin: 0px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid black;
+	text-align: center;
+}
+
+#dragItems {
+	padding-left: 4px;
+}
+
+#simulationButtons {
+	padding-left: 4px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	margin: 0px 0px 0px 0px;
+	text-align: center;
+}
+
+#canvasControls{
+	padding-top: 20px;
+}

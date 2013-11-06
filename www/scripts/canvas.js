@@ -1,45 +1,93 @@
-
 var stage;
-var lines = new Array();
-var endOfArray = -1;  // TODO: Fix this hacky as hell "tail access"
-var id = 0;
+
+//These two arrays are counterparts.
+//The features array consists of custom objects defining the items a user has drawn on the canvas.
+//The canvasFeatures array consists of the canvas objects which display the features on screen.
+var features = new Array();
+var canvasFeatures = new Array();
+var endOfArray = -1;  //For "tail" access
+
+var featureID = 0;
 var click = false;
 var angle = 0;
+var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
 
-var drawModes = new Array(); // Check if JS requires this to be present for the script to load properly, otherwise, initialise and fill this at the end of script.
+//This ought to be removed when the GET json from server is done.
+var jsonstring = '[[{"x":100,"y":100},{"x":300,"y":100},{"x":400,"y":400}], [{"x":102,"y":100},{"x":304,"y":100},{"x":400,"y":406}], [{"x":104,"y":100},{"x":306,"y":100},{"x":400,"y":408}], [{"x":104,"y":102},{"x":308,"y":100},{"x":404,"y":410}]]'
+var people = JSON.parse(jsonstring);
+var canvasPeople = new Array();
 
 function init() {
-    //Add some shit here about loading people.
+
     stage = new createjs.Stage("mainCanvas");
     drawMode(0);
     stage.update();
 }
 
+// Need some connection shit before this happens, the JSON needs to come from the server. It is currently in a file.
+function populate(time){
+
+    //Remove existing people on canvas
+    if(canvasPeople){
+        for(var i = 0; i < canvasPeople.length; i++){
+            canvasPeople[i].graphics.clear();
+        }
+    }
+
+    //Clear record of people on canvas
+    canvasPeople = new Array();
+
+    for(var i = 0; i < people[time].length; i++){
+        s = new createjs.Shape(); canvasPeople.push(s);
+        s.graphics.beginFill("black").drawCircle(people[time][i].x, people[time][i].y, 5);
+        stage.addChild(s); 
+    }
+
+    stage.update();
+}
+
+//This whole drawmodes thing is silly, because I still have to manually define which events are attached to what. Investigate the event listeners and see if they can be stored and added to the stage as objects without calling this method.
 function drawMode(mode){
-    console.log("Changing to draw mode " + mode.toString());
+
     if(mode == 0){
         stage.removeAllEventListeners();
-        stage.addEventListener("stagemousedown", drawModes[mode][0]);
-        stage.addEventListener("stagemousemove", drawModes[mode][1]);
-        stage.addEventListener("stagemouseup", drawModes[mode][2]);   
+        stage.addEventListener("stagemousedown", startLine);
+        stage.addEventListener("stagemousemove", drawLine);
+        stage.addEventListener("stagemouseup", endLine);   
     }
     else if(mode == 1){
         stage.removeAllEventListeners();
         stage.addEventListener("stagemousedown", drawDoor);
 	    stage.addEventListener("stagemousemove", mouseDoor);
     }
+    else if(mode == 99){
+        stage.removeAllEventListeners();
 
+        for(var i = 0; i < canvasFeatures.length; i++){
+            canvasFeatures[i].addEventListener("click", removeItem);
+        }
+    }
 }
 
-// Cannot implement wall highlighting or checking since canvas walls are NOT vector objects. This might also become a pain when it comes to clipping.
+function removeItem(e){
+
+    for(var i = 0; i < canvasFeatures.length; i++){
+        if(canvasFeatures[i].id == e.currentTarget.id){
+            stage.removeChild(canvasFeatures[i]);
+        }
+    }
+    stage.update();
+}
+
+// Can maybe do wall highlighting, with some computation.
 function mouseDoor(e){
 
     if(cursorItem)cursorItem.graphics.clear();
     cursorItem = new createjs.Shape();
 
     //Find the coordinates of a door after it has been rotated, remember to add StageX and Y to translate from the origin to the mouse pointer.
-    //TODO: consider a translation method, this way I can keep all the graphics transformations in one tidy place.
+    //TODO: consider a translation method, this way we can keep all the graphics transformations in one tidy place.
     var from = spin(new Coordinate(-25, 0), angle); from[0] = from[0] + e.stageX; from[1] = from[1] + e.stageY;
     var to = spin(new Coordinate(25, 0), angle); to[0] = to[0] + e.stageX; to[1] = to[1] + e.stageY;
 
@@ -55,6 +103,8 @@ function mouseDoor(e){
 
 function drawDoor(e){
 
+    //If we can draw the door in one go without multiple canvas objects, it can deleted in one go.
+
     door = new createjs.Shape();
     arc = new createjs.Shape();
 
@@ -66,16 +116,21 @@ function drawDoor(e){
     var arcthrough = spin(new Coordinate(25, 50), angle); arcthrough[0] = arcthrough[0] + e.stageX; arcthrough[1] = arcthrough[1] + e.stageY;
 
     if(e.nativeEvent.shiftKey){
-        door.graphics.beginStroke("rgba(125,170,195,1)").moveTo(Math.round(hinge[0]/50)*50, Math.round(hinge[1]/50)*50).lineTo(Math.round(open[0]/50)*50, Math.round(open[1]/50)*50).endStroke();
-        arc.graphics.beginStroke("rgba(125,170,195,1)").moveTo(Math.round(open[0]/50)*50, Math.round(open[1]/50)*50).arcTo(Math.round(arcthrough[0]/50)*50, Math.round(arcthrough[1]/50)*50, Math.round(close[0]/50)*50, Math.round(close[1]/50)*50, 50).endStroke();
+        // Call the cops.
+        door.graphics.beginStroke("rgba(125,170,195,1)").moveTo(Math.round(hinge[0]/50)*50, Math.round(hinge[1]/50)*50).lineTo(Math.round(open[0]/50)*50, Math.round(open[1]/50)*50).arcTo(Math.round(arcthrough[0]/50)*50, Math.round(arcthrough[1]/50)*50, Math.round(close[0]/50)*50, Math.round(close[1]/50)*50, 50).endStroke();
     }
     else{
-        door.graphics.beginStroke("rgba(125,170,195,1)").moveTo(hinge[0], hinge[1]).lineTo(open[0], open[1]).endStroke();
-        arc.graphics.beginStroke("rgba(125,170,195,1)").moveTo(open[0], open[1]).arcTo(arcthrough[0], arcthrough[1], close[0], close[1], 50).endStroke();
+        door.graphics.beginStroke("rgba(125,170,195,1)").moveTo(hinge[0], hinge[1]).lineTo(open[0], open[1]).arcTo(arcthrough[0], arcthrough[1], close[0], close[1], 50).endStroke();
     }
    
+    d = new Feature(featureID, 1); featureID++;
+    d.setFromCoords(hinge[0], hinge[1]); 
+    d.setToCoords(close[0], close[1]);
+
+    features.push(d);
+    canvasFeatures.push(door);
+
     stage.addChild(door);
-    stage.addChild(arc);
     stage.update();
 }
 
@@ -84,20 +139,20 @@ function startLine(e){
     if(stage.mouseInBounds){
         click = true;
 
-        lines.push({line: new Feature(id, 0), lineShape: new createjs.Shape()});
-        endOfArray++; id++;
+        features.push(new Feature(featureID, 0));
+        canvasFeatures.push(new createjs.Shape());
+        endOfArray++; featureID++;
 
         if(e.nativeEvent.shiftKey){
-            console.log("Shift is down");
-            lines[endOfArray]["line"].setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
-            lines[endOfArray]["line"].setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            features[endOfArray].setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            features[endOfArray].setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
         }
         else{
-            lines[endOfArray]["line"].setFromCoords(e.stageX, e.stageY);
-            lines[endOfArray]["line"].setToCoords(e.stageX, e.stageY);
+            features[endOfArray].setFromCoords(e.stageX, e.stageY);
+            features[endOfArray].setToCoords(e.stageX, e.stageY);
         }
 
-        stage.addChild(lines[endOfArray]["lineShape"]);
+        stage.addChild(canvasFeatures[endOfArray]);
         stage.update();
     }
 }
@@ -109,19 +164,18 @@ function endLine(e){
         click = false;
 
         //Increases readability since they are accessed multiple times.
-        var line = lines[endOfArray]["line"];
-        var lineShape = lines[endOfArray]["lineShape"];
+        var line = features[endOfArray];
+        var canvasLine = canvasFeatures[endOfArray];
 
         if(e.nativeEvent.shiftKey){
-            console.log("Shift is down");
             line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
         }
         else{
             line.setToCoords(e.stageX, e.stageY);
         }
 
-        lineShape.graphics.clear();
-	lineShape.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
+        canvasLine.graphics.clear();
+	    canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
         stage.update();
     }
 }
@@ -131,29 +185,32 @@ function drawLine(e){
     if(click && stage.mouseInBounds){
 
         //Increases readability since they are accessed multiple times.
-        var line = lines[endOfArray]["line"];
-        var lineShape = lines[endOfArray]["lineShape"];
+        var line = features[endOfArray];
+        var canvasLine = canvasFeatures[endOfArray];
 
         if(e.nativeEvent.shiftKey){
-            console.log("Shift is down");
             line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
         }
         else{
             line.setToCoords(e.stageX, e.stageY);
         }
         
-        lineShape.graphics.clear();
-        lineShape.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
+        canvasLine.graphics.clear();
+        canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
         stage.update();
     }
 
 }
 
 function jsonDump(){
-    $(".undercanvas").empty();
-    for(var i = 0; i < lines.length; i++){
-        $(".undercanvas").append("<br/>" + JSON.stringify(lines[i]["line"]));
+
+    var s = "";
+
+    for(var i = 0; i < features.length; i++){
+        s = s.concat(JSON.stringify(features[i]));
     }
+
+    return s
 }
 
 function clearCanvas(){
@@ -162,25 +219,30 @@ function clearCanvas(){
         stage.children[i].graphics.clear();
     }
     
-    lines = new Array();
+    features = new Array();
+    canvasFeatures = new Array();
     endOfArray = -1;
     stage.update();
 }
 
 // 2D rotation of a pair of coordinates. Some graphics shit.
-// This certainly needs a test.
 function spin(coord, angle){
     //TODO: change this to return type COORDINATE - otherwise developers will begin to feel uncertain about things whilst pouring their coffee.
     return[Math.cos(angle)*coord.getX() +((-Math.sin(angle))*coord.getY()), Math.sin(angle)*coord.getX() + Math.cos(angle)*coord.getY()]
 }
 
-//Temporary function used by the canvas control button to spin shit.
+// Function used by the html to increment the angle variable, to change the way objects appear on the canvas. This has nothing to do with the rotation of coordinates.
 //TODO: hotkey this and make it finer opposed to 90 degree jumps.
 function rotate(){
     angle = (angle + Math.PI/2)%(Math.PI*2);
     console.log(angle.toString());
 }
 
-drawModes.push([startLine, drawLine, endLine]);
-drawModes.push([startLine, drawLine, endLine]); //This will eventually be some other drawing mode, and won't always be a series of pushes for each drawing mode.
+//These functions are responsible for GET-ing and POST-ing.
+function sendFeatures(){
+    //some $.post
+}
 
+function getPeople(){
+    //some $.get
+}

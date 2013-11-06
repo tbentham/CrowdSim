@@ -3,41 +3,46 @@
 <html>
 <head>
 	<title>CrowdSim Client</title>
-	<link rel="stylesheet" type="text/css" href="client.css">
-	<script src="scripts/jquery.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/client.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+
+	<script src="resources/jquery.min.js"></script>
+	<script src="scripts/person.js"></script>
+	<script src="scripts/json.js"></script>
 	<script src="scripts/interface.js"></script>
 	<script src="scripts/canvas.js"></script>
-	<script src="scripts/json.js"></script>
-	<script src="scripts/json.js"></script>
 	<script src="resources/easeljs.js"></script>
-	<script src="resources/jquery.min.js"></script>
+	
+
 </head>
 
 <body onload="javascript:init()">
-	<script type="text/javascript">
-	  function readSingleFile(evt) {
-	    //Retrieve the first (and only!) File from the FileList object
-	    var f = evt[0]; 
-
-	    alert(f.name);
-	  }
-	</script>
-
     <div id="main">
     	<canvas id="mainCanvas" height="300" width="300"> </canvas>
     </div>
 
     <div id="panel">
-    	<input type="file" id="fileinput" onchange="readSingleFile(this.files);">
-    	OPTIONS PANEL (?)
+    	<div id="simulationButtons">
+    		<button type="button" class="btn btn-lg btn-success" onclick="simulate()">Simulate</button>
+        	<button type="button" class="btn btn-lg btn-danger" onclick="evacuate()">Evacuate</button>
+    	</div>
 
-        <!-- Can we have some canvas controls somewhere? somwehre to clear the canvas, load previously made canvases, and have sliders to control certain drawing variables e.g. line thickness. -->
-    	<div id="simulatebutton">
-    		SIMULATE
+    	<div id="generalControls">
+    		<button class="btn btn-sm btn-warning" onclick="clearCanvas()">Clear Canvas</button>
+    		<button class="btn btn-sm btn-primary" onclick="populate(++time)">TimeStep</button>
+    		<!-- Feel free to move this to somewhere you feel it belongs. -->
+    		<button class="btn btn-sm btn-primary" onclick="drawMode(99)">Kill Mode</button>
     	</div>
-    	<div id="evacuatebutton">
-    		EVACUATE
-    	</div>
+
+        <div id="specificControls">
+        	<div id="doorControls"> <button class="btn btn-sm btn-primary" onclick="rotate()">+90</button> </div>
+        	<div id="wallControls"> WALL STUFF </div>
+        </div>
+
+        <div id="dragItems"></div>
+
+    	
     </div>
 </body>
 </html>

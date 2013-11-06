@@ -2,9 +2,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import java.io.IOException;
+
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.*;
 
 public class JettyExample extends AbstractHandler {
 	
@@ -13,7 +18,6 @@ public class JettyExample extends AbstractHandler {
 	private Cobject[] objs;
 	private boolean newObjs = false;
 	
-    @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
          
         if(baseRequest.getMethod() == "POST" && baseRequest.getParameter("objects") != null){
@@ -29,12 +33,13 @@ public class JettyExample extends AbstractHandler {
         	
         	newObjs = true;
         	
+            response.setContentType("text/html;charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+            baseRequest.setHandled(true);
+        	
         }
-        response.setContentType("text/html;charset=utf-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        baseRequest.setHandled(true);
         
-        response.getWriter().println(SUBMIT_PAGE);
+//        response.getWriter().println(SUBMIT_PAGE);
     }
  
     public Cobject[] getLatestObjs(){
@@ -48,7 +53,27 @@ public class JettyExample extends AbstractHandler {
     
     public static void main(String[] args) throws Exception {
         Server server = new Server(8383);
-        server.setHandler(new JettyExample());
+        
+        ResourceHandler staticFiles = new ResourceHandler();
+        
+//        ContextHandler cont1 = new ContextHandler();
+//        cont1.setContextPath("/");
+        
+        //Create a handler for jetty to serve static files
+        staticFiles.setDirectoriesListed(true);
+        staticFiles.setWelcomeFiles(new String[]{"client.html"});
+        staticFiles.setResourceBase("./www");
+        
+//        cont1.setHandler(staticFiles);
+        
+        //List of handlers. Each get called in turn until baseRequest.setHandled is true or an exception is thrown.
+//        ContextHandlerCollection contexts = new ContextHandlerCollection();
+//        contexts.setHandlers(new Handler[]{ cont1 });
+        
+        HandlerList handlers = new HandlerList();
+        handlers.setHandlers(new Handler[]{ staticFiles});
+        server.setHandler(handlers);
+
         server.start();
         server.join();
     }
