@@ -28,7 +28,7 @@ public class BasicCanvas {
         for(Person p : people)
             System.out.println(p.getLocation());
 
-        for(int i = 0; i < 20; i++) {
+        for(int i = 0; i < 15; i++) {
             for(Person p : people)
                 p.advance(people);
             System.out.println();

@@ -26,7 +26,7 @@ public class Person {
     }
 
     private void goalUpdate() {
-        while (goalList.size() > 1 && location.distance(goalList.get(0).toPoint2d()) <= (size / 2.0)) {
+        while (goalList.size() > 0 && location.distance(goalList.get(0).toPoint2d()) <= (size / 2.0)) {
             goalList.remove(0);
         }
     }
@@ -34,15 +34,16 @@ public class Person {
     public Point2d advance(ArrayList<Person> people) {
     	goalUpdate();
         
-        if (goalList.size() > 0 && location.distance(goalList.get(0).toPoint2d()) > (size / 2.0))
+        if (goalList.size() > 0) {
             actualVelocity.add(desiredAcceleration());
         
-        for (Person p : people) {
-            if (this != p)
-                actualVelocity.add(socialForce(p));
-        }
+            for (Person p : people) {
+            	if (this != p)
+            		actualVelocity.add(socialForce(p));
+            }
         
-        location.add(actualVelocity);
+            location.add(actualVelocity);
+        }
 
         goalUpdate();
         
@@ -73,7 +74,7 @@ public class Person {
 
     public double getNextSpeed() {
         goalUpdate();
-        if (goalList.size() == 1 && location.distance(goalList.get(0).toPoint2d()) <= (size / 2.0))
+        if (goalList.size() == 0)
         	return 0;
         Vector2d nextVelocity = new Vector2d(actualVelocity);
         nextVelocity.add(desiredAcceleration());
