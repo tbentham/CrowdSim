@@ -33,8 +33,11 @@ public class BasicCanvas {
             for(Person p : people) {
                 p.advance(people);
             }
+        }
+
+        for(int i = 0; i < 10; i++) {
             for(Person p : people) {
-                System.out.println(p.getLocation());
+                System.out.println(p.locations.get(i));
             }
         }
 

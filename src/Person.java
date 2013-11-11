@@ -14,8 +14,12 @@ public class Person {
     private double desiredSpeed;
     private Vector2d actualVelocity;
 
+    public ArrayList<Point2d> locations;
+
     public Person(double x1, double y1) {
         location = new Point2d(x1, y1);
+        locations = new ArrayList<Point2d>();
+        locations.add(location);
         size = 4;
 
         goalList = new LinkedList<Vertex>();
@@ -75,6 +79,7 @@ public class Person {
             location.add(actualVelocity);
         }
         goalUpdate();
+        locations.add(location);
         return location;
     }
 
