@@ -1,0 +1,49 @@
+<!doctype html>
+
+<html>
+<head>
+	<title>CrowdSim Client</title>
+	<link rel="stylesheet" type="text/css" href="css/client.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+
+	<script src="resources/jquery.min.js"></script>
+	<script src="scripts/person.js"></script>
+	<script src="scripts/json.js"></script>
+	<script src="scripts/interface.js"></script>
+	<script src="scripts/canvas.js"></script>
+	<script src="resources/easeljs.js"></script>
+	
+
+</head>
+
+<body onload="javascript:init()">
+    <div id="main">
+    	<canvas id="mainCanvas" height="300" width="300"> </canvas>
+    </div>
+
+    <div id="panel">
+    	<div id="simulationButtons">
+    		<button type="button" class="btn btn-lg btn-success" onclick="simulate()">Simulate</button>
+        	<button type="button" class="btn btn-lg btn-danger" onclick="evacuate()">Evacuate</button>
+    	</div>
+
+    	<div id="generalControls">
+    		<button class="btn btn-sm btn-warning" onclick="clearCanvas()">Clear Canvas</button>
+    		<button class="btn btn-sm btn-primary" onclick="populate(++time)">TimeStep</button>
+    		<!-- Feel free to move this to somewhere you feel it belongs. -->
+    		<button class="btn btn-sm btn-primary" onclick="drawMode(99)">Kill Mode</button>
+            <button class="btn btn-sm btn-primary" onclick="sendFeatures()">Send</button>
+    	</div>
+
+        <div id="specificControls">
+        	<div id="doorControls"> <button class="btn btn-sm btn-primary" onclick="rotate()">+90</button> </div>
+        	<div id="wallControls"> WALL STUFF </div>
+        </div>
+
+        <div id="dragItems"></div>
+
+    	
+    </div>
+</body>
+</html>
