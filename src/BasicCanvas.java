@@ -33,9 +33,9 @@ public class BasicCanvas {
                 p.advance(people, 0.1);
             if ( i % 10 == 9 ) {
             	System.out.println();
-            	System.out.println("Step " + (i+1) + " (Simulated time: " + (i+1)/10 + "s)");
+            	System.out.println("Step " + (i+1) + " (Simulated time: " + (i+1)*0.1 + "s)");
             	for(Person p : people)
-                System.out.println(p.getLocation());
+            		System.out.println(p.getLocation());
             }
         }
 

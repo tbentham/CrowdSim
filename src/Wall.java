@@ -11,8 +11,44 @@ public class Wall implements BuildingObject {
         endVector = new Vector2d(x2, y2);
     }
 
+    public double distance(Point2d point) {    	
+    	// Get lengths of triangle
+    	Vector2d startToEnd = new Vector2d(endVector);
+    	startToEnd.sub(new Vector2d(startVector));
+    	double a = startToEnd.length();
+    	
+    	Vector2d startToPoint = new Vector2d(point);
+    	startToPoint.sub(new Vector2d(endVector));
+    	double b = startToPoint.length();
+    	
+    	Vector2d endToPoint = new Vector2d(point);
+    	endToPoint.sub(new Vector2d(startVector));
+    	double c = endToPoint.length();
+    	
+
+    	if (b < c)
+    		// Check if point is past start of wall
+    		if ( Math.acos((Math.pow(a,2) + Math.pow(b,2) - Math.pow(c,2)) / (2.0*a*b)) > Math.PI/2.0 )
+    			return b;
+    	else
+    		// Check if point is past end of wall
+    		if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
+    			return c;
+    	
+    	// Get distance to nearest point on wall (reusing variables)
+        a = startVector.getY() - endVector.getY();
+        b = endVector.getX() - startVector.getX();
+        c = startVector.getX()*endVector.getY() - endVector.getX()*startVector.getY();
+        
+        return Math.abs(a*point.getX() + b*point.getY() + c) / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+    }
+    
     public double distance(Person person) {
-        Vector2d v = new Vector2d(endVector);
+    	return distance(person.getLocation());
+    }
+    	
+/*
+    	Vector2d v = new Vector2d(endVector);
         v.sub(new Vector2d(startVector));
         double l2 = v.lengthSquared();
         if (l2 == 0.0) {
@@ -44,9 +80,47 @@ public class Wall implements BuildingObject {
         point2d.get(points);
         return distance(new Person(points[0], points[1]));
     }
+*/
 
-    public boolean touches(Point2d point2d, double radius) {
-        return radius > distance(point2d);
+    public Point2d nearestPoint(Point2d point) {
+    	// Get lengths of triangle
+    	Vector2d startToEnd = new Vector2d(endVector);
+    	startToEnd.sub(new Vector2d(startVector));
+    	double a = startToEnd.length();
+    	
+    	Vector2d startToPoint = new Vector2d(point);
+    	startToPoint.sub(new Vector2d(endVector));
+    	double b = startToPoint.length();
+    	
+    	Vector2d endToPoint = new Vector2d(point);
+    	endToPoint.sub(new Vector2d(startVector));
+    	double c = endToPoint.length();
+    	
+
+    	if (b < c)
+    		// Check if point is past start of wall
+    		if ( Math.acos((Math.pow(a,2) + Math.pow(b,2) - Math.pow(c,2)) / (2.0*a*b)) > Math.PI/2.0 )
+    			return new Point2d(startVector);
+    	else
+    		// Check if point is past end of wall
+    		if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
+    			return new Point2d(endVector);
+        
+    	// Get nearest point on line
+        double cosTheta = startToPoint.dot(startToEnd) / (a*b);
+        double aScaled = b * cosTheta;
+        startToEnd.scale(aScaled / a);
+        startToEnd.add(startVector);
+        
+        return new Point2d(startToEnd);
+    }
+    
+    public Point2d nearestPoint(Person person) {
+    	return nearestPoint(person.getLocation());
+    }        
+    
+    public boolean touches(Point2d point, double radius) {
+        return radius > distance(point);
     }
 
     public boolean touches(Person person) {

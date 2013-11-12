@@ -20,7 +20,7 @@ public class Person {
 
         goalList = new LinkedList<Vertex>();
 
-        desiredSpeed = 1.34;
+        desiredSpeed = 1.34;	// metres per second
         actualVelocity = new Vector2d(0, 0);
     }
 
@@ -92,6 +92,7 @@ public class Person {
         aVector.normalize();
         aVector.scale(d);
         
+        // Consider field of vision
         Vector2d direction = new Vector2d(actualVelocity);
         direction.normalize();       
         if (direction.dot(aVector) < aVector.length() * Math.cos(100 * Math.PI / 180))
@@ -114,8 +115,6 @@ public class Person {
         return Math.sqrt(squareRootMe) / 2.0;
     }
 
-
-/*
     public Vector2d obstacleAvoidance(Wall wall) {
         Vector2d aVector = new Vector2d(this.location);
         aVector.sub(new Vector2d(wall.nearestPoint(this)));
@@ -127,7 +126,6 @@ public class Person {
         
         return aVector;
     }
-*/
 
     public Point2d getNextGoal() {
         if (goalList.size() > 0)
