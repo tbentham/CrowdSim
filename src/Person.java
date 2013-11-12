@@ -20,7 +20,7 @@ public class Person {
 
         goalList = new LinkedList<Vertex>();
 
-        desiredSpeed = 5.0;
+        desiredSpeed = 1.34;
         actualVelocity = new Vector2d(0, 0);
     }
 
@@ -29,7 +29,7 @@ public class Person {
             goalList.remove(0);
     }
 
-    public Point2d advance(ArrayList<Person> people) {
+    public Point2d advance(ArrayList<Person> people, double timeStep) {
     	goalUpdate();
         
         if (goalList.size() > 0) {
@@ -37,13 +37,16 @@ public class Person {
         
             for (Person p : people) {
             	if (this != p)
-            		actualVelocity.add(socialForce(p));
+            		actualVelocity.add(socialForce(p, timeStep));
             }
+            
+            Vector2d motion = new Vector2d(actualVelocity);
+            motion.scale(timeStep);
         
-            location.add(actualVelocity);
-        }
+            location.add(motion);
 
-        goalUpdate();
+            goalUpdate();
+        }
         
         return location;
     }
@@ -79,8 +82,8 @@ public class Person {
         return nextVelocity.length();
     }
 
-    public Vector2d socialForce(Person bPerson) {
-    	double d = 2.1 * Math.exp((-b(bPerson)) / 0.3);
+    public Vector2d socialForce(Person bPerson, double timeStep) {
+    	double d = 2.1 * Math.exp((-b(bPerson, timeStep)) / 0.3);
 //      double d = 2.0 / b(bPerson);
         
         Vector2d aVector = new Vector2d(this.location);
@@ -97,17 +100,17 @@ public class Person {
         return aVector;
     }
 
-    public double b(Person bPerson) {
+    public double b(Person bPerson, double timeStep) {
         Vector2d aVector = new Vector2d(this.location);
         aVector.sub(new Vector2d(bPerson.getLocation()));
         
         Vector2d bVector = bPerson.getDesiredDirection();
         double bSpeed = bPerson.getNextSpeed();
-        bVector.scale(bSpeed);
+        bVector.scale(bSpeed*timeStep);
         Vector2d cVector = new Vector2d(aVector);
         cVector.sub(bVector);
         
-        double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed, 2);
+        double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed*timeStep, 2);
         return Math.sqrt(squareRootMe) / 2.0;
     }
 

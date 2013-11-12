@@ -9,16 +9,16 @@ public class BasicCanvas {
 
         world.setUp();
         world.printFloorPlan();
-        world.computeDijsktraTowards(18, 18);
+        world.computeDijsktraTowards(9, 9);
 
-        Person p1 = new Person(2, 2);
-        p1.setGoalList(world.getPath(2, 2).getSubGoals());
+        Person p1 = new Person(1, 1);
+        p1.setGoalList(world.getPath(1, 1).getSubGoals());
 
-        Person p2 = new Person(4, 4);
-        p2.setGoalList(world.getPath(4, 4).getSubGoals());
+        Person p2 = new Person(2, 2);
+        p2.setGoalList(world.getPath(2, 2).getSubGoals());
 
-        Person p3 = new Person(18, 18);
-        p3.setGoalList(world.getPath(18, 18).getSubGoals());
+        Person p3 = new Person(9, 9);
+        p3.setGoalList(world.getPath(9, 9).getSubGoals());
 
         ArrayList<Person> people = new ArrayList<Person>();
         people.add(p1);
@@ -28,13 +28,15 @@ public class BasicCanvas {
         for(Person p : people)
             System.out.println(p.getLocation());
 
-        for(int i = 0; i < 15; i++) {
+        for(int i = 0; i < 150; i++) {
             for(Person p : people)
-                p.advance(people);
-            System.out.println();
-            System.out.println((i+1) + ".");
-            for(Person p : people)
+                p.advance(people, 0.1);
+            if ( i % 10 == 9 ) {
+            	System.out.println();
+            	System.out.println("Step " + (i+1) + " (Simulated time: " + (i+1)/10 + "s)");
+            	for(Person p : people)
                 System.out.println(p.getLocation());
+            }
         }
 
 //        System.out.println(p1.desiredAcceleration());
