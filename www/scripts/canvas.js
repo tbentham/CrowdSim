@@ -14,7 +14,11 @@ var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
 
 //This ought to be removed when the GET json from server is done.
+<<<<<<< HEAD
 var jsonstring = '[[{"x":100, "y":100}, {"x":102, "y":102}], [{"x":200, "y":200}, {"x":202, "y":203}]]'
+=======
+var jsonstring = '[[{"x":100,"y":100},{"x":300,"y":100},{"x":400,"y":400}], [{"x":102,"y":100},{"x":304,"y":100},{"x":400,"y":406}], [{"x":104,"y":100},{"x":306,"y":100},{"x":400,"y":408}], [{"x":104,"y":102},{"x":308,"y":100},{"x":404,"y":410}]]'
+>>>>>>> master
 var people = JSON.parse(jsonstring);
 var canvasPeople = new Array();
 
@@ -28,10 +32,13 @@ function init() {
 // Need some connection shit before this happens, the JSON needs to come from the server. It is currently in a file.
 function populate(time){
 
+<<<<<<< HEAD
     if(time >= people[0].length){
         return false;
     }
 
+=======
+>>>>>>> master
     //Remove existing people on canvas
     if(canvasPeople){
         for(var i = 0; i < canvasPeople.length; i++){
@@ -42,9 +49,15 @@ function populate(time){
     //Clear record of people on canvas
     canvasPeople = new Array();
 
+<<<<<<< HEAD
     for(var i = 0; i < people.length; i++){
         s = new createjs.Shape(); canvasPeople.push(s);
         s.graphics.beginFill("black").drawCircle(people[i][time].x, people[i][time].y, 5);
+=======
+    for(var i = 0; i < people[time].length; i++){
+        s = new createjs.Shape(); canvasPeople.push(s);
+        s.graphics.beginFill("black").drawCircle(people[time][i].x, people[time][i].y, 5);
+>>>>>>> master
         stage.addChild(s); 
     }
 
@@ -208,6 +221,7 @@ function drawLine(e){
 
 function jsonDump(){
 
+<<<<<<< HEAD
     var s = "[";
 
     for(var i = 0; i < features.length; i++){
@@ -219,6 +233,15 @@ function jsonDump(){
     }
 
     return s.concat("]")
+=======
+    var s = "";
+
+    for(var i = 0; i < features.length; i++){
+        s = s.concat(JSON.stringify(features[i]));
+    }
+
+    return s
+>>>>>>> master
 }
 
 function clearCanvas(){
@@ -248,6 +271,7 @@ function rotate(){
 
 //These functions are responsible for GET-ing and POST-ing.
 function sendFeatures(){
+<<<<<<< HEAD
     $.post("/", {objects: jsonDump()});
 }
 
@@ -256,4 +280,11 @@ function hand(data){ // Turn json into objects
 
 function getPeople(){
     $.get("/people.json", function(data){people = JSON.parse(data.toString().trim())});
+=======
+    //some $.post
+}
+
+function getPeople(){
+    //some $.get
+>>>>>>> master
 }

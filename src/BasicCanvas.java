@@ -41,7 +41,11 @@ public class BasicCanvas {
 
         double d = System.currentTimeMillis();
 
+<<<<<<< HEAD
         World world = new World(120);
+=======
+        World world = new World(20);
+>>>>>>> master
 
          for (Cobject co : cobjs) {
              world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
@@ -58,6 +62,7 @@ public class BasicCanvas {
 
         System.out.println("--");
 
+<<<<<<< HEAD
         for (Vertex v : world.getPath(5, 5).getSubGoals()) {
             System.out.println(v);
         }
@@ -128,6 +133,30 @@ public class BasicCanvas {
                 locations[i] += "{\"x\":"+(int)(curPerson.locations.get(j).x)*10+", \"y\":"+(int)(curPerson.locations.get(j).y*10)+"}";
                 if (j < curPerson.locations.size()-1)
                     locations[i] += ", ";
+=======
+        Person p2 = new Person(2, 2);
+        p2.setGoalList(world.getPath(2, 2).getSubGoals());
+
+        Person p3 = new Person(9, 9);
+        p3.setGoalList(world.getPath(9, 9).getSubGoals());
+
+        ArrayList<Person> people = new ArrayList<Person>();
+        people.add(p1);
+        people.add(p2);
+        people.add(p3);
+
+        for(Person p : people)
+            System.out.println(p.getLocation());
+
+        for(int i = 0; i < 150; i++) {
+            for(Person p : people)
+                p.advance(people, 0.1);
+            if ( i % 10 == 9 ) {
+            	System.out.println();
+            	System.out.println("Step " + (i+1) + " (Simulated time: " + (i+1)*0.1 + "s)");
+            	for(Person p : people)
+            		System.out.println(p.getLocation());
+>>>>>>> master
             }
         }
 
