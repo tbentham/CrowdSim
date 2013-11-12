@@ -31,7 +31,7 @@ function populate(time){
     if(time >= people[0].length){
         return false;
     }
-    
+
     //Remove existing people on canvas
     if(canvasPeople){
         for(var i = 0; i < canvasPeople.length; i++){
@@ -251,7 +251,9 @@ function sendFeatures(){
     $.post("/", {objects: jsonDump()});
 }
 
+function hand(data){ // Turn json into objects
+        people = JSON.parse(data.toString());}
+
 function getPeople(){
-    $.get("/people.json", function(data){ // Turn json into objects
-        people = JSON.parse(data.toString());})
+    $.get("/people.json", hand(data));
 }
