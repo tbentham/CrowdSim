@@ -32,11 +32,11 @@ public class BasicCanvas {
 		 server.start();
 		 Cobject[] cobjs = null; //CALL THE COPS
 		 
-		 while(cobjs == null){
-			 cobjs = jettyHandle.getLatestObjs();
-			 Thread.sleep(1);
-		 }
-		 
+//		 while(cobjs == null){
+//			 cobjs = jettyHandle.getLatestObjs();
+//			 Thread.sleep(1);
+//		 }
+//		 
 		double d = System.currentTimeMillis();
 		
 		World world = new World(10);
@@ -73,6 +73,10 @@ public class BasicCanvas {
 		    for(Person p : people) {
 		        System.out.println(p.locations.get(i));
 		    }
+		}
+		
+		for(Person p: people){
+			System.out.println(p.locations.size());
 		}
 		
 		//        System.out.println(p1.desiredAcceleration());
