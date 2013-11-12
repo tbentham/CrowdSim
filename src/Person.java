@@ -13,26 +13,15 @@ public class Person {
 
     private double desiredSpeed;
     private Vector2d actualVelocity;
-
     public ArrayList<Point2d> locations;
 
     public Person(double x1, double y1) {
         location = new Point2d(x1, y1);
-<<<<<<< HEAD
-        locations = new ArrayList<Point2d>();
-        locations.add(location);
-        size = 4;
-
-        goalList = new LinkedList<Vertex>();
-
-        desiredSpeed = 2;
-=======
         size = 4.0;
 
         goalList = new LinkedList<Vertex>();
 
         desiredSpeed = 1.34;	// metres per second
->>>>>>> master
         actualVelocity = new Vector2d(0, 0);
     }
 
@@ -42,24 +31,24 @@ public class Person {
     }
 
     public Point2d advance(ArrayList<Person> people, double timeStep) {
-    	goalUpdate();
-        
+        goalUpdate();
+
         if (goalList.size() > 0) {
             actualVelocity.add(desiredAcceleration());
-        
+
             for (Person p : people) {
-            	if (this != p)
-            		actualVelocity.add(socialForce(p, timeStep));
+                if (this != p)
+                    actualVelocity.add(socialForce(p, timeStep));
             }
-            
+
             Vector2d motion = new Vector2d(actualVelocity);
             motion.scale(timeStep);
-        
+
             location.add(motion);
 
             goalUpdate();
         }
-        
+        locations.add(new Point2d(location.x, location.y));
         return location;
     }
 
@@ -87,67 +76,42 @@ public class Person {
 
     public double getNextSpeed() {
         goalUpdate();
-<<<<<<< HEAD
-        if (goalList.size() > 0) {
-            Vector2d nextVelocity = new Vector2d(actualVelocity);
-            nextVelocity.add(desiredAcceleration());
-            return nextVelocity.length();
-        }
-        return 0;
-    }
-
-    public Point2d advance(ArrayList<Person> people) {
-        goalUpdate();
-        if (goalList.size() > 0) {
-            actualVelocity.add(desiredAcceleration());
-            for (Person p : people) {
-                if (this != p) {
-                    actualVelocity.add(socialForce(p));
-                }
-            }
-            location.add(actualVelocity);
-        }
-        goalUpdate();
-        locations.add(new Point2d(location.x, location.y));
-        return location;
-=======
         if (goalList.size() == 0)
-        	return 0;
+            return 0;
         Vector2d nextVelocity = new Vector2d(actualVelocity);
         nextVelocity.add(desiredAcceleration());
         return nextVelocity.length();
->>>>>>> master
     }
 
     public Vector2d socialForce(Person bPerson, double timeStep) {
-    	double d = 2.1 * Math.exp((-b(bPerson, timeStep)) / 0.3);
+        double d = 2.1 * Math.exp((-b(bPerson, timeStep)) / 0.3);
 //      double d = 2.0 / b(bPerson);
-        
+
         Vector2d aVector = new Vector2d(this.location);
         aVector.sub(new Vector2d(bPerson.getLocation()));
-        
+
         aVector.normalize();
         aVector.scale(d);
-        
+
         // Consider field of vision
         Vector2d direction = new Vector2d(actualVelocity);
-        direction.normalize();       
+        direction.normalize();
         if (direction.dot(aVector) < aVector.length() * Math.cos(100 * Math.PI / 180))
-        	aVector.scale(0.5);
-        
+            aVector.scale(0.5);
+
         return aVector;
     }
 
     public double b(Person bPerson, double timeStep) {
         Vector2d aVector = new Vector2d(this.location);
         aVector.sub(new Vector2d(bPerson.getLocation()));
-        
+
         Vector2d bVector = bPerson.getDesiredDirection();
         double bSpeed = bPerson.getNextSpeed();
         bVector.scale(bSpeed*timeStep);
         Vector2d cVector = new Vector2d(aVector);
         cVector.sub(bVector);
-        
+
         double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed*timeStep, 2);
         return Math.sqrt(squareRootMe) / 2.0;
     }
@@ -157,10 +121,10 @@ public class Person {
         aVector.sub(new Vector2d(wall.nearestPoint(this)));
 
         double d = 10 * Math.exp(-aVector.length() / 0.2);
-        
+
         aVector.normalize();
         aVector.scale(d);
-        
+
         return aVector;
     }
 
