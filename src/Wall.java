@@ -11,6 +11,11 @@ public class Wall implements BuildingObject {
         endVector = new Vector2d(x2, y2);
     }
 
+    public Wall(Point2d from, Point2d to) {
+        startVector = new Vector2d(from);
+        endVector = new Vector2d(to);
+    }
+
     public double distance(Person person) {
         Vector2d v = new Vector2d(endVector);
         v.sub(new Vector2d(startVector));

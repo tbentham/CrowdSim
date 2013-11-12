@@ -1,9 +1,11 @@
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
+import Dijkstra.Vertex;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
@@ -32,53 +34,74 @@ public class BasicCanvas {
 		 server.start();
 		 Cobject[] cobjs = null; //CALL THE COPS
 		 
-//		 while(cobjs == null){
-//			 cobjs = jettyHandle.getLatestObjs();
-//			 Thread.sleep(1);
-//		 }
-//		 
-		double d = System.currentTimeMillis();
-		
-		World world = new World(10);
-		
+		 while(cobjs == null){
+			 cobjs = jettyHandle.getLatestObjs();
+			 Thread.sleep(100);
+		 }
+
+        double d = System.currentTimeMillis();
+
+        World world = new World(120);
+
+         for (Cobject co : cobjs) {
+             world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
+         }
+		 
 		world.setUp();
 		world.printFloorPlan();
-		world.computeDijsktraTowards(9, 9);
+		world.computeDijsktraTowards(20, 20);
 		
-		Person p1 = new Person(1, 1);
-		p1.setGoalList(world.getPath(1, 1).getSubGoals());
+		Person p1 = new Person(50, 50);
+        for (Vertex v : world.getPath(50, 50).getVertices()) {
+            System.out.println(v);
+        }
+
+        System.out.println("--");
+
+        for (Vertex v : world.getPath(5, 5).getSubGoals()) {
+            System.out.println(v);
+        }
+
+		p1.setGoalList(world.getPath(5, 5).getSubGoals());
 		
-		Person p3 = new Person(9, 9);
-		p3.setGoalList(world.getPath(9, 9).getSubGoals());
-		
-		Person p2 = new Person(2, 2);
-		p2.setGoalList(world.getPath(2, 2).getSubGoals());
+		Person p3 = new Person(35, 45);
+		p3.setGoalList(world.getPath(35, 45).getSubGoals());
+
+		Person p2 = new Person(30, 45);
+		p2.setGoalList(world.getPath(30, 45).getSubGoals());
 		
 		ArrayList<Person> people = new ArrayList<Person>();
-		people.add(p1);
+//		people.add(p1);
 		people.add(p2);
-		people.add(p3);
+//		people.add(p3);
+
+        System.out.println("--");
 		
 		for(Person p : people) {
 		    System.out.println(p.getLocation());
 		}
+
+        System.out.println("--");
 		
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 30; i++) {
 		    for(Person p : people) {
 		        p.advance(people);
+                System.out.println(p.getLocation());
 		    }
 		}
+
+        System.out.println("--");
 		
 		for(int i = 0; i < 10; i++) {
 		    for(Person p : people) {
 		        System.out.println(p.locations.get(i));
 		    }
 		}
-		
-		for(Person p: people){
-			System.out.println(p.locations.size());
-		}
-		
+
+        PrintWriter out = new PrintWriter("www/people.json");
+        out.print(peopleToJson(people));
+        out.close();
+
 		//        System.out.println(p1.desiredAcceleration());
 		//	    for (int i = 0; i < 15; i++) {
 		//			B====D
@@ -88,6 +111,48 @@ public class BasicCanvas {
 		System.out.println("Executed in: " + (System.currentTimeMillis() - d) + "ms");
 		server.join();
     }
+
+    public static String peopleToJson(ArrayList<Person> people) {
+
+//        for (Person p: people) {
+//            System.out.println(p.getLocation());
+//        }
+
+        String[] locations = new String[people.size()];
+        Person curPerson;
+        String finalString = "";
+        for (int i=0; i<people.size(); i++) {
+            curPerson = people.get(i);
+            locations[i] = "";
+            for(int j=1; j<curPerson.locations.size(); j++) {
+                locations[i] += "{\"x\":"+(int)(curPerson.locations.get(j).x)*10+", \"y\":"+(int)(curPerson.locations.get(j).y*10)+"}";
+                if (j < curPerson.locations.size()-1)
+                    locations[i] += ", ";
+            }
+        }
+
+        finalString += "[";
+
+
+
+        for (int i=0; i<locations.length; i++) {
+            finalString += "[";
+            finalString += locations[i];
+            finalString += "]";
+            if (i < locations.length-1) {
+                finalString += ", ";
+            }
+        }
+
+
+
+        finalString += "]";
+
+        System.out.println(finalString);
+
+        return finalString;
+    }
+
 }
 
 
@@ -99,7 +164,7 @@ class JettyExample extends AbstractHandler {
 	
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
          
-    	if(baseRequest.getMethod() == "POST" && baseRequest.getParameter("objects") != null){
+    	if(baseRequest.getMethod().equals("POST") && baseRequest.getParameter("objects") != null){
         	System.out.println("Recieved " + baseRequest.getParameter("objects"));
         	
         	jparse = new JsonParser(baseRequest.getParameter("objects"));

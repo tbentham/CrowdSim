@@ -37,6 +37,10 @@ public class World {
         routesComputed = false;
     }
 
+    public void addWall(Point2d from, Point2d to) {
+        addWall(from.x, from.y, to.x, to.y);
+    }
+
     public void addWall(double x1, double y1, double x2, double y2) {
         isSetUp = false;
         routesComputed = false;

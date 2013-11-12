@@ -24,7 +24,7 @@ public class Person {
 
         goalList = new LinkedList<Vertex>();
 
-        desiredSpeed = 5;
+        desiredSpeed = 2;
         actualVelocity = new Vector2d(0, 0);
     }
 
@@ -79,7 +79,7 @@ public class Person {
             location.add(actualVelocity);
         }
         goalUpdate();
-        locations.add(location);
+        locations.add(new Point2d(location.x, location.y));
         return location;
     }
 

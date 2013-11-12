@@ -255,5 +255,5 @@ function hand(data){ // Turn json into objects
         people = JSON.parse(data.toString());}
 
 function getPeople(){
-    $.get("/people.json", hand(data));
+    $.get("/people.json", function(data){people = JSON.parse(data.toString().trim())});
 }
