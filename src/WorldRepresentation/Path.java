@@ -31,11 +31,11 @@ public class Path {
             Vertex lastVertex = vertices.get(0);
             Vertex curVertex = vertices.get(1);
 
-            int lastDiffX;  // last difference in x-coord value
-            int lastDiffY;  // last difference in y-coord value
+            double lastDiffX;  // last difference in x-coord value
+            double lastDiffY;  // last difference in y-coord value
 
-            int curDiffX = lastVertex.getX() - curVertex.getX();
-            int curDiffY = lastVertex.getY() - curVertex.getY();
+            double curDiffX = lastVertex.getX() - curVertex.getX();
+            double curDiffY = lastVertex.getY() - curVertex.getY();
 
             for (int i = 2; i < vertices.size(); i++) {
                 // current differences are now last differences

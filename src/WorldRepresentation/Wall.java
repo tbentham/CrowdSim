@@ -28,14 +28,16 @@ public class Wall implements BuildingObject {
         double c = endToPoint.length();
 
 
-        if (b < c)
+        if (b < c) {
             // Check if point is past start of wall
             if ( Math.acos((Math.pow(a,2) + Math.pow(b,2) - Math.pow(c,2)) / (2.0*a*b)) > Math.PI/2.0 )
                 return b;
-            else
-                // Check if point is past end of wall
-                if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
-                    return c;
+        }
+        else {
+            // Check if point is past end of wall
+            if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
+                return c;
+        }
 
         // Get distance to nearest point on wall (reusing variables)
         a = startVector.getY() - endVector.getY();
@@ -99,14 +101,16 @@ public class Wall implements BuildingObject {
         double c = endToPoint.length();
 
 
-        if (b < c)
+        if (b < c) {
             // Check if point is past start of wall
             if ( Math.acos((Math.pow(a,2) + Math.pow(b,2) - Math.pow(c,2)) / (2.0*a*b)) > Math.PI/2.0 )
                 return new Point2d(startVector);
-            else
-                // Check if point is past end of wall
-                if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
-                    return new Point2d(endVector);
+        }
+        else {
+            // Check if point is past end of wall
+            if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
+                return new Point2d(endVector);
+        }
 
         // Get nearest point on line
         double cosTheta = startToPoint.dot(startToEnd) / (a*b);

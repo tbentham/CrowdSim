@@ -44,17 +44,20 @@ public class BasicCanvas {
 
         double d = System.currentTimeMillis();
 
-        World world = new World(120);
+        World world = new World(10);
 
         for (Cobject co : cobjs) {
             world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
         }
 
-        Point2d goal = new Point2d(20, 20);
+        Point2d goal = new Point2d(2, 2);
 
         world.setUp();
         world.printFloorPlan();
         world.computeDijsktraTowards((int) Math.round(goal.x), (int) Math.round(goal.y));
+
+        world.printDijsktras();
+
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
@@ -84,7 +87,7 @@ public class BasicCanvas {
             System.out.println(p.getLocation());
         }
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 10; i++) {
             for (Person p : people)
                 p.advance(people, 1);
             if (i % 10 == 9) {

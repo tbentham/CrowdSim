@@ -8,7 +8,9 @@ import Exceptions.RoutesNotComputedException;
 import Exceptions.WorldNotSetUpException;
 
 import javax.vecmath.Point2d;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class World {
@@ -84,6 +86,29 @@ public class World {
         }
     }
 
+    public void printDijsktras() throws RoutesNotComputedException, WorldNotSetUpException {
+        if (!routesComputed) {
+            throw new RoutesNotComputedException("");
+        }
+        if (!isSetUp) {
+            throw new WorldNotSetUpException("");
+        }
+        for (int i = 0; i < sideLength; i++) {
+            for (int j = 0; j < sideLength; j++) {
+                System.out.print(round(dijkstra.distance.get(nodeArray[i][j]), 2) + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, BigDecimal.ROUND_HALF_UP);
+        return bd.doubleValue();
+    }
+
     private void populateNodeArray() {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
@@ -104,7 +129,7 @@ public class World {
                     if (j < (sideLength - 1)) {
                         // check right
                         if (floorPlan[i][j + 1] == 0) {
-                            edges.add(new Edge(nodeArray[i][j], nodeArray[i][j + 1], 1));
+                            edges.add(new Edge(nodeArray[i][j], nodeArray[i][j + 1], 1.0));
                         }
                         // check bottom right
                         if (i < (sideLength - 1) && floorPlan[i + 1][j + 1] == 0) {
@@ -115,7 +140,7 @@ public class World {
                     if (i < sideLength - 1) {
                         // check bottom
                         if (floorPlan[i + 1][j] == 0) {
-                            edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j], 1));
+                            edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j], 1.0));
                         }
                         // check bottom left
                         if (j > 0 && floorPlan[i + 1][j - 1] == 0) {

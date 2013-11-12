@@ -9,7 +9,7 @@ public class DijkstraAlgorithm {
     private Set<Vertex> settledNodes;
     private Set<Vertex> unSettledNodes;
     private Map<Vertex, Vertex> predecessors;
-    private Map<Vertex, Double> distance;
+    public Map<Vertex, Double> distance;
 
     public DijkstraAlgorithm(Graph graph) {
         // create a copy of the array so that we can operate on this array

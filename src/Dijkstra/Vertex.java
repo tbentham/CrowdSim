@@ -5,22 +5,22 @@ import javax.vecmath.Point2d;
 public class Vertex {
     private String id;
 
-    private int x;
-    private int y;
+    private double x;
+    private double y;
 
 
-    public Vertex(int x, int y) {
+    public Vertex(double x, double y) {
         this.x = x;
         this.y = y;
         this.id = x + "_" + y;
 
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
