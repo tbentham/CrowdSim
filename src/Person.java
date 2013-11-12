@@ -19,16 +19,14 @@ public class Person {
         size = 4.0;
 
         goalList = new LinkedList<Vertex>();
-        goalList.add(new Vertex((int) Math.round(x1), (int) Math.round(y1)));
 
         desiredSpeed = 5.0;
         actualVelocity = new Vector2d(0, 0);
     }
 
     private void goalUpdate() {
-        while (goalList.size() > 0 && location.distance(goalList.get(0).toPoint2d()) <= (size / 2.0)) {
+        while (goalList.size() > 0 && location.distance(goalList.get(0).toPoint2d()) < (size / 2.0))
             goalList.remove(0);
-        }
     }
 
     public Point2d advance(ArrayList<Person> people) {
@@ -110,8 +108,6 @@ public class Person {
         cVector.sub(bVector);
         
         double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed, 2);
-        /* Subsequent NaN errors due to square-rooting a negative - something's wrong here...
-           System.out.println("Rooting: " + squareRootMe ); */
         return Math.sqrt(squareRootMe) / 2.0;
     }
 
@@ -131,16 +127,13 @@ public class Person {
 */
 
     public Point2d getNextGoal() {
-        if (goalList.size() > 0) {
+        if (goalList.size() > 0)
             return goalList.get(0).toPoint2d();
-        }
         return location;
     }
 
     public void setGoalList(LinkedList<Vertex> goalList) {
         this.goalList = goalList;
-        if ( this.goalList.size() == 0 )
-        	this.goalList.add(new Vertex((int) Math.round(location.getX()), (int) Math.round(location.getY())));
     }
 
     public LinkedList<Vertex> getGoalList() {
