@@ -248,5 +248,6 @@ function sendFeatures(){
 }
 
 function getPeople(){
-    //some $.get
+    $.get("/people.json", function(data){ // Turn json into objects
+        people = JSON.parse(data.toString());})
 }
