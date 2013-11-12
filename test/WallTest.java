@@ -1,3 +1,5 @@
+import WorldRepresentation.Person;
+import WorldRepresentation.Wall;
 import org.junit.Test;
 
 import javax.vecmath.Point2d;

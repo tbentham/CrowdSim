@@ -1,3 +1,5 @@
+package WorldRepresentation;
+
 import Dijkstra.Vertex;
 
 import javax.vecmath.Point2d;
@@ -16,6 +18,7 @@ public class Person {
     public ArrayList<Point2d> locations;
 
     public Person(double x1, double y1) {
+        locations = new ArrayList<Point2d>();
         location = new Point2d(x1, y1);
         size = 4.0;
 

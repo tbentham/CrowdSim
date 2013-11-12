@@ -1,7 +1,11 @@
+package WorldRepresentation;
+
 import Dijkstra.DijkstraAlgorithm;
 import Dijkstra.Edge;
 import Dijkstra.Graph;
 import Dijkstra.Vertex;
+import Exceptions.RoutesNotComputedException;
+import Exceptions.WorldNotSetUpException;
 
 import javax.vecmath.Point2d;
 import java.util.ArrayList;

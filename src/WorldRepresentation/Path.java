@@ -1,3 +1,5 @@
+package WorldRepresentation;
+
 import Dijkstra.Vertex;
 
 import java.util.Collections;

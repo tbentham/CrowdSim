@@ -1,4 +1,5 @@
 import Dijkstra.Vertex;
+import WorldRepresentation.Path;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -11,7 +12,7 @@ public class PathTest {
     @Test
     public void baseCases() {
         LinkedList<Vertex> vertices = new LinkedList<Vertex>();
-        // added in wrong order as they get reversed when initialising Path
+        // added in wrong order as they get reversed when initialising WorldRepresentation.Path
         vertices.add(new Vertex(1, 0));
         vertices.add(new Vertex(0, 0));
 

@@ -1,3 +1,5 @@
+package WorldRepresentation;
+
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 
@@ -78,7 +80,7 @@ public class Wall implements BuildingObject {
     public double distance(Point2d point2d) {
         double[] points = new double[2];
         point2d.get(points);
-        return distance(new Person(points[0], points[1]));
+        return distance(new WorldRepresentation.Person(points[0], points[1]));
     }
 */
 
