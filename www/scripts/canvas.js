@@ -14,7 +14,7 @@ var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
 
 var people = new Array();
-var canvasPeople = new Array();
+var canvasPeople;
 
 function init() {
 
@@ -251,7 +251,12 @@ function hand(data){ // Turn json into objects
 }
 
 function getPeople(){
-    $.get("/people.json", function(data){people = JSON.parse(data.toString().trim())});
+    $.get("/people.json", function(data){
+        people = JSON.parse(data.toString().trim());
+        $(".slider").slider({max: people[0].length, min: 0});
+        $(".slider").slider({slide: function( event, ui ) { populate(ui.value)}});
+        populate(0);
+    });
 }
 
 /*
@@ -259,6 +264,8 @@ client todo list.
 
 Slider
 Path tracing
+cursor pixels
+
 drawable areas of interest
 
 make it "playable"

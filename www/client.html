@@ -6,9 +6,13 @@
 	<link rel="stylesheet" type="text/css" href="css/client.css">
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/slider.css">
+    <link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.10.3.custom.min.css">
 
 	<script src="resources/jquery.min.js"></script>
     <script src="resources/easeljs.js"></script>
+    <script src="resources/bootstrap-slider.js"></script>
+    <script src="resources/jquery-ui-1.10.3.custom.min.js"></script>
 	<script src="scripts/person.js"></script>
 	<script src="scripts/json.js"></script>
 	<script src="scripts/interface.js"></script>
@@ -35,6 +39,8 @@
             <button class="btn btn-sm btn-primary" onclick="sendFeatures()">Send</button>
             <button class="btn btn-sm btn-primary" onclick="getPeople()">Recieve</button>
             <!-- A slider needs to be here, which is initialised by getPeople so the slider is the correct length. -->
+            <div class="slider slider-horizontal">
+            </div>
     	</div>
 
         <div id="specificControls">
