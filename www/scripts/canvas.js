@@ -328,9 +328,10 @@ function cursorPixels(e){
 /*
 client todo list.
 
-people differentiated.
-mouse scroll
 make it "playable"
+kill mode bug
+mouse scroll
+
 
 drawable areas of interest
 feedback from the server (only useful when server webserver component has been remodelled.)
