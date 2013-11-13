@@ -50,7 +50,7 @@ public class BasicCanvas {
             world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
         }
 
-        Point2d goal = new Point2d(2, 2);
+        Point2d goal = new Point2d(50, 13);
 
         world.setUp();
         world.printFloorPlan();
@@ -58,16 +58,14 @@ public class BasicCanvas {
 
         // world.printDijsktras();
 
-
-
-
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
         
         ArrayList<Person> people = new ArrayList<Person>();
 
-        for(int i=0; i<10; i++) {
-        	Person p = new Person((int)(Math.random()*100),(int)(Math.random()*100));
+        for(int i=2; i<12; i++) {
+        	// Person p = new Person((int)(Math.random()*100),(int)(Math.random()*100));
+            Person p = new Person(i, i);
         	
             p.setGoalList(world.getPath(p.getLocation()).getSubGoals());
             
@@ -121,19 +119,19 @@ public class BasicCanvas {
             System.out.println(p.getLocation());
         }
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             for (Person p : people)
-                p.advance(world, people, 0.1);
+                p.advance(world, people, 0.5);
             if (i % 10 == 9) {
                 System.out.println();
-                System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 1    + "s)");
+                System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 0.5 + "s)");
             }
         }
 
         System.out.println("Printing persons position for each advance");
 
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             for (Person p : people)
                 System.out.println(p.locations.get(i));
         }
