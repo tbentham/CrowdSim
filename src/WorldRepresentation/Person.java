@@ -1,6 +1,8 @@
 package WorldRepresentation;
 
 import Dijkstra.Vertex;
+import Exceptions.NaNException;
+import Exceptions.PersonOverlapException;
 import ForceModel.Model;
 
 import javax.vecmath.Point2d;
@@ -37,7 +39,8 @@ public class Person {
             goalList.remove(0);
     }
 
-    public Point2d advance(World world, ArrayList<Person> people, double timeStep) {
+    public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
+            PersonOverlapException {
         goalUpdate();
 
         if (goalList.size() > 0) {
@@ -48,11 +51,13 @@ public class Person {
                     actualVelocity.add(forceModel.socialForce(this, p, timeStep));
             }
 
-            for (Wall wall : world.getWalls())   {
+            for (Wall wall : world.getWalls()) {
                 actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
+
             }
 
             Vector2d motion = new Vector2d(actualVelocity);
+
             motion.scale(timeStep);
 
             location.add(motion);
@@ -60,6 +65,7 @@ public class Person {
             goalUpdate();
         }
         locations.add(new Point2d(location.x, location.y));
+
         return location;
     }
 
@@ -126,5 +132,9 @@ public class Person {
 
     public double getSpeed() {
         return actualVelocity.length();
+    }
+
+    public void setActualVelocity(Vector2d velocity) {
+        actualVelocity = velocity;
     }
 }
