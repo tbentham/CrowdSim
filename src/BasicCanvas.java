@@ -121,7 +121,7 @@ public class BasicCanvas {
             System.out.println(p.getLocation());
         }
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             for (Person p : people)
                 p.advance(world, people, 0.1);
             if (i % 10 == 9) {
@@ -133,7 +133,7 @@ public class BasicCanvas {
         System.out.println("Printing persons position for each advance");
 
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             for (Person p : people)
                 System.out.println(p.locations.get(i));
         }

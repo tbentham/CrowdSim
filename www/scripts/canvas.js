@@ -1,3 +1,6 @@
+
+var KILL_MODE = 99;
+
 var stage;
 
 //These two arrays are counterparts.
@@ -10,6 +13,7 @@ var endOfArray = -1;  //For "tail" access
 var featureID = 0;
 var click = false;
 var trace = false;
+var debug = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
@@ -76,7 +80,7 @@ function drawMode(mode){
         stage.addEventListener("stagemousedown", drawDoor);
 	    stage.addEventListener("stagemousemove", mouseDoor);
     }
-    else if(mode == 99){
+    else if(mode == KILL_MODE){
         stage.removeAllEventListeners();
 
         for(var i = 0; i < canvasFeatures.length; i++){
@@ -283,10 +287,19 @@ function traceToggle(){
     }
 }
 
+function cursorPixels(){
+    if(debug){
+        //turn it off
+        debug = false;
+    }
+    else{
+    //     <button class="btn btn-sm btn-primary" onclick="traceToggle()">Trace Mode</button>
+        debug = true;
+    }
+}
 /*
 client todo list.
 
-Path tracing
 cursor pixels
 people differentiated.
 
