@@ -13,11 +13,14 @@ public class Wall implements BuildingObject {
         endVector = new Vector2d(x2, y2);
     }
 
+    // Returns the shortest distance between the wall and @point
     public double distance(Point2d point) {
-        // Get lengths of triangle
-        Vector2d startToEnd = new Vector2d(endVector);
-        startToEnd.sub(new Vector2d(startVector));
-        double a = startToEnd.length();
+        double a = this.length();
+
+        // If the wall is a single point, return distance from that point instead
+        if (a == 0.0) {
+            return point.distance(new Point2d(startVector.x, startVector.y));
+        }
 
         Vector2d startToPoint = new Vector2d(point);
         startToPoint.sub(new Vector2d(endVector));
@@ -26,7 +29,6 @@ public class Wall implements BuildingObject {
         Vector2d endToPoint = new Vector2d(point);
         endToPoint.sub(new Vector2d(startVector));
         double c = endToPoint.length();
-
 
         if (b < c) {
             // Check if point is past start of wall
@@ -50,41 +52,6 @@ public class Wall implements BuildingObject {
     public double distance(Person person) {
         return distance(person.getLocation());
     }
-    	
-/*
-    	Vector2d v = new Vector2d(endVector);
-        v.sub(new Vector2d(startVector));
-        double l2 = v.lengthSquared();
-        if (l2 == 0.0) {
-            return person.getLocation().distance(new Point2d(startVector));
-        }
-        Vector2d p = new Vector2d(person.getLocation());
-        v = new Vector2d(startVector);
-        p.sub(v);
-        Vector2d w = new Vector2d(endVector);
-        w.sub(v);
-        double t = p.dot(w) / l2;
-        if (t < 0.0) {
-            return person.getLocation().distance(new Point2d(startVector));
-        } else if (t > 1.0) {
-            return person.getLocation().distance(new Point2d(endVector));
-        }
-        v = new Vector2d(startVector);
-        w = new Vector2d(endVector);
-        w.sub(v);
-        w.scale(t);
-        w.add(v);
-        Point2d p1 = new Point2d();
-        p1.add(w);
-        return person.getLocation().distance(p1);
-    }
-
-    public double distance(Point2d point2d) {
-        double[] points = new double[2];
-        point2d.get(points);
-        return distance(new WorldRepresentation.Person(points[0], points[1]));
-    }
-*/
 
     public Point2d nearestPoint(Point2d point) {
         // Get lengths of triangle
@@ -93,11 +60,11 @@ public class Wall implements BuildingObject {
         double a = startToEnd.length();
 
         Vector2d startToPoint = new Vector2d(point);
-        startToPoint.sub(new Vector2d(endVector));
+        startToPoint.sub(new Vector2d(startVector));
         double b = startToPoint.length();
 
         Vector2d endToPoint = new Vector2d(point);
-        endToPoint.sub(new Vector2d(startVector));
+        endToPoint.sub(new Vector2d(endVector));
         double c = endToPoint.length();
 
 
@@ -139,6 +106,12 @@ public class Wall implements BuildingObject {
 
     public Vector2d getEndVector() {
         return endVector;
+    }
+
+    public double length() {
+        Vector2d startToEnd = new Vector2d(endVector);
+        startToEnd.sub(new Vector2d(startVector));
+        return startToEnd.length();
     }
 
 }

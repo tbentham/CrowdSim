@@ -96,4 +96,13 @@ public class WallTest {
         Point2d point2d = new Point2d(1, 2);
         assertTrue(wall.touches(point2d, 2));
     }
+
+    @Test
+    public void wallReturnsNearestPointForSimpleExample() {
+        Wall wall = new Wall(1, 1, 5, 1);
+        Person person = new Person(3, 3);
+        System.out.println(wall.nearestPoint(person));
+        assertTrue(wall.nearestPoint(person).x == 3.0);
+        assertTrue(wall.nearestPoint(person).y == 1.0);
+    }
 }
