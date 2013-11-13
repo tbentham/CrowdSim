@@ -44,7 +44,7 @@ public class BasicCanvas {
 
         double d = System.currentTimeMillis();
 
-        World world = new World(10);
+        World world = new World(50);
 
         for (Cobject co : cobjs) {
             world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
@@ -56,7 +56,7 @@ public class BasicCanvas {
         world.printFloorPlan();
         world.computeDijsktraTowards((int) Math.round(goal.x), (int) Math.round(goal.y));
 
-        world.printDijsktras();
+        // world.printDijsktras();
 
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
@@ -99,7 +99,7 @@ public class BasicCanvas {
         System.out.println("Printing persons position for each advance");
 
 
-        for (int i = 0; i < world.getSideLength(); i++) {
+        for (int i = 0; i < 10; i++) {
             for (Person p : people)
                 System.out.println(p.locations.get(i));
         }
