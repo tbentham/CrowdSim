@@ -1,6 +1,7 @@
 package WorldRepresentation;
 
 import Dijkstra.Vertex;
+import ForceModel.Model;
 
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -16,6 +17,7 @@ public class Person {
     private double desiredSpeed;
     private Vector2d actualVelocity;
     public ArrayList<Point2d> locations;
+    private Model forceModel;
 
     public Person(double x1, double y1) {
         locations = new ArrayList<Point2d>();
@@ -26,6 +28,8 @@ public class Person {
 
         desiredSpeed = 1.34;	// metres per second
         actualVelocity = new Vector2d(0, 0);
+
+        forceModel = new Model();
     }
 
     private void goalUpdate() {
@@ -33,7 +37,7 @@ public class Person {
             goalList.remove(0);
     }
 
-    public Point2d advance(ArrayList<Person> people, double timeStep) {
+    public Point2d advance(World world, ArrayList<Person> people, double timeStep) {
         goalUpdate();
 
         if (goalList.size() > 0) {
@@ -41,7 +45,11 @@ public class Person {
 
             for (Person p : people) {
                 if (this != p)
-                    actualVelocity.add(socialForce(p, timeStep));
+                    actualVelocity.add(forceModel.socialForce(this, p, timeStep));
+            }
+
+            for (Wall wall : world.getWalls())   {
+                actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
             }
 
             Vector2d motion = new Vector2d(actualVelocity);
@@ -84,51 +92,6 @@ public class Person {
         Vector2d nextVelocity = new Vector2d(actualVelocity);
         nextVelocity.add(desiredAcceleration());
         return nextVelocity.length();
-    }
-
-    public Vector2d socialForce(Person bPerson, double timeStep) {
-        double d = 2.1 * Math.exp((-b(bPerson, timeStep)) / 0.3);
-//      double d = 2.0 / b(bPerson);
-
-        Vector2d aVector = new Vector2d(this.location);
-        aVector.sub(new Vector2d(bPerson.getLocation()));
-
-        aVector.normalize();
-        aVector.scale(d);
-
-        // Consider field of vision
-        Vector2d direction = new Vector2d(actualVelocity);
-        direction.normalize();
-        if (direction.dot(aVector) < aVector.length() * Math.cos(100 * Math.PI / 180))
-            aVector.scale(0.5);
-
-        return aVector;
-    }
-
-    public double b(Person bPerson, double timeStep) {
-        Vector2d aVector = new Vector2d(this.location);
-        aVector.sub(new Vector2d(bPerson.getLocation()));
-
-        Vector2d bVector = bPerson.getDesiredDirection();
-        double bSpeed = bPerson.getNextSpeed();
-        bVector.scale(bSpeed*timeStep);
-        Vector2d cVector = new Vector2d(aVector);
-        cVector.sub(bVector);
-
-        double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed*timeStep, 2);
-        return Math.sqrt(squareRootMe) / 2.0;
-    }
-
-    public Vector2d obstacleAvoidance(Wall wall) {
-        Vector2d aVector = new Vector2d(this.location);
-        aVector.sub(new Vector2d(wall.nearestPoint(this)));
-
-        double d = 10 * Math.exp(-aVector.length() / 0.2);
-
-        aVector.normalize();
-        aVector.scale(d);
-
-        return aVector;
     }
 
     public Point2d getNextGoal() {
