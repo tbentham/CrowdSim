@@ -170,8 +170,8 @@ public class World {
         return new Path(dijkstra.getPath(nodeArray[x][y]));
     }
 
-    public Path getPath(Point2d goal) throws RoutesNotComputedException {
-        return getPath((int) Math.round(goal.x), (int) Math.round(goal.y));
+    public Path getPath(Point2d location) throws RoutesNotComputedException {
+        return getPath((int) Math.round(location.x), (int) Math.round(location.y));
     }
     
     public int getSideLength() {
