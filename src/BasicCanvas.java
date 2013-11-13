@@ -59,27 +59,61 @@ public class BasicCanvas {
         // world.printDijsktras();
 
 
+
+
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
+        
+        ArrayList<Person> people = new ArrayList<Person>();
 
+        for(int i=0; i<10; i++) {
+        	Person p = new Person((int)(Math.random()*100),(int)(Math.random()*100));
+        	
+            p.setGoalList(world.getPath(p.getLocation()).getSubGoals());
+            
+        	people.add(p);
+        	
+            System.out.println("Printing vertices towards " + p.getLocation().x + " " + p.getLocation().y);
+            
+            for (Vertex v : world.getPath(p.getLocation()).getVertices()) {
+                System.out.println(v);
+            }
+            
+            System.out.println("Printing subgoals towards " + p.getLocation().x + " " + p.getLocation().y);
+            
+            for (Vertex v : world.getPath(p.getLocation()).getSubGoals()) {
+                System.out.println(v);
+            }
+            
+        }
+        
+        //make people
+        //Person p2 = new Person(20, 20);
+        
+        //p2.setGoalList(world.getPath(p2.getLocation()).getSubGoals());
 
-        Person p2 = new Person(20, 20);
-        p2.setGoalList(world.getPath(p2.getLocation()).getSubGoals());
+        //print
+        //System.out.println("Printing vertices towards " + p2.getLocation().x + " " + p2.getLocation().y);
 
-        System.out.println("Printing vertices towards " + p2.getLocation().x + " " + p2.getLocation().y);
-
+        //print
+        /*
         for (Vertex v : world.getPath(p2.getLocation()).getVertices()) {
             System.out.println(v);
         }
+        */
 
-        System.out.println("Printing subgoals towards " + p2.getLocation().x + " " + p2.getLocation().y);
-
+        //System.out.println("Printing subgoals towards " + p2.getLocation().x + " " + p2.getLocation().y);
+        /*
         for (Vertex v : world.getPath(p2.getLocation()).getSubGoals()) {
             System.out.println(v);
         }
-
+        */
+        
+        /*
         ArrayList<Person> people = new ArrayList<Person>();
         people.add(p2);
+		*/
+        
 
         System.out.println("Printing persons starting location");
 
@@ -87,9 +121,9 @@ public class BasicCanvas {
             System.out.println(p.getLocation());
         }
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             for (Person p : people)
-                p.advance(world, people, 1);
+                p.advance(world, people, 0.1);
             if (i % 10 == 9) {
                 System.out.println();
                 System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 1    + "s)");
@@ -99,7 +133,7 @@ public class BasicCanvas {
         System.out.println("Printing persons position for each advance");
 
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             for (Person p : people)
                 System.out.println(p.locations.get(i));
         }
