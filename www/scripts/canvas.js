@@ -1,3 +1,6 @@
+
+var KILL_MODE = 99;
+
 var stage;
 
 //These two arrays are counterparts.
@@ -9,6 +12,8 @@ var endOfArray = -1;  //For "tail" access
 
 var featureID = 0;
 var click = false;
+var trace = false;
+var debug = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
@@ -25,6 +30,7 @@ function init() {
 
 // Need some connection shit before this happens, the JSON needs to come from the server. It is currently in a file.
 function populate(time){
+
     if(time >= people[0].length){
         return false;
     }
@@ -38,15 +44,28 @@ function populate(time){
     //Clear record of people on canvas
     canvasPeople = new Array();
 
+ 
     for(var i = 0; i < people.length; i++){
         s = new createjs.Shape(); canvasPeople.push(s);
         s.graphics.beginFill("black").drawCircle(people[i][time].x, people[i][time].y, 5);
         stage.addChild(s); 
     }
 
+    if(trace){
+        for(var i = 0; i < people.length; i++){
+            for(var j = 0; j < time + 1; j++){
+                if (j > 0){
+                    s = new createjs.Shape(); canvasPeople.push(s);
+                    s.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(1.0).moveTo(people[i][j-1].x, people[i][j-1].y).lineTo(people[i][j].x, people[i][j].y).endStroke();
+                    stage.addChild(s); 
+                }
+            }
+        }
+    }
+
     stage.update();
 }
-
+    
 //This whole drawmodes thing is silly, because I still have to manually define which events are attached to what. Investigate the event listeners and see if they can be stored and added to the stage as objects without calling this method.
 function drawMode(mode){
 
@@ -61,7 +80,7 @@ function drawMode(mode){
         stage.addEventListener("stagemousedown", drawDoor);
 	    stage.addEventListener("stagemousemove", mouseDoor);
     }
-    else if(mode == 99){
+    else if(mode == KILL_MODE){
         stage.removeAllEventListeners();
 
         for(var i = 0; i < canvasFeatures.length; i++){
@@ -92,10 +111,10 @@ function mouseDoor(e){
     var to = spin(new Coordinate(25, 0), angle); to[0] = to[0] + e.stageX; to[1] = to[1] + e.stageY;
 
     if(e.nativeEvent.shiftKey){
-	cursorItem.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(3.0).moveTo(Math.round(from[0]/50)*50, Math.round(from[1]/50)*50).lineTo(Math.round(to[0]/50)*50, Math.round(to[1]/50)*50).endStroke();
+	   cursorItem.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(3.0).moveTo(Math.round(from[0]/50)*50, Math.round(from[1]/50)*50).lineTo(Math.round(to[0]/50)*50, Math.round(to[1]/50)*50).endStroke();
     }
     else{
-	cursorItem.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(3.0).moveTo(from[0], from[1]).lineTo(to[0], to[1]).endStroke();
+	   cursorItem.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(3.0).moveTo(from[0], from[1]).lineTo(to[0], to[1]).endStroke();
     }
     stage.addChild(cursorItem);
     stage.update();
@@ -259,12 +278,30 @@ function getPeople(){
     });
 }
 
+function traceToggle(){
+    if(trace){
+        trace = false;
+    }
+    else{
+        trace = true;
+    }
+}
+
+function cursorPixels(){
+    if(debug){
+        //turn it off
+        debug = false;
+    }
+    else{
+    //     <button class="btn btn-sm btn-primary" onclick="traceToggle()">Trace Mode</button>
+        debug = true;
+    }
+}
 /*
 client todo list.
 
-Slider
-Path tracing
 cursor pixels
+people differentiated.
 
 drawable areas of interest
 
