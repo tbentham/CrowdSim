@@ -63,7 +63,7 @@ public class BasicCanvas {
                 + "ms Towards " + goal.x + ", " + goal.y);
 
 
-        Person p2 = new Person(30.0, 45.0);
+        Person p2 = new Person(8.0, 8.0);
         p2.setGoalList(world.getPath((int) Math.round(p2.getLocation().x), (int) Math.round(p2.getLocation().y)).getSubGoals());
 
         System.out.println("Printing vertices towards " + p2.getLocation().x + " " + p2.getLocation().y);
@@ -99,7 +99,7 @@ public class BasicCanvas {
         System.out.println("Printing persons position for each advance");
 
 
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < world.getSideLength(); i++) {
             for (Person p : people)
                 System.out.println(p.locations.get(i));
         }

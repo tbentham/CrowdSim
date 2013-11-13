@@ -165,5 +165,9 @@ public class World {
             throw new RoutesNotComputedException("getPath called before routes were computed");
         return new Path(dijkstra.getPath(nodeArray[x][y]));
     }
+    
+    public int getSideLength(){
+    	return this.sideLength;
+    }
 
 }

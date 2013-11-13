@@ -247,7 +247,8 @@ function sendFeatures(){
 }
 
 function hand(data){ // Turn json into objects
-        people = JSON.parse(data.toString());}
+    people = JSON.parse(data.toString());
+}
 
 function getPeople(){
     $.get("/people.json", function(data){people = JSON.parse(data.toString().trim())});
