@@ -187,6 +187,7 @@ function endLine(e){
         var line = features[endOfArray];
         var canvasLine = canvasFeatures[endOfArray];
 
+        //Drawing
         if(e.nativeEvent.shiftKey){
             line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
         }
@@ -194,9 +195,15 @@ function endLine(e){
             line.setToCoords(e.stageX, e.stageY);
         }
 
-        canvasLine.graphics.clear();
-	    canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
-        stage.update();
+        //Only draw non point walls, and remove walls which are points.
+        if(line.getFromCoords().x == line.getToCoords().x && line.getFromCoords().y == line.getToCoords().y ){
+            features.pop(); canvasFeatures.pop(); endOfArray--;
+        }
+        else{     
+            canvasLine.graphics.clear();
+            canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
+            stage.update();
+        }
     }
 }
 
