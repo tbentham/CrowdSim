@@ -54,7 +54,7 @@ public class BasicCanvas {
 
         world.setUp();
         world.printFloorPlan();
-        world.computeDijsktraTowards((int) Math.round(goal.x), (int) Math.round(goal.y));
+        world.computeDijsktraTowards(goal);
 
         // world.printDijsktras();
 
@@ -64,17 +64,17 @@ public class BasicCanvas {
 
 
         Person p2 = new Person(8.0, 8.0);
-        p2.setGoalList(world.getPath((int) Math.round(p2.getLocation().x), (int) Math.round(p2.getLocation().y)).getSubGoals());
+        p2.setGoalList(world.getPath(goal).getSubGoals());
 
         System.out.println("Printing vertices towards " + p2.getLocation().x + " " + p2.getLocation().y);
 
-        for (Vertex v : world.getPath((int) Math.round(p2.getLocation().x), (int) Math.round(p2.getLocation().y)).getVertices()) {
+        for (Vertex v : world.getPath(goal).getVertices()) {
             System.out.println(v);
         }
 
         System.out.println("Printing subgoals towards " + p2.getLocation().x + " " + p2.getLocation().y);
 
-        for (Vertex v : world.getPath((int) Math.round(p2.getLocation().x), (int) Math.round(p2.getLocation().y)).getSubGoals()) {
+        for (Vertex v : world.getPath(goal).getSubGoals()) {
             System.out.println(v);
         }
 
