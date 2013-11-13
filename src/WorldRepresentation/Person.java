@@ -37,7 +37,7 @@ public class Person {
             goalList.remove(0);
     }
 
-    public Point2d advance(ArrayList<Person> people, double timeStep) {
+    public Point2d advance(World world, ArrayList<Person> people, double timeStep) {
         goalUpdate();
 
         if (goalList.size() > 0) {
@@ -46,6 +46,10 @@ public class Person {
             for (Person p : people) {
                 if (this != p)
                     actualVelocity.add(forceModel.socialForce(this, p, timeStep));
+            }
+
+            for (Wall wall : world.getWalls())   {
+                actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
             }
 
             Vector2d motion = new Vector2d(actualVelocity);

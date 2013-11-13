@@ -44,7 +44,7 @@ public class BasicCanvas {
 
         double d = System.currentTimeMillis();
 
-        World world = new World(50);
+        World world = new World(100);
 
         for (Cobject co : cobjs) {
             world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
@@ -63,7 +63,7 @@ public class BasicCanvas {
                 + "ms Towards " + goal.x + ", " + goal.y);
 
 
-        Person p2 = new Person(8.0, 8.0);
+        Person p2 = new Person(20, 20);
         p2.setGoalList(world.getPath(goal).getSubGoals());
 
         System.out.println("Printing vertices towards " + p2.getLocation().x + " " + p2.getLocation().y);
@@ -89,7 +89,7 @@ public class BasicCanvas {
 
         for (int i = 0; i < 10; i++) {
             for (Person p : people)
-                p.advance(people, 1);
+                p.advance(world, people, 1);
             if (i % 10 == 9) {
                 System.out.println();
                 System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 1    + "s)");

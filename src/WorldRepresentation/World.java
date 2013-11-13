@@ -17,7 +17,7 @@ public class World {
 
     private int sideLength;
 
-    private List<Wall> walls;
+    private ArrayList<Wall> walls;
     private int[][] floorPlan;
 
     private Vertex[][] nodeArray;
@@ -174,8 +174,12 @@ public class World {
         return getPath((int) Math.round(goal.x), (int) Math.round(goal.y));
     }
     
-    public int getSideLength(){
+    public int getSideLength() {
     	return this.sideLength;
+    }
+
+    public ArrayList<Wall> getWalls() {
+        return walls;
     }
 
 }

@@ -40,11 +40,11 @@ public class Wall implements BuildingObject {
         }
 
         // Get distance to nearest point on wall (reusing variables)
-        a = startVector.getY() - endVector.getY();
-        b = endVector.getX() - startVector.getX();
-        c = startVector.getX()*endVector.getY() - endVector.getX()*startVector.getY();
+        a = startVector.y - endVector.y;
+        b = endVector.x - startVector.x;
+        c = startVector.x * endVector.y - endVector.x * startVector.y;
 
-        return Math.abs(a*point.getX() + b*point.getY() + c) / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+        return Math.abs(a * point.x + b * point.y + c) / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     }
 
     public double distance(Person person) {
