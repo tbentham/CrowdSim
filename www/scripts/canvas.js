@@ -21,6 +21,8 @@ var cursorItemPixel; // This needs another tidy session
 
 var people = new Array();
 var canvasPeople;
+var canvasPeople_colours = new Array();
+var canvasTraces = new Array();
 
 function init() {
 
@@ -35,35 +37,41 @@ function populate(time){
     if(time >= people[0].length){
         return false;
     }
-    //Remove existing people on canvas
-    if(canvasPeople){
+
+    if(!canvasPeople){
+        canvasPeople = new Array();
+
+        for(var i = 0; i < people.length; i++)
+        {
+            s = new createjs.Shape(); canvasPeople.push(s);
+            canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
+            stage.addChild(s);
+        }
+    }
+    else{
         for(var i = 0; i < canvasPeople.length; i++){
             canvasPeople[i].graphics.clear();
         }
+        for(var i = 0; i < canvasTraces.length; i++){
+            canvasTraces[i].graphics.clear();
+        }
     }
 
-    //Clear record of people on canvas
-    canvasPeople = new Array();
-
- 
-    for(var i = 0; i < people.length; i++){
-        s = new createjs.Shape(); canvasPeople.push(s);
-        s.graphics.beginFill("black").drawCircle(people[i][time].x, people[i][time].y, 5);
-        stage.addChild(s); 
+    for(var i = 0; i < canvasPeople.length; i++){ 
+        canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x, people[i][time].y, 5); 
     }
 
     if(trace){
-        for(var i = 0; i < people.length; i++){
-            for(var j = 0; j < time + 1; j++){
-                if (j > 0){
-                    s = new createjs.Shape(); canvasPeople.push(s);
-                    s.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(1.0).moveTo(people[i][j-1].x, people[i][j-1].y).lineTo(people[i][j].x, people[i][j].y).endStroke();
-                    stage.addChild(s); 
+    for(var i = 0; i < people.length; i++){
+        for(var j = 0; j < time + 1; j++){
+            if (j > 0){
+                s = new createjs.Shape(); canvasTraces.push(s);
+                s.graphics.beginStroke(canvasPeople_colours[i]).setStrokeStyle(1.0).moveTo(people[i][j-1].x, people[i][j-1].y).lineTo(people[i][j].x, people[i][j].y).endStroke();
+                stage.addChild(s); 
                 }
             }
         }
     }
-
     stage.update();
 }
     
@@ -320,8 +328,8 @@ function cursorPixels(e){
 /*
 client todo list.
 
-No sending point walls
 people differentiated.
+mouse scroll
 make it "playable"
 
 drawable areas of interest
