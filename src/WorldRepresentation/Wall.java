@@ -60,11 +60,11 @@ public class Wall implements BuildingObject {
         double a = startToEnd.length();
 
         Vector2d startToPoint = new Vector2d(point);
-        startToPoint.sub(new Vector2d(endVector));
+        startToPoint.sub(new Vector2d(startVector));
         double b = startToPoint.length();
 
         Vector2d endToPoint = new Vector2d(point);
-        endToPoint.sub(new Vector2d(startVector));
+        endToPoint.sub(new Vector2d(endVector));
         double c = endToPoint.length();
 
 
