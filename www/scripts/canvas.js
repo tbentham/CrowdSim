@@ -13,6 +13,7 @@ var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
 
+var people = new Array();
 var canvasPeople = new Array();
 
 function init() {
@@ -250,5 +251,15 @@ function hand(data){ // Turn json into objects
 
 function getPeople(){
     $.get("/people.json", function(data){people = JSON.parse(data.toString().trim())});
-    //some $.post
 }
+
+/*
+client todo list.
+
+Slider
+Path tracing
+drawable areas of interest
+
+make it "playable"
+feedback from the server (only useful when server webserver component has been remodelled.)
+*/
