@@ -17,6 +17,7 @@ var debug = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
+var cursorItemPixel; // This needs another tidy session
 
 var people = new Array();
 var canvasPeople;
@@ -186,6 +187,7 @@ function endLine(e){
         var line = features[endOfArray];
         var canvasLine = canvasFeatures[endOfArray];
 
+        //Drawing
         if(e.nativeEvent.shiftKey){
             line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
         }
@@ -193,9 +195,15 @@ function endLine(e){
             line.setToCoords(e.stageX, e.stageY);
         }
 
-        canvasLine.graphics.clear();
-	    canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
-        stage.update();
+        //Only draw non point walls, and remove walls which are points.
+        if(line.getFromCoords().x == line.getToCoords().x && line.getFromCoords().y == line.getToCoords().y ){
+            features.pop(); canvasFeatures.pop(); endOfArray--;
+        }
+        else{     
+            canvasLine.graphics.clear();
+            canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
+            stage.update();
+        }
     }
 }
 
@@ -287,24 +295,35 @@ function traceToggle(){
     }
 }
 
-function cursorPixels(){
+function cursorPixelToggle(){
     if(debug){
-        //turn it off
+        stage.removeEventListener("stagemousemove", cursorPixels);
+        stage.removeChild(cursorItemPixel);
+        stage.update();
         debug = false;
     }
     else{
-    //     <button class="btn btn-sm btn-primary" onclick="traceToggle()">Trace Mode</button>
-        debug = true;
+        debug = stage.addEventListener("stagemousemove", cursorPixels);
+        cursorItemPixel = new createjs.Text("0, 0", "15px Arial", "#000");
+        cursorItemPixel.x = 0;
+        stage.addChild(cursorItemPixel);
     }
 }
+
+function cursorPixels(e){
+
+    cursorItemPixel.x = e.stageX + 25; cursorItemPixel.y = e.stageY + 25;
+    cursorItemPixel.text = e.stageX + ", " + e.stageY;
+    stage.update();
+}
+
 /*
 client todo list.
 
-cursor pixels
+No sending point walls
 people differentiated.
+make it "playable"
 
 drawable areas of interest
-
-make it "playable"
 feedback from the server (only useful when server webserver component has been remodelled.)
 */
