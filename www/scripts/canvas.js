@@ -17,6 +17,7 @@ var debug = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var cursorItem;
+var cursorItemPixel; // This needs another tidy session
 
 var people = new Array();
 var canvasPeople;
@@ -287,24 +288,35 @@ function traceToggle(){
     }
 }
 
-function cursorPixels(){
+function cursorPixelToggle(){
     if(debug){
-        //turn it off
+        stage.removeEventListener("stagemousemove", cursorPixels);
+        stage.removeChild(cursorItemPixel);
+        stage.update();
         debug = false;
     }
     else{
-    //     <button class="btn btn-sm btn-primary" onclick="traceToggle()">Trace Mode</button>
-        debug = true;
+        debug = stage.addEventListener("stagemousemove", cursorPixels);
+        cursorItemPixel = new createjs.Text("0, 0", "15px Arial", "#000");
+        cursorItemPixel.x = 0;
+        stage.addChild(cursorItemPixel);
     }
 }
+
+function cursorPixels(e){
+
+    cursorItemPixel.x = e.stageX + 25; cursorItemPixel.y = e.stageY + 25;
+    cursorItemPixel.text = e.stageX + ", " + e.stageY;
+    stage.update();
+}
+
 /*
 client todo list.
 
-cursor pixels
+No sending point walls
 people differentiated.
+make it "playable"
 
 drawable areas of interest
-
-make it "playable"
 feedback from the server (only useful when server webserver component has been remodelled.)
 */
