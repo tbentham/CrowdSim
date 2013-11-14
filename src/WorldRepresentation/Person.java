@@ -24,6 +24,7 @@ public class Person {
     public Person(double x1, double y1) {
         locations = new ArrayList<Point2d>();
         location = new Point2d(x1, y1);
+        locations.add(new Point2d(location));
         size = 4.0;
 
         goalList = new LinkedList<Vertex>();

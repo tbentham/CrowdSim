@@ -54,7 +54,7 @@ public class BasicCanvas {
         	else if(co.getType() == 2){
         		//Do something with goals here.
         		System.out.println("I have a goal at " + co.getFrom().toString());
-        		goal = new Point2d(co.getFrom().x/10.0, co.getFrom().y/10.0);
+        		goal = new Point2d(co.getFrom().x/ 10 , co.getFrom().y / 10.0);
         	}
         }
 
@@ -78,47 +78,8 @@ public class BasicCanvas {
             p.setGoalList(world.getPath(p.getLocation()).getSubGoals());
             
         	people.add(p);
-        	
-            System.out.println("Printing vertices towards " + p.getLocation().x + " " + p.getLocation().y);
-            
-            for (Vertex v : world.getPath(p.getLocation()).getVertices()) {
-                System.out.println(v);
-            }
-            
-            System.out.println("Printing subgoals towards " + p.getLocation().x + " " + p.getLocation().y);
-            
-            for (Vertex v : world.getPath(p.getLocation()).getSubGoals()) {
-                System.out.println(v);
-            }
-            
         }
-        
-        //make people
-        //Person p2 = new Person(20, 20);
-        
-        //p2.setGoalList(world.getPath(p2.getLocation()).getSubGoals());
 
-        //print
-        //System.out.println("Printing vertices towards " + p2.getLocation().x + " " + p2.getLocation().y);
-
-        //print
-        /*
-        for (Vertex v : world.getPath(p2.getLocation()).getVertices()) {
-            System.out.println(v);
-        }
-        */
-
-        //System.out.println("Printing subgoals towards " + p2.getLocation().x + " " + p2.getLocation().y);
-        /*
-        for (Vertex v : world.getPath(p2.getLocation()).getSubGoals()) {
-            System.out.println(v);
-        }
-        */
-        
-        /*
-        ArrayList<Person> people = new ArrayList<Person>();
-        people.add(p2);
-		*/
         
 
         System.out.println("Printing persons starting location");
@@ -136,12 +97,10 @@ public class BasicCanvas {
             }
         }
 
-        System.out.println("Printing persons position for each advance");
+        System.out.println("Printing persons starting location");
 
-
-        for (int i = 0; i < 100; i++) {
-            for (Person p : people)
-                System.out.println(p.locations.get(i));
+        for (Person p : people) {
+            System.out.println(p.locations.get(0));
         }
 
         PrintWriter out = new PrintWriter("www/people.json");
@@ -154,17 +113,13 @@ public class BasicCanvas {
 
     public static String peopleToJson(ArrayList<Person> people) {
 
-//        for (WorldRepresentation.Person p: people) {
-//            System.out.println(p.getLocation());
-//        }
-
         String[] locations = new String[people.size()];
         Person curPerson;
         String finalString = "";
         for (int i = 0; i < people.size(); i++) {
             curPerson = people.get(i);
             locations[i] = "";
-            for (int j = 1; j < curPerson.locations.size(); j++) {
+            for (int j = 0; j < curPerson.locations.size(); j++) {
                 locations[i] += "{\"x\":" + (curPerson.locations.get(j).x * 10.0) + ", \"y\":" + (curPerson.locations.get(j).y * 10.0) + "}";
                 if (j < curPerson.locations.size() - 1)
                     locations[i] += ", ";
