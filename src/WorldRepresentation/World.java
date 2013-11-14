@@ -10,7 +10,7 @@ import Exceptions.WorldNotSetUpException;
 import javax.vecmath.Point2d;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
 public class World {
@@ -25,20 +25,20 @@ public class World {
     private List<Edge> edges;
 
     private DijkstraAlgorithm dijkstra;
-    
+
     private boolean isSetUp;
     private boolean routesComputed;
 
     public World(int sideLength) {
         this.sideLength = sideLength;
-        
+
         walls = new ArrayList<Wall>();
         floorPlan = new int[sideLength][sideLength];
-        
+
         nodeArray = new Vertex[sideLength][sideLength];
         nodes = new ArrayList<Vertex>();
         edges = new ArrayList<Edge>();
-        
+
         isSetUp = false;
         routesComputed = false;
     }
@@ -114,7 +114,7 @@ public class World {
             for (int j = 0; j < sideLength; j++) {
                 nodeArray[i][j] = null;
                 if (floorPlan[i][j] == 0) {
-                	nodeArray[i][j] = new Vertex(i, j);
+                    nodeArray[i][j] = new Vertex(i, j);
                     nodes.add(nodeArray[i][j]);
                 }
             }
@@ -165,17 +165,20 @@ public class World {
     }
 
     public Path getPath(int x, int y) throws RoutesNotComputedException {
-        if (!routesComputed)
+        if (!routesComputed) {
             throw new RoutesNotComputedException("getPath called before routes were computed");
-        return new Path(dijkstra.getPath(nodeArray[x][y]));
+        }
+        ArrayList<Vertex> vertexList = new ArrayList<Vertex>(dijkstra.getPath(nodeArray[x][y]));
+        Collections.reverse(vertexList);
+        return new Path(vertexList);
     }
 
     public Path getPath(Point2d location) throws RoutesNotComputedException {
         return getPath((int) Math.round(location.x), (int) Math.round(location.y));
     }
-    
+
     public int getSideLength() {
-    	return this.sideLength;
+        return this.sideLength;
     }
 
     public ArrayList<Wall> getWalls() {

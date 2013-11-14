@@ -2,7 +2,6 @@ package WorldRepresentation;
 
 import Dijkstra.Vertex;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ public class Path {
         vertices = new LinkedList<Vertex>();
         subgoals = new LinkedList<Vertex>();
         vertices.addAll(vertexList);
-        Collections.reverse(vertices);
         generateSubGoals();
     }
 

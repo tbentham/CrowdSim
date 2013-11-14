@@ -2,19 +2,18 @@ import Dijkstra.Vertex;
 import WorldRepresentation.Path;
 import org.junit.Test;
 
+import java.util.LinkedList;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.util.LinkedList;
 
 public class PathTest {
 
     @Test
     public void baseCases() {
         LinkedList<Vertex> vertices = new LinkedList<Vertex>();
-        // added in wrong order as they get reversed when initialising WorldRepresentation.Path
-        vertices.add(new Vertex(1, 0));
         vertices.add(new Vertex(0, 0));
+        vertices.add(new Vertex(1, 0));
 
         LinkedList<Vertex> exSubGoals = new LinkedList<Vertex>();
         exSubGoals.add(new Vertex(1, 0));
@@ -24,7 +23,7 @@ public class PathTest {
 
         // check if subgoals are correctly generated in the case of 2 items in vertices
         if (path.getSubGoals().size() == exSubGoals.size()) {
-            for (int i=0; i<path.getSubGoals().size(); i++) {
+            for (int i = 0; i < path.getSubGoals().size(); i++) {
                 assertTrue(path.getSubGoals().get(i).equals(exSubGoals.get(i)));
             }
         } else {
@@ -37,4 +36,18 @@ public class PathTest {
 
         assertTrue(path.getSubGoals().size() == 0); // check if subgoals list is empty (not enough vertices to generate a subgoal)
     }
+
+    @Test
+    public void pathConstructorShouldNotReverseGivenVertices() {
+        LinkedList<Vertex> vertices = new LinkedList<Vertex>();
+        vertices.add(new Vertex(0, 0));
+        vertices.add(new Vertex(1, 0));
+        Path path = new Path(vertices);
+        assertTrue(path.getVertices().get(0).toPoint2d().x == 0.0);
+        assertTrue(path.getVertices().get(0).toPoint2d().y == 0.0);
+        assertTrue(path.getVertices().get(1).toPoint2d().x == 1.0);
+        assertTrue(path.getVertices().get(1).toPoint2d().y == 0.0);
+    }
+
 }
+
