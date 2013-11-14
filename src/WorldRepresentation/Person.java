@@ -2,6 +2,7 @@ package WorldRepresentation;
 
 import Dijkstra.Vertex;
 import Exceptions.NaNException;
+import Exceptions.NoGoalException;
 import Exceptions.PersonOverlapException;
 import ForceModel.Model;
 
@@ -41,7 +42,12 @@ public class Person {
     }
 
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
-            PersonOverlapException {
+            PersonOverlapException, NoGoalException {
+
+        if (goalList.size() == 0) {
+            throw new NoGoalException("advanced called on person at " + this.location.x + " , " + this.location.y +
+                    " with no goals");
+        }
 
         if (location.distance(goalList.get(goalList.size() - 1).toPoint2d()) < (size / 2.0)) {
             locations.add(new Point2d(location));
