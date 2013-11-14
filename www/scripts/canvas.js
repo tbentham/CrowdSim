@@ -81,6 +81,10 @@ function populate(time, clear){
 //This whole drawmodes thing is silly, because I still have to manually define which events are attached to what. Investigate the event listeners and see if they can be stored and added to the stage as objects without calling this method.
 function drawMode(mode){
 
+    if(cursorItem){
+        cursorItem.graphics.clear();
+    }
+
     if(mode == WALL_MODE){
         stage.removeAllEventListeners();
         stage.addEventListener("stagemousedown", startLine);
@@ -387,6 +391,9 @@ function drawInterest(e){
 
         canvasCircle.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke(); 
 
+        cursorItem.graphics.clear();
+        stage.removeChild(cursorItem);
+
         stage.addChild(canvasCircle);
         stage.update();
     }
@@ -412,7 +419,6 @@ function mouseInterest(e){
 client todo list.
 
 mouse scroll - cba
-drawable areas of interest
 COMPLETELY REDESIGN how people are being drawn on the canvas. (to reduce lag)
 
 kill mode bug

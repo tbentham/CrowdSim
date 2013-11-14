@@ -1,20 +1,23 @@
 import java.io.PrintWriter;
 import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import javax.vecmath.Point2d;
+
 import java.io.IOException;
 
 import Dijkstra.Vertex;
 import WorldRepresentation.Person;
 import WorldRepresentation.World;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.handler.*;
+
+import com.tomgibara.cluster.gvm.dbl.DblClusters;
 
 public class BasicCanvas {
 
@@ -99,9 +102,16 @@ public class BasicCanvas {
 
         System.out.println("Printing persons starting location");
 
+        //Create the clusters list
+        DblClusters<Person> clusters = new DblClusters<Person>(2, 5);
+
+		
         for (Person p : people) {
             System.out.println(p.locations.get(0));
+            //Add each location for each person at time 0.
+            clusters.add(1.0, new double[]{p.locations.get(0).x, p.locations.get(0).y}, p);
         }
+        
 
         PrintWriter out = new PrintWriter("www/people.json");
         out.print(peopleToJson(people));
