@@ -33,14 +33,10 @@ function init() {
 }
 
 // Need some connection shit before this happens, the JSON needs to come from the server. It is currently in a file.
-function populate(time, play){
+function populate(time, clear){
 
     if(time >= people[0].length){
         return false;
-    }
-
-    if(play == true){
-        time++;
     }
 
     if(!canvasPeople){
@@ -334,7 +330,19 @@ function simulate(option){
 
     //Start from beginning.
     if(option == 1){
+
         time = 0;
+
+        if(interval){ // Has already been started, therefore needs to be started from the beginning with no traces and new arrays
+            window.clearInterval(interval);
+            if(canvasTraces){
+                for(var i = 0; i < canvasTraces.length; i++){
+                    stage.removeChild(canvasTraces[i]);
+                }
+                stage.update();
+            }
+            canvasTraces = new Array();
+        }
         interval = window.setInterval(function(){populate(time);time++}, 100);
     }
     //Continue from where we currently are.
@@ -353,7 +361,6 @@ client todo list.
 
 kill mode bug
 mouse scroll
-
 
 drawable areas of interest
 feedback from the server (only useful when server webserver component has been remodelled.)

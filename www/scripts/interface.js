@@ -20,14 +20,6 @@ function resizeCanvas() {
 	panel.height = mainDiv.offsetHeight;
 }
 
-function simulate() {
-	alert("Simulate has been called.");
-}
-
-function evacuate() {
-	alert("Evacuate has been called.");
-}
-
 function modeSelected(mode) {
 	var curDiv = objectList[mode];
 	var curPar = $(curDiv).parent();
