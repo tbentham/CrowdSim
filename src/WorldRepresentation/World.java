@@ -185,4 +185,28 @@ public class World {
         return walls;
     }
 
+    public int[][] getFloorPlan() {
+        return floorPlan;
+    }
+
+    public Vertex[][] getNodeArray() {
+        return nodeArray;
+    }
+
+    public List<Vertex> getNodes() {
+        return nodes;
+    }
+
+    public List<Edge> getEdges() {
+        return edges;
+    }
+
+    public boolean isSetUp() {
+        return isSetUp;
+    }
+
+    public boolean areRoutesComputed() {
+        return routesComputed;
+    }
+
 }
