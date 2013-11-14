@@ -45,7 +45,8 @@ public class BasicCanvas {
         double d = System.currentTimeMillis();
 
         World world = new World(100);
-
+        Point2d goal = new Point2d(0, 0);
+        
         for (Cobject co : cobjs) {
         	if(co.getType() == 0){
         		world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
@@ -53,10 +54,11 @@ public class BasicCanvas {
         	else if(co.getType() == 2){
         		//Do something with goals here.
         		System.out.println("I have a goal at " + co.getFrom().toString());
+        		goal = new Point2d(co.getFrom().x/10.0, co.getFrom().y/10.0);
         	}
         }
 
-        Point2d goal = new Point2d(50, 13);
+        
 
         world.setUp();
         world.printFloorPlan();
