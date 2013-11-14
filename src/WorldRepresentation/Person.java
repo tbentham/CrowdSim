@@ -29,7 +29,7 @@ public class Person {
 
         goalList = new LinkedList<Vertex>();
 
-        desiredSpeed = 1.34;	// metres per second
+        desiredSpeed = 1.34;    // metres per second
         actualVelocity = new Vector2d(0, 0);
 
         forceModel = new Model();
@@ -42,6 +42,12 @@ public class Person {
 
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
             PersonOverlapException {
+
+        if (location.distance(goalList.get(goalList.size() - 1).toPoint2d()) < (size / 2.0)) {
+            locations.add(new Point2d(location));
+            return location;
+        }
+
         goalUpdate();
 
         if (goalList.size() > 0) {

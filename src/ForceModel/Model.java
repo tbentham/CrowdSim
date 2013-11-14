@@ -24,7 +24,7 @@ public class Model {
             throw new NaNException("socialForce called with bPerson at NaN location");
         }
 
-        double d = 8.0 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
+        double d = 3.5 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
 //      double d = 2.0 / b(bPerson);
 
         Vector2d aVector = new Vector2d(aPerson.getLocation());
@@ -67,13 +67,12 @@ public class Model {
         Vector2d cVector = new Vector2d(aVector);
         cVector.sub(bVector);
 
-        double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed*timeStep, 2);
+        double squareRootMe = Math.pow(aVector.length() + cVector.length(), 2) - Math.pow(bSpeed * timeStep, 2);
         double ret = Math.sqrt(squareRootMe) / 2.0;
 
         if (squareRootMe < 0 && squareRootMe > -1) {
             return 0.0;
-        }
-        else if (Double.isNaN(ret)) {
+        } else if (Double.isNaN(ret)) {
             throw new NaNException("Tried to squareRoot negative number in b function between person at " +
                     aPerson.getLocation() + " with velocity: " + aPerson.getVelocity() + " and person at " +
                     bPerson.getLocation() + " with velocity: " + bPerson.getVelocity() + " using timeStep " +
