@@ -1,4 +1,6 @@
-
+var WALL_MODE = 0;
+var DOOR_MODE = 1;
+var INTEREST_MODE = 2;
 var KILL_MODE = 99;
 
 var stage;
@@ -79,13 +81,13 @@ function populate(time, clear){
 //This whole drawmodes thing is silly, because I still have to manually define which events are attached to what. Investigate the event listeners and see if they can be stored and added to the stage as objects without calling this method.
 function drawMode(mode){
 
-    if(mode == 0){
+    if(mode == WALL_MODE){
         stage.removeAllEventListeners();
         stage.addEventListener("stagemousedown", startLine);
         stage.addEventListener("stagemousemove", drawLine);
         stage.addEventListener("stagemouseup", endLine);   
     }
-    else if(mode == 1){
+    else if(mode == DOOR_MODE){
         stage.removeAllEventListeners();
         stage.addEventListener("stagemousedown", drawDoor);
 	    stage.addEventListener("stagemousemove", mouseDoor);
@@ -96,6 +98,11 @@ function drawMode(mode){
         for(var i = 0; i < canvasFeatures.length; i++){
             canvasFeatures[i].addEventListener("click", removeItem);
         }
+    }
+    else if(mode == INTEREST_MODE){
+        stage.removeAllEventListeners();
+        stage.addEventListener("stagemousedown", drawInterest);
+        stage.addEventListener("stagemousemove", mouseInterest);
     }
 }
 
@@ -335,6 +342,7 @@ function simulate(option){
 
         if(interval){ // Has already been started, therefore needs to be started from the beginning with no traces and new arrays
             window.clearInterval(interval);
+            //This now causes a lag spike - All of this people drawing stuff needs to be reworked.
             if(canvasTraces){
                 for(var i = 0; i < canvasTraces.length; i++){
                     stage.removeChild(canvasTraces[i]);
@@ -356,12 +364,58 @@ function simulate(option){
     }
 }
 
+function drawInterest(e){
+    
+    if(stage.mouseInBounds){
+
+        //Increases readability since they are accessed multiple times.
+        features.push(new Feature(featureID, 2)); canvasFeatures.push(new createjs.Shape());
+        endOfArray++; featureID++;
+
+        var canvasCircle = canvasFeatures[endOfArray];
+        var circle = features[endOfArray];
+
+        //Drawing
+        if(e.nativeEvent.shiftKey){
+            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+        }
+        else{
+            circle.setToCoords(e.stageX, e.stageY);
+            circle.setFromCoords(e.stageX, e.stageY);
+        }
+
+        canvasCircle.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke(); 
+
+        stage.addChild(canvasCircle);
+        stage.update();
+    }
+}
+
+//TODO: Consider mouseObject method which handles all possible cursor objects
+function mouseInterest(e){
+
+    if(cursorItem)cursorItem.graphics.clear();
+    cursorItem = new createjs.Shape();
+
+    if(e.nativeEvent.shiftKey){
+       cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, 15).endStroke(); 
+    }
+    else{
+       cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(e.stageX, e.stageY, 15).endStroke(); 
+    }
+    stage.addChild(cursorItem);
+    stage.update();
+}
+
 /*
 client todo list.
 
-kill mode bug
-mouse scroll
-
+mouse scroll - cba
 drawable areas of interest
+COMPLETELY REDESIGN how people are being drawn on the canvas. (to reduce lag)
+
+kill mode bug
+
 feedback from the server (only useful when server webserver component has been remodelled.)
 */

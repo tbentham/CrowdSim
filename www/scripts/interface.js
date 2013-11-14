@@ -33,15 +33,6 @@ function modeSelected(mode) {
 	};
 }
 
-
-
-
-
-
-
-
-
-
 // appends a list item div with the thumbnail from filepath image and description of the string value of name to the panel div.
 function createListItem(image, name, mode) {
 	var htmlgen = new Array();
@@ -65,6 +56,7 @@ $(window).ready(function() {
 	resizeCanvas();
 	createListItem("images/dragobjects/wall.png", "Wall", 0);
 	createListItem("images/dragobjects/door.png", "Door", 1);
+	createListItem("images/dragobjects/interest.png", "Point of Interest", 2);
 });
 
 // triggered when window is resized. Makes sure the canvas stays at the correct size.
