@@ -63,9 +63,9 @@ public class BasicCanvas {
         
         ArrayList<Person> people = new ArrayList<Person>();
 
-        for(int i=2; i<12; i++) {
-        	// Person p = new Person((int)(Math.random()*100),(int)(Math.random()*100));
-            Person p = new Person(i, i);
+        for(int i=2; i<50; i++) {
+        	Person p = new Person((int)(Math.random()*100),(int)(Math.random()*100));
+            //Person p = new Person(i, i);
         	
             p.setGoalList(world.getPath(p.getLocation()).getSubGoals());
             

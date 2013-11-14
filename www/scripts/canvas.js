@@ -16,6 +16,7 @@ var trace = false;
 var debug = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
+var interval;
 var cursorItem;
 var cursorItemPixel; // This needs another tidy session
 
@@ -32,10 +33,14 @@ function init() {
 }
 
 // Need some connection shit before this happens, the JSON needs to come from the server. It is currently in a file.
-function populate(time){
+function populate(time, play){
 
     if(time >= people[0].length){
         return false;
+    }
+
+    if(play == true){
+        time++;
     }
 
     if(!canvasPeople){
@@ -325,10 +330,27 @@ function cursorPixels(e){
     stage.update();
 }
 
+function simulate(option){
+
+    //Start from beginning.
+    if(option == 1){
+        time = 0;
+        interval = window.setInterval(function(){populate(time);time++}, 100);
+    }
+    //Continue from where we currently are.
+    else if (option ==2){
+        window.clearInterval(interval);
+        interval = window.setInterval(function(){populate(time);time++}, 100);
+    }
+    //Pause/Stop.
+    else{
+        window.clearInterval(interval);
+    }
+}
+
 /*
 client todo list.
 
-make it "playable"
 kill mode bug
 mouse scroll
 
