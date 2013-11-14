@@ -24,7 +24,7 @@ public class Model {
             throw new NaNException("socialForce called with bPerson at NaN location");
         }
 
-        double d = 2.1 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
+        double d = 8.0 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
 //      double d = 2.0 / b(bPerson);
 
         Vector2d aVector = new Vector2d(aPerson.getLocation());
