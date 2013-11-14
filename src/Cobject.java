@@ -28,5 +28,8 @@ public class Cobject {
     	// Need MOAR exceptions
     	return "ID: " + this.id + " TYPE: " + this.type + " FROM: " + this.from.toString() + " TO: " + this.to.toString();
     }
+    public int getType(){
+    	return this.type;
+    }
 }
 

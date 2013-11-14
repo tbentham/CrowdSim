@@ -47,7 +47,13 @@ public class BasicCanvas {
         World world = new World(100);
 
         for (Cobject co : cobjs) {
-            world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
+        	if(co.getType() == 0){
+        		world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
+        	}
+        	else if(co.getType() == 2){
+        		//Do something with goals here.
+        		System.out.println("I have a goal at " + co.getFrom().toString());
+        	}
         }
 
         Point2d goal = new Point2d(50, 13);
