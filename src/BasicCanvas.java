@@ -7,6 +7,7 @@ import javax.vecmath.Point2d;
 import java.io.IOException;
 
 import Exceptions.PersonOverlapException;
+import Exceptions.WallOverlapException;
 import WorldRepresentation.Person;
 import WorldRepresentation.World;
 import org.eclipse.jetty.server.Handler;
@@ -72,7 +73,7 @@ public class BasicCanvas {
         for(int i = 2; i < 50; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
-            } catch (PersonOverlapException e) { continue; }
+            } catch (PersonOverlapException | WallOverlapException e) { }
         }
 
         ArrayList<Person> people = world.getPeople();

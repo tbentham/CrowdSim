@@ -6,6 +6,7 @@ import Dijkstra.Graph;
 import Dijkstra.Vertex;
 import Exceptions.PersonOverlapException;
 import Exceptions.RoutesNotComputedException;
+import Exceptions.WallOverlapException;
 import Exceptions.WorldNotSetUpException;
 
 import javax.vecmath.Point2d;
@@ -58,7 +59,8 @@ public class World {
         walls.add(new Wall(x1, y1, x2, y2));
     }
 
-    public void addNewPersonAt(int x, int y) throws RoutesNotComputedException, PersonOverlapException {
+    public void addNewPersonAt(int x, int y) throws RoutesNotComputedException,
+            PersonOverlapException, WallOverlapException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("Cannot add people until world has routes computed");
         }
@@ -68,6 +70,11 @@ public class World {
             }
         }
         Person person = new Person(x, y);
+        for (Wall w : walls) {
+            if (w.touches(person)) {
+                throw new WallOverlapException("Cannot add person at " + x + " , " + y + " because wall exists there");
+            }
+        }
         person.setGoalList(getPath(x, y).getSubGoals());
         people.add(person);
     }
