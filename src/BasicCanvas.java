@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.vecmath.Point2d;
 import java.io.IOException;
 
-import Dijkstra.Vertex;
+import Exceptions.PersonOverlapException;
 import WorldRepresentation.Person;
 import WorldRepresentation.World;
 import org.eclipse.jetty.server.Handler;
@@ -68,19 +68,14 @@ public class BasicCanvas {
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
-        
-        ArrayList<Person> people = new ArrayList<Person>();
 
-        for(int i=2; i<50; i++) {
-        	Person p = new Person((int)(Math.random()*100),(int)(Math.random()*100));
-            //Person p = new Person(i, i);
-        	
-            p.setGoalList(world.getPath(p.getLocation()).getSubGoals());
-            
-        	people.add(p);
+        for(int i = 2; i < 50; i++) {
+            try {
+                world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
+            } catch (PersonOverlapException e) { continue; }
         }
 
-        
+        ArrayList<Person> people = world.getPeople();
 
         System.out.println("Printing persons starting location");
 

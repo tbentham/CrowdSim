@@ -4,6 +4,7 @@ import Dijkstra.DijkstraAlgorithm;
 import Dijkstra.Edge;
 import Dijkstra.Graph;
 import Dijkstra.Vertex;
+import Exceptions.PersonOverlapException;
 import Exceptions.RoutesNotComputedException;
 import Exceptions.WorldNotSetUpException;
 
@@ -29,6 +30,8 @@ public class World {
     private boolean isSetUp;
     private boolean routesComputed;
 
+    private ArrayList<Person> people;
+
     public World(int sideLength) {
         this.sideLength = sideLength;
 
@@ -41,6 +44,8 @@ public class World {
 
         isSetUp = false;
         routesComputed = false;
+
+        people = new ArrayList<Person>();
     }
 
     public void addWall(Point2d from, Point2d to) {
@@ -51,6 +56,20 @@ public class World {
         isSetUp = false;
         routesComputed = false;
         walls.add(new Wall(x1, y1, x2, y2));
+    }
+
+    public void addNewPersonAt(int x, int y) throws RoutesNotComputedException, PersonOverlapException {
+        if (!routesComputed) {
+            throw new RoutesNotComputedException("Cannot add people until world has routes computed");
+        }
+        for (Person p : people) {
+            if (p.getLocation().x == x && p.getLocation().y == y) {
+                throw new PersonOverlapException("Cannot create second person at " + x + ", " + y);
+            }
+        }
+        Person person = new Person(x, y);
+        person.setGoalList(getPath(x, y).getSubGoals());
+        people.add(person);
     }
 
     public void setUp() {
@@ -207,6 +226,10 @@ public class World {
 
     public boolean areRoutesComputed() {
         return routesComputed;
+    }
+
+    public ArrayList<Person> getPeople() {
+        return people;
     }
 
 }
