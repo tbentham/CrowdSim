@@ -63,6 +63,10 @@ public class Person {
                 actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
 
             }
+            if (actualVelocity.length() > desiredSpeed) {
+                actualVelocity.normalize();
+                actualVelocity.scale(desiredSpeed);
+            }
 
             Vector2d motion = new Vector2d(actualVelocity);
 
