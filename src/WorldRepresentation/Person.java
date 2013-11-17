@@ -81,7 +81,7 @@ public class Person {
             return location;
         }
 
-        goalUpdate(world.getWalls());
+        goalUpdate();
 
         if (goalList.size() > 0) {
             actualVelocity.add(desiredAcceleration());
@@ -110,7 +110,7 @@ public class Person {
 
         locations.add(new Point2d(location.x, location.y));
 
-        goalUpdate(world.getWalls());
+        goalUpdate();
 
         return location;
     }
