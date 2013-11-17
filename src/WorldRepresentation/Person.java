@@ -37,19 +37,50 @@ public class Person {
     }
 
     private void goalUpdate() {
-        while (goalList.size() > 0 && location.distance(goalList.get(0).toPoint2d()) < (size / 2.0))
+        while (goalList.size() > 0 &&
+        		location.distance(goalList.get(0).toPoint2d()) < (size / 2.0))
             goalList.remove(0);
+    }
+
+    private void goalUpdate(ArrayList<Wall> walls) {
+    	boolean canSkipGoal = true;
+    	
+    	if ( goalList.size() >= 2 ) {
+    		for (Wall w : walls) {
+    			if (w.intersects(location, goalList.get(1).toPoint2d())) {
+    				canSkipGoal = false;
+    				break;
+    			}
+    		}
+    	}
+    	
+        while ( ( goalList.size() > 0 &&
+        		location.distance(goalList.get(0).toPoint2d()) < (size / 2.0) ) ||
+        		( goalList.size() >= 2 && canSkipGoal ) ) {
+            goalList.remove(0);
+            
+            canSkipGoal = true;
+            
+            if ( goalList.size() >= 2 ) {
+        		for (Wall w : walls) {
+        			if (w.intersects(location, goalList.get(1).toPoint2d())) {
+        				canSkipGoal = false;
+        				break;
+        			}
+        		}
+        	}
+        }
     }
 
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
             PersonOverlapException, NoGoalException {
 
-        if (goalList.size() == 0 || location.distance(goalList.get(goalList.size() - 1).toPoint2d()) < (size / 2.0)) {
+        if (goalList.size() == 0 || location.distance(goalList.getLast().toPoint2d()) < (size / 2.0)) {
             locations.add(new Point2d(location));
             return location;
         }
 
-        goalUpdate();
+        goalUpdate(world.getWalls());
 
         if (goalList.size() > 0) {
             actualVelocity.add(desiredAcceleration());
@@ -73,10 +104,12 @@ public class Person {
             motion.scale(timeStep);
 
             location.add(motion);
-
-            goalUpdate();
+            
         }
+
         locations.add(new Point2d(location.x, location.y));
+
+        goalUpdate(world.getWalls());
 
         return location;
     }

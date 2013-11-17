@@ -88,6 +88,24 @@ public class Wall implements BuildingObject {
         return new Point2d(startToEnd);
     }
 
+    public boolean intersects(Point2d p1, Point2d p2) {
+    	double x1 = startVector.getX();
+    	double y1 = startVector.getY();
+    	double x2 = endVector.getX();
+    	double y2 = endVector.getY();
+    	
+    	double x3 = p1.getX();
+    	double y3 = p1.getY();
+    	double x4 = p2.getX();
+    	double y4 = p2.getY();
+    	
+    	double xInt = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)) /
+    			((x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4));
+    	
+    	return (Math.min(x1,x2) <= xInt & xInt <= Math.max(x1,x2) &
+    			Math.min(x3,x4) <= xInt & xInt <= Math.max(x3,x4));
+    }
+    
     public Point2d nearestPoint(Person person) {
         return nearestPoint(person.getLocation());
     }

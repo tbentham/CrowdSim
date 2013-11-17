@@ -107,7 +107,7 @@ public class World {
             throw new WorldNotSetUpException("printFloorPlan called before setting up world");
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++)
-                System.out.print(floorPlan[i][j]);
+                System.out.print(floorPlan[j][i]);
             System.out.println();
         }
     }
