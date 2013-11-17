@@ -43,28 +43,29 @@ public class Person {
     }
 
     private void goalUpdate(ArrayList<Wall> walls) {
-    	boolean canSkipGoal = true;
+    	boolean nextGoalClear = true;
     	
-    	if ( goalList.size() >= 2 ) {
+    	if ( goalList.size() > 1 ) {
     		for (Wall w : walls) {
     			if (w.intersects(location, goalList.get(1).toPoint2d())) {
-    				canSkipGoal = false;
+    				nextGoalClear = false;
     				break;
     			}
     		}
     	}
     	
-        while ( ( goalList.size() > 0 &&
+        while ( ( goalList.size() == 1 &&
         		location.distance(goalList.get(0).toPoint2d()) < (size / 2.0) ) ||
-        		( goalList.size() >= 2 && canSkipGoal ) ) {
+        		( goalList.size() > 1 && nextGoalClear ) ) {
+        	
             goalList.remove(0);
             
-            canSkipGoal = true;
             
-            if ( goalList.size() >= 2 ) {
+            if ( goalList.size() > 1 ) {
+            	nextGoalClear = true;
         		for (Wall w : walls) {
         			if (w.intersects(location, goalList.get(1).toPoint2d())) {
-        				canSkipGoal = false;
+        				nextGoalClear = false;
         				break;
         			}
         		}

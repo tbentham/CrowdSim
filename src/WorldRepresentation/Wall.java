@@ -89,10 +89,10 @@ public class Wall implements BuildingObject {
     }
 
     public boolean intersects(Point2d p1, Point2d p2) {
-    	double x1 = startVector.getX();
-    	double y1 = startVector.getY();
-    	double x2 = endVector.getX();
-    	double y2 = endVector.getY();
+    	double x1 = startVector.getX() - (endVector.getX() - startVector.getX()) / 5;
+    	double y1 = startVector.getY() - (endVector.getY() - startVector.getY()) / 5;
+    	double x2 = endVector.getX() + (endVector.getX() - startVector.getX()) / 5;
+    	double y2 = endVector.getY() + (endVector.getY() - startVector.getY()) / 5;
     	
     	double x3 = p1.getX();
     	double y3 = p1.getY();
