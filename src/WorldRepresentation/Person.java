@@ -47,7 +47,7 @@ public class Person {
     	
     	if ( goalList.size() > 1 ) {
     		for (Wall w : walls) {
-    			if (w.intersects(location, goalList.get(1).toPoint2d())) {
+    			if ( w.intersects(location, goalList.get(1).toPoint2d(), size+1.0) ) {
     				nextGoalClear = false;
     				break;
     			}
@@ -64,7 +64,7 @@ public class Person {
             if ( goalList.size() > 1 ) {
             	nextGoalClear = true;
         		for (Wall w : walls) {
-        			if (w.intersects(location, goalList.get(1).toPoint2d())) {
+        			if ( w.intersects(location, goalList.get(1).toPoint2d(), size+1.0) ) {
         				nextGoalClear = false;
         				break;
         			}
@@ -124,7 +124,7 @@ public class Person {
 
         // calculate acceleration term
         v.sub(actualVelocity);
-        v.scale(1.0 / 4.0);
+        v.scale(0.5);
 
         return v;
     }
