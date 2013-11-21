@@ -24,28 +24,31 @@ public class Model {
             throw new NaNException("socialForce called with bPerson at NaN location");
         }
         
-        Vector2d v = new Vector2d(aPerson.getLocation());
-        v.sub(bPerson.getLocation());	// relative location
+        // get relative location
+        Vector2d v1 = new Vector2d(aPerson.getLocation());
+        v1.sub(bPerson.getLocation());
         
-        double distance = v.length() - (aPerson.getSize() + bPerson.getSize()) / 2.0;
+        // get distance, considering person size
+        double distance = v1.length() - (aPerson.getSize() + bPerson.getSize()) / 2.0;
+        
         double g = distance > 0 ? 0 : -distance;
         
-        double d = (2000 * Math.exp(-distance / 0.08) + 120000 * g);
+        // get relative velocity
+        Vector2d relVelocity = new Vector2d(bPerson.getVelocity());
+        relVelocity.sub(aPerson.getVelocity());
+        
+        // get normalized vector from b to a
+        v1.normalize();
+        
+        Vector2d v2 = new Vector2d(-v1.getY(), v1.getX());
+        v2.scale(240000 * g * relVelocity.dot(v2));
+        
+        double d = 2000 * Math.exp(-distance / 0.08) + 120000 * g;
 //      double d = 3.5 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
 //      double d = 2.0 / b(bPerson);
         
-        v.normalize();		// Normalized vector from b to a
-        
-        Vector2d tangentialDir = new Vector2d(-v.getY(), v.getX());
-        
-        Vector2d relVelocity = new Vector2d(bPerson.getVelocity());
-        relVelocity.sub(aPerson.getVelocity());
-        double tangVelDiff = relVelocity.dot(tangentialDir);
-        
-        tangentialDir.scale(240000 * g * tangVelDiff);
-        
-        v.scale(d);
-        v.add(tangentialDir);
+        v1.scale(d);
+        v1.add(v2);
 
 /*      Vector2d aVector = new Vector2d(aPerson.getLocation());
         aVector.sub(new Vector2d(bPerson.getLocation()));
@@ -59,12 +62,12 @@ public class Model {
         if (direction.dot(v) < v.length() * Math.cos(100.0 * Math.PI / 180.0))
             v.scale(0.5);*/
 
-        if (Double.isNaN(v.x)) {
+        if (Double.isNaN(v1.x)) {
             throw new NaNException("socialForce between person at " + aPerson.getLocation() +
                     " with velocity: " + aPerson.getVelocity() + " and person at " + bPerson.getLocation() +
-                    " with velocity: " + bPerson.getVelocity() + ": " + v);
+                    " with velocity: " + bPerson.getVelocity() + ": " + v1);
         }
-        return v;
+        return v1;
     }
 
 /*    public double b(Person aPerson, Person bPerson, double timeStep) throws NaNException, PersonOverlapException {

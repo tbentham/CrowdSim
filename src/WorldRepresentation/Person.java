@@ -14,28 +14,31 @@ import java.util.LinkedList;
 public class Person {
 
     private Point2d location;
+    public ArrayList<Point2d> locations;
+
     private double size;
     private double mass;
-    private LinkedList<Vertex> goalList;
 
     private double desiredSpeed;
     private double relaxTime;
     private Vector2d actualVelocity;
-    public ArrayList<Point2d> locations;
+
+    private LinkedList<Vertex> goalList;
+    
     private Model forceModel;
 
     public Person(double x1, double y1) {
-        locations = new ArrayList<Point2d>();
         location = new Point2d(x1, y1);
+        locations = new ArrayList<Point2d>();
         locations.add(new Point2d(location));
         size = Math.random()*0.2 + 0.5;	// metres
         mass = 80;	// kilograms
 
-        goalList = new LinkedList<Vertex>();
-
-        desiredSpeed = 1.34;    // metres per second
+        desiredSpeed = Math.random()*0.52+1.08;    // metres per second
         relaxTime = 0.5;
         actualVelocity = new Vector2d(0, 0);
+
+        goalList = new LinkedList<Vertex>();
 
         forceModel = new Model();
     }
@@ -96,16 +99,16 @@ public class Person {
                 	accTerm.add(forceModel.socialForce(this, p, timeStep));
             }
 
-//          for (Wall wall : world.getWalls()) {
-//              actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
-//          }
+//            for (Wall wall : world.getWalls()) {
+//                actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
+//            }
             
             accTerm.scale(1.0 / mass);
             actualVelocity.add(accTerm);
             
-            if (actualVelocity.length() > desiredSpeed) {
+            if (actualVelocity.length() > 1.3*desiredSpeed) {
                 actualVelocity.normalize();
-                actualVelocity.scale(desiredSpeed);
+                actualVelocity.scale(1.3*desiredSpeed);
             }
 
             Vector2d motion = new Vector2d(actualVelocity);
@@ -131,7 +134,7 @@ public class Person {
 
         // calculate acceleration term
         v.sub(actualVelocity);
-        v.scale(mass / relaxTime);
+        v.scale(mass*relaxTime);
 
         return v;
     }
@@ -139,8 +142,7 @@ public class Person {
     public Vector2d getDesiredDirection() {
         Vector2d v = new Vector2d(getNextGoal());
         v.sub(new Vector2d(location));
-        if (v.length() != 0.0)
-            v.scale(1.0 / v.length());
+        v.normalize();
         return v;
     }
 
