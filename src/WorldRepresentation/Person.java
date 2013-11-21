@@ -15,9 +15,11 @@ public class Person {
 
     private Point2d location;
     private double size;
+    private double mass;
     private LinkedList<Vertex> goalList;
 
     private double desiredSpeed;
+    private double relaxTime;
     private Vector2d actualVelocity;
     public ArrayList<Point2d> locations;
     private Model forceModel;
@@ -26,11 +28,13 @@ public class Person {
         locations = new ArrayList<Point2d>();
         location = new Point2d(x1, y1);
         locations.add(new Point2d(location));
-        size = 4.0;
+        size = Math.random()*0.2 + 0.5;	// metres
+        mass = 80;	// kilograms
 
         goalList = new LinkedList<Vertex>();
 
         desiredSpeed = 1.34;    // metres per second
+        relaxTime = 0.5;
         actualVelocity = new Vector2d(0, 0);
 
         forceModel = new Model();
@@ -84,24 +88,27 @@ public class Person {
         goalUpdate();
 
         if (goalList.size() > 0) {
-            actualVelocity.add(desiredAcceleration());
+        	Vector2d accTerm = new Vector2d(0,0);
+        	accTerm.add(desiredAcceleration());
 
             for (Person p : people) {
                 if (this != p)
-                    actualVelocity.add(forceModel.socialForce(this, p, timeStep));
+                	accTerm.add(forceModel.socialForce(this, p, timeStep));
             }
 
-            for (Wall wall : world.getWalls()) {
-                actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
-
-            }
+//          for (Wall wall : world.getWalls()) {
+//              actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
+//          }
+            
+            accTerm.scale(1.0 / mass);
+            actualVelocity.add(accTerm);
+            
             if (actualVelocity.length() > desiredSpeed) {
                 actualVelocity.normalize();
                 actualVelocity.scale(desiredSpeed);
             }
 
             Vector2d motion = new Vector2d(actualVelocity);
-
             motion.scale(timeStep);
 
             location.add(motion);
@@ -124,7 +131,7 @@ public class Person {
 
         // calculate acceleration term
         v.sub(actualVelocity);
-        v.scale(0.5);
+        v.scale(mass / relaxTime);
 
         return v;
     }
