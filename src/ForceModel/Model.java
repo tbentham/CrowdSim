@@ -24,7 +24,7 @@ public class Model {
             throw new NaNException("socialForce called with bPerson at NaN location");
         }
         
-        // get relative location
+        // get relative location of a from b
         Vector2d v1 = new Vector2d(aPerson.getLocation());
         v1.sub(bPerson.getLocation());
         
@@ -40,18 +40,21 @@ public class Model {
         // get normalized vector from b to a
         v1.normalize();
         
+        // calculate tangential sliding force
         Vector2d v2 = new Vector2d(-v1.getY(), v1.getX());
         v2.scale(240000 * g * relVelocity.dot(v2));
         
-        double d = 2000 * Math.exp(-distance / 0.08) + 120000 * g;
-//      double d = 3.5 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
-//      double d = 2.0 / b(bPerson);
-        
-        v1.scale(d);
+        // calculate direct force
+        v1.scale(2000 * Math.exp(-distance / 0.08) + 120000 * g);
+
+        // sum forces
         v1.add(v2);
 
 /*      Vector2d aVector = new Vector2d(aPerson.getLocation());
         aVector.sub(new Vector2d(bPerson.getLocation()));
+        
+        double d = 3.5 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
+//      double d = 2.0 / b(bPerson);
 
         aVector.normalize();
         aVector.scale(d);
@@ -109,15 +112,39 @@ public class Model {
         if (Double.isNaN(aPerson.getLocation().x)) {
             throw new NaNException("obstacleAvoidance called with aPerson at NaN location");
         }
-        Vector2d aVector = new Vector2d(aPerson.getLocation());
+        
+        // get relative location of a from b
+        Vector2d v1 = new Vector2d(aPerson.getLocation());
+        v1.sub(new Vector2d(wall.nearestPoint(aPerson)));
+        
+        // get distance, considering person size
+        double distance = v1.length() - aPerson.getSize() / 2.0;
+        
+        // get function denoting physical contact
+        double g = distance > 0 ? 0 : -distance;
+        
+        // get normalized vector from b to a
+        v1.normalize();
+        
+        // calculate tangential sliding force
+        Vector2d v2 = new Vector2d(-v1.getY(), v1.getX());
+        v2.scale(240000 * g * aPerson.getVelocity().dot(v2));
+        
+        // calculate direct force
+        v1.scale(2000 * Math.exp(-distance / 0.08) + 240000 * g);
+        
+        // sum forces
+        v1.add(v2);
+        
+/*      Vector2d aVector = new Vector2d(aPerson.getLocation());
         aVector.sub(new Vector2d(wall.nearestPoint(aPerson)));
 
         double d = 10 * Math.exp(-aVector.length() / 0.2);
 
         aVector.normalize();
-        aVector.scale(d);
+        aVector.scale(d);*/
 
-        return aVector;
+        return v1;
     }
 
 }

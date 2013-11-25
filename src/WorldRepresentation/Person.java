@@ -45,7 +45,7 @@ public class Person {
 
     private void goalUpdate() {
         while (goalList.size() > 0 &&
-        		location.distance(goalList.get(0).toPoint2d()) < (size / 2.0))
+        		location.distance(goalList.get(0).toPoint2d()) < (size * 2.0))
             goalList.remove(0);
     }
 
@@ -62,7 +62,7 @@ public class Person {
     	}
     	
         while ( ( goalList.size() == 1 &&
-        		location.distance(goalList.get(0).toPoint2d()) < (size / 2.0) ) ||
+        		location.distance(goalList.get(0).toPoint2d()) < (size * 2.0) ) ||
         		( goalList.size() > 1 && nextGoalClear ) ) {
         	
             goalList.remove(0);
@@ -83,7 +83,7 @@ public class Person {
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
             PersonOverlapException, NoGoalException {
 
-        if (goalList.size() == 0 || location.distance(goalList.getLast().toPoint2d()) < (size / 2.0)) {
+        if (goalList.size() == 0 || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
             locations.add(new Point2d(location));
             return location;
         }
@@ -99,11 +99,17 @@ public class Person {
                 	accTerm.add(forceModel.socialForce(this, p, timeStep));
             }
 
-//            for (Wall wall : world.getWalls()) {
-//                actualVelocity.add(forceModel.obstacleAvoidance(this, wall));
-//            }
+            for (Wall wall : world.getWalls()) {
+                accTerm.add(forceModel.obstacleAvoidance(this, wall));
+            }
             
             accTerm.scale(1.0 / mass);
+            
+            if (accTerm.length() > 1.3*desiredSpeed) {
+            	accTerm.normalize();
+            	accTerm.scale(1.3*desiredSpeed);
+            }
+
             actualVelocity.add(accTerm);
             
             if (actualVelocity.length() > 1.3*desiredSpeed) {
