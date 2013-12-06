@@ -1,5 +1,6 @@
 import com.google.gson.*;
 
+// TODO: Doesn't need an explanation
 class JsonParser{
     
     private String json;

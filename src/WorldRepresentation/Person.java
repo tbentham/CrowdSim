@@ -23,7 +23,7 @@ public class Person {
     private Model forceModel;
 
     public Person(double x1, double y1) {
-        locations = new ArrayList<Point2d>();
+        locations = new ArrayList<>();
         location = new Point2d(x1, y1);
         locations.add(new Point2d(location));
         size = 4.0;
@@ -42,6 +42,7 @@ public class Person {
             goalList.remove(0);
     }
 
+    // TODO: Use this in BasicCanvas
     private void goalUpdate(ArrayList<Wall> walls) {
     	boolean nextGoalClear = true;
     	
@@ -73,6 +74,7 @@ public class Person {
         }
     }
 
+    // TODO: Write test case(s) for this function
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
             PersonOverlapException, NoGoalException {
 

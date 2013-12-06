@@ -142,7 +142,8 @@ public class Wall implements BuildingObject {
     	return (Math.min(x1,x2) <= xInt && xInt <= Math.max(x1,x2) &&
     			Math.min(x3,x4) <= xInt && xInt <= Math.max(x3,x4));
     }
-    
+
+    // TODO: Fix that this function returns points that aren't on the wall: see WallTest
     public Point2d nearestPoint(Person person) {
         return nearestPoint(person.getLocation());
     }

@@ -1,5 +1,5 @@
-import WorldRepresentation.Person;
-import WorldRepresentation.Wall;
+package WorldRepresentation;
+
 import org.junit.Test;
 
 import javax.vecmath.Point2d;
@@ -103,5 +103,23 @@ public class WallTest {
         Person person = new Person(3, 3);
         assertTrue(wall.nearestPoint(person).x == 3.0);
         assertTrue(wall.nearestPoint(person).y == 1.0);
+    }
+
+    @Test
+    public void nearestPointReturnsNearestPoint1() {
+        Wall wall = new Wall(2, 2, 5, 5);
+        Person person = new Person(0, 0);
+        Point2d closestPoint = wall.nearestPoint(person);
+        assertTrue(closestPoint.x == 2.0);
+        assertTrue(closestPoint.y == 3.0);
+    }
+
+    @Test
+    public void nearestPointReturnsNearestPoint2() {
+        Wall wall = new Wall(0, 0, 5, 5);
+        Person person = new Person(3, 3);
+        Point2d closestPoint = wall.nearestPoint(person);
+        assertTrue(closestPoint.x == 0.0);
+        assertTrue(closestPoint.y == 3.0);
     }
 }

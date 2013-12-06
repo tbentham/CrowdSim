@@ -1,9 +1,12 @@
 package WorldRepresentation;
 
+import Dijkstra.Vertex;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.vecmath.Point2d;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
@@ -93,5 +96,43 @@ public class WorldTest {
     @Test
     public void testGetWalls() throws Exception {
 
+    }
+
+    @Test
+    public void pathAlgorithmTimeProfilingTest() throws Exception {
+        long startTime = System.currentTimeMillis();
+
+        ArrayList<Integer> sizesToTest = new ArrayList<>();
+        sizesToTest.add(5);
+        sizesToTest.add(10);
+        sizesToTest.add(25);
+        sizesToTest.add(50);
+//        sizesToTest.add(100);
+//        sizesToTest.add(500);
+
+        ArrayList<Long> endTimes = new ArrayList<>();
+        ArrayList<Integer> numbersOfEdges = new ArrayList<>();
+
+        for (Integer sz : sizesToTest) {
+            World w = new World(sz);
+            w.setUp();
+            w.computeDijsktraTowards(0, 0);
+            Path p = w.getPath(3, 3);
+            LinkedList<Vertex> vertices = p.getVertices();
+            // Attempts to explicitly avoid any compiler lazy optimisations
+            for (Vertex v : vertices) {
+                v.getX();
+                v.getY();
+            }
+            endTimes.add(System.currentTimeMillis());
+            numbersOfEdges.add(w.getEdges().size());
+        }
+
+        for (int i = 0; i < sizesToTest.size(); i++) {
+            Integer sz = sizesToTest.get(i);
+            Long timeDiff = endTimes.get(i) - startTime;
+            System.out.format("%dx%d (%d) nodes and %d edges took %dms to compute paths\n",
+                    sz, sz, sz * sz, numbersOfEdges.get(i), timeDiff);
+        }
     }
 }

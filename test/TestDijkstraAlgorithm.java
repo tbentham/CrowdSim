@@ -18,8 +18,8 @@ public class TestDijkstraAlgorithm {
 
     @Test
     public void testExecute() {
-        nodes = new ArrayList<Vertex>();
-        edges = new ArrayList<Edge>();
+        nodes = new ArrayList<>();
+        edges = new ArrayList<>();
         for (int i = 0; i < 11; i++) {
             Vertex location = new Vertex(i, i);
             nodes.add(location);
@@ -59,4 +59,5 @@ public class TestDijkstraAlgorithm {
         Edge lane = new Edge(laneId, nodes.get(sourceLocNo), nodes.get(destLocNo), duration);
         edges.add(lane);
     }
+
 } 

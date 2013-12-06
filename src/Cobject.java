@@ -1,5 +1,6 @@
 import javax.vecmath.Point2d;
 
+// TODO: Doesn't need an explaination
 public class Cobject {
 
     private int id;

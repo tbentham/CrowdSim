@@ -1,5 +1,6 @@
+package WorldRepresentation;
+
 import Dijkstra.Vertex;
-import WorldRepresentation.Path;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -11,11 +12,11 @@ public class PathTest {
 
     @Test
     public void baseCases() {
-        LinkedList<Vertex> vertices = new LinkedList<Vertex>();
+        LinkedList<Vertex> vertices = new LinkedList<>();
         vertices.add(new Vertex(0, 0));
         vertices.add(new Vertex(1, 0));
 
-        LinkedList<Vertex> exSubGoals = new LinkedList<Vertex>();
+        LinkedList<Vertex> exSubGoals = new LinkedList<>();
         exSubGoals.add(new Vertex(1, 0));
 
 
@@ -39,7 +40,7 @@ public class PathTest {
 
     @Test
     public void pathConstructorShouldNotReverseGivenVertices() {
-        LinkedList<Vertex> vertices = new LinkedList<Vertex>();
+        LinkedList<Vertex> vertices = new LinkedList<>();
         vertices.add(new Vertex(0, 0));
         vertices.add(new Vertex(1, 0));
         Path path = new Path(vertices);
