@@ -49,6 +49,7 @@ public class Person {
             goalList.remove(0);
     }
 
+    // TODO: Use this in BasicCanvas
     private void goalUpdate(ArrayList<Wall> walls) {
     	boolean nextGoalClear = true;
     	
@@ -80,6 +81,7 @@ public class Person {
         }
     }
 
+    // TODO: Write test case(s) for this function
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
             PersonOverlapException, NoGoalException {
 

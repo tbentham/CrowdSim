@@ -62,27 +62,15 @@ public class Model {
         // Consider field of vision
         Vector2d direction = new Vector2d(aPerson.getVelocity());
         direction.normalize();
-        if (direction.dot(v) < v.length() * Math.cos(100.0 * Math.PI / 180.0))
-            v.scale(0.5);*/
-
-        if (Double.isNaN(v1.x)) {
-            throw new NaNException("socialForce between person at " + aPerson.getLocation() +
-                    " with velocity: " + aPerson.getVelocity() + " and person at " + bPerson.getLocation() +
-                    " with velocity: " + bPerson.getVelocity() + ": " + v1);
-        }
+        // TODO: Come up with example which triggers this case
+        if (direction.dot(v) < v.length() * Math.cos(100.0 * Math.PI / 180.0)) {
+            v.scale(0.5);
+        }*/
+        
         return v1;
     }
 
-/*    public double b(Person aPerson, Person bPerson, double timeStep) throws NaNException, PersonOverlapException {
-        if (aPerson.getLocation().equals(bPerson.getLocation())) {
-            throw new PersonOverlapException("b function called on 2 people at " + aPerson.getLocation());
-        }
-        if (Double.isNaN(aPerson.getLocation().x)) {
-            throw new NaNException("b function called with aPerson at NaN location");
-        }
-        if (Double.isNaN(bPerson.getLocation().x)) {
-            throw new NaNException("b function called with bPerson at NaN location");
-        }
+/*    public double b(Person aPerson, Person bPerson, double timeStep) {
 
         Vector2d aVector = new Vector2d(aPerson.getLocation());
 
@@ -98,11 +86,6 @@ public class Model {
 
         if (squareRootMe < 0 && squareRootMe > -1) {
             return 0.0;
-        } else if (Double.isNaN(ret)) {
-            throw new NaNException("Tried to squareRoot negative number in b function between person at " +
-                    aPerson.getLocation() + " with velocity: " + aPerson.getVelocity() + " and person at " +
-                    bPerson.getLocation() + " with velocity: " + bPerson.getVelocity() + " using timeStep " +
-                    timeStep + ": " + ret);
         }
         return ret;
     }*/
