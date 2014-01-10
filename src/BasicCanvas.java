@@ -73,7 +73,7 @@ public class BasicCanvas {
         for(int i = 2; i < 50; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
-            } catch (PersonOverlapException | WallOverlapException e) { }
+            } catch (PersonOverlapException /*| */e) { } catch(WallOverlapException e) { }
         }
 
         ArrayList<Person> people = world.getPeople();
