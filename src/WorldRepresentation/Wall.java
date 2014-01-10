@@ -66,16 +66,25 @@ public class Wall implements BuildingObject {
         Vector2d endToPoint = new Vector2d(point);
         endToPoint.sub(new Vector2d(endVector));
         double c = endToPoint.length();
-
-
+        
+        // Check if triangle is flat
+        if (c == a + b)
+            return new Point2d(startVector);
+        else if (b == a + c)
+            return new Point2d(endVector);
+        else if (a == b + c)
+            return new Point2d(point);
+        
         if (b < c) {
             // Check if point is past start of wall
-            if ( Math.acos((Math.pow(a,2) + Math.pow(b,2) - Math.pow(c,2)) / (2.0*a*b)) > Math.PI/2.0 )
+            double angle = Math.acos((Math.pow(a,2) + Math.pow(b,2) - Math.pow(c,2)) / (2.0*a*b));
+            if ( angle > Math.PI/2.0 )
                 return new Point2d(startVector);
         }
         else {
             // Check if point is past end of wall
-            if ( Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c)) > Math.PI/2.0 )
+            double angle = Math.acos((Math.pow(a,2) + Math.pow(c,2) - Math.pow(b,2)) / (2.0*a*c));
+            if ( angle > Math.PI/2.0 )
                 return new Point2d(endVector);
         }
 
