@@ -47,7 +47,7 @@ public class ModelTest {
     public void socialForcesDecreaseWithDistance() throws Exception {
         ArrayList<Double> forceMagnitudes = new ArrayList<>();
         for (Person testPerson : testPeople) {
-            forceMagnitudes.add(forceModel.socialForce(p, testPerson, 0.1).length());
+            forceMagnitudes.add(forceModel.socialForce(p, testPerson).length());
         }
         for (int i = 0; i < testPeople.size() - 1; i++) {
             assertTrue(forceMagnitudes.get(i) >= forceMagnitudes.get(i + 1));
@@ -57,30 +57,30 @@ public class ModelTest {
     @Test(expected = NaNException.class)
     public void personOneInNaNLocationThrowsNaNException() throws Exception {
         p.setLocation(Double.NaN, Double.NaN);
-        forceModel.socialForce(p, p2, 0.1);
+        forceModel.socialForce(p, p2);
     }
 
     @Test(expected = NaNException.class)
     public void personTwoInNaNLocationThrowsNaNException() throws Exception {
         p.setLocation(Double.NaN, Double.NaN);
-        forceModel.socialForce(p2, p, 0.1);
+        forceModel.socialForce(p2, p);
     }
 
     @Test(expected = PersonOverlapException.class)
     public void socialForceThrowsExceptionIfPeopleOverlap() throws Exception {
-        forceModel.socialForce(p, p2, 0.1);
+        forceModel.socialForce(p, p2);
     }
 
     @Test
     public void socialForcesAreEqualAndOpposite() throws Exception {
         ArrayList<Vector2d> forceVectors = new ArrayList<>();
         for (Person testPerson : testPeople) {
-            forceVectors.add(forceModel.socialForce(p, testPerson, 0.1));
+            forceVectors.add(forceModel.socialForce(p, testPerson));
         }
 
         ArrayList<Vector2d> reverseForceVectors = new ArrayList<>();
         for (Person testPerson : testPeople) {
-            reverseForceVectors.add(forceModel.socialForce(testPerson, p, 0.1));
+            reverseForceVectors.add(forceModel.socialForce(testPerson, p));
         }
 
         for (int i = 0; i < forceVectors.size(); i++) {

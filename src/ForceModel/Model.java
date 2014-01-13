@@ -13,7 +13,7 @@ public class Model {
     public Model() {
     }
 
-    public Vector2d socialForce(Person aPerson, Person bPerson, double timeStep) throws NaNException,
+    public Vector2d socialForce(Person aPerson, Person bPerson) throws NaNException,
             PersonOverlapException {
         if (aPerson.getLocation().equals(bPerson.getLocation())) {
             throw new PersonOverlapException("socialForce called on 2 people at " + aPerson.getLocation());
