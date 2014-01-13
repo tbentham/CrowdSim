@@ -33,7 +33,7 @@ public class Model {
         double distance = v1.length() - (aPerson.getSize() + bPerson.getSize()) / 2.0;
         
         double g = distance > 0 ? 0 : -distance;
-        
+
         // get relative velocity
         Vector2d relVelocity = new Vector2d(bPerson.getVelocity());
         relVelocity.sub(aPerson.getVelocity());
@@ -42,7 +42,7 @@ public class Model {
         v1.normalize();
         
         // calculate tangential sliding force
-        Vector2d v2 = new Vector2d(-v1.getY(), v1.getX());
+        Vector2d v2 = new Vector2d(-v1.y, v1.x);
         v2.scale(240000 * g * relVelocity.dot(v2));
         
         // calculate direct force
@@ -111,7 +111,7 @@ public class Model {
         v1.normalize();
         
         // calculate tangential sliding force
-        Vector2d v2 = new Vector2d(-v1.getY(), v1.getX());
+        Vector2d v2 = new Vector2d(-v1.y, v1.x);
         v2.scale(240000 * g * aPerson.getVelocity().dot(v2));
         
         // calculate direct force

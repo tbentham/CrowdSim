@@ -31,10 +31,10 @@ public class Person {
         location = new Point2d(x1, y1);
         locations = new ArrayList<Point2d>();
         locations.add(new Point2d(location));
-        size = Math.random()*0.2 + 0.5;	// metres
+        size = Math.random() * 0.2 + 0.5;	// metres
         mass = 80;	// kilograms
 
-        desiredSpeed = Math.random()*0.52+1.08;    // metres per second
+        desiredSpeed = Math.random() * 0.52 + 1.08;    // metres per second
         relaxTime = 0.5;
         actualVelocity = new Vector2d(0, 0);
 
@@ -199,5 +199,17 @@ public class Person {
 
     public void setActualVelocity(Vector2d velocity) {
         actualVelocity = velocity;
+    }
+
+    public double getDesiredSpeed() {
+        return desiredSpeed;
+    }
+
+    public void setDesiredSpeed(double desiredSpeed) {
+        this.desiredSpeed = desiredSpeed;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
     }
 }
