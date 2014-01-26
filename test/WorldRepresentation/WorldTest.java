@@ -58,45 +58,6 @@ public class WorldTest {
         assertTrue(world.getWalls().get(0).getEndVector().y == 5);
     }
 
-    @Test
-    public void testSetUp() throws Exception {
-
-    }
-
-    @Test
-    public void testPrintFloorPlan() throws Exception {
-
-    }
-
-    @Test
-    public void testPrintDijsktras() throws Exception {
-
-    }
-
-    @Test
-    public void testRound() throws Exception {
-
-    }
-
-    @Test
-    public void testComputeDijsktraTowards() throws Exception {
-
-    }
-
-    @Test
-    public void testGetPath() throws Exception {
-
-    }
-
-    @Test
-    public void testGetSideLength() throws Exception {
-
-    }
-
-    @Test
-    public void testGetWalls() throws Exception {
-
-    }
 
     @Test
     public void pathAlgorithmTimeProfilingTest() throws Exception {
@@ -108,7 +69,7 @@ public class WorldTest {
         sizesToTest.add(25);
         sizesToTest.add(50);
 //        sizesToTest.add(100);
-//        sizesToTest.add(500);
+//        sizesToTest.add(250);
 
         ArrayList<Long> endTimes = new ArrayList<>();
         ArrayList<Integer> numbersOfEdges = new ArrayList<>();

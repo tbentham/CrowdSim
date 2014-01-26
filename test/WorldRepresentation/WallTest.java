@@ -122,4 +122,11 @@ public class WallTest {
         assertTrue(closestPoint.x == 3.0);
         assertTrue(closestPoint.y == 3.0);
     }
+
+    @Test
+    public void wallWidthTest() {
+//        Wall wall = new Wall(50, 0, 50, 50);
+//        Wall wall2 = new Wall(14.3, 59.0, 67.9, 5.3);
+//        assertTrue(wall.intersects(wall2, 1));
+    }
 }

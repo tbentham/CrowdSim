@@ -8,7 +8,9 @@ import java.io.IOException;
 
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
+import WorldRepresentation.LayoutChunk;
 import WorldRepresentation.Person;
+import WorldRepresentation.Wall;
 import WorldRepresentation.World;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -49,17 +51,15 @@ public class BasicCanvas {
         Point2d goal = new Point2d(0, 0);
         
         for (Cobject co : cobjs) {
-        	if(co.getType() == 0){
+        	if (co.getType() == 0){
         		world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
         	}
-        	else if(co.getType() == 2){
+        	else if (co.getType() == 2) {
         		//Do something with goals here.
         		System.out.println("I have a goal at " + co.getFrom().toString());
         		goal = new Point2d(co.getFrom().x/ 10 , co.getFrom().y / 10.0);
         	}
         }
-
-        
 
         world.setUp();
         world.printFloorPlan();
@@ -70,10 +70,37 @@ public class BasicCanvas {
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
 
-        for(int i = 2; i < 50; i++) {
+        for(int i = 2; i < 100; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
             } catch (PersonOverlapException /*| */e) { } catch(WallOverlapException e) { }
+        }
+
+        ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
+        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50);
+        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50);
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 0, 50);
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 0, 50);
+        chunks.add(topLeft);
+        chunks.add(topRight);
+        chunks.add(bottomLeft);
+        chunks.add(bottomRight);
+
+        for (LayoutChunk lc : chunks) {
+            for (Wall w : world.getWalls()) {
+                boolean startInside = false;
+                boolean endInside = false;
+                if (lc.isPointInside(w.getStartVector().x, w.getStartVector().y)) {
+                    startInside = true;
+                }
+                if (lc.isPointInside(w.getEndVector().x, w.getEndVector().y)) {
+                    endInside = true;
+                }
+                if (startInside || endInside || topLeft.numberOfIntersects(w) == 2) {
+                    lc.addWall(w.getStartVector().x, w.getStartVector().y,
+                            w.getEndVector().x, w.getEndVector().y);
+                }
+            }
         }
 
         ArrayList<Person> people = world.getPeople();
