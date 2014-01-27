@@ -115,7 +115,7 @@ public class Model {
         v2.scale(240000 * g * aPerson.getVelocity().dot(v2));
         
         // calculate direct force
-        v1.scale(4000 * Math.exp(-distance / 0.08) + 240000 * g);
+        v1.scale(2000 * Math.exp(-distance / 0.08) + 240000 * g);
         
         // sum forces
         v1.add(v2);
