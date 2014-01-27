@@ -82,7 +82,7 @@ public class Person {
     }
 
     // TODO: Write test case(s) for this function
-    public Point2d advance(World world, ArrayList<Person> people) throws NaNException,
+    public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
             PersonOverlapException, NoGoalException {
 
         if (goalList.size() == 0 || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
@@ -97,8 +97,10 @@ public class Person {
         	accTerm.add(desiredAcceleration());
 
             for (Person p : people) {
-                if (this != p)
+                if (this != p) {
                 	accTerm.add(forceModel.socialForce(this, p));
+                	
+                }
             }
 
             for (Wall wall : world.getWalls()) {
@@ -120,6 +122,7 @@ public class Person {
             }
 
             Vector2d motion = new Vector2d(actualVelocity);
+            motion.scale(timeStep);
 
             location.add(motion);
             
@@ -186,6 +189,12 @@ public class Person {
 
     public double getSize() {
         return size;
+    }
+    
+    public Vector2d getDirection() {
+    	Vector2d v = new Vector2d(actualVelocity);
+    	v.normalize();
+        return v;
     }
 
     public Vector2d getVelocity() {

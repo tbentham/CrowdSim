@@ -113,7 +113,7 @@ public class BasicCanvas {
 
         for (int i = 0; i < 100; i++) {
             for (Person p : people)
-                p.advance(world, people);
+                p.advance(world, people, 0.5);
             if (i % 10 == 9) {
                 System.out.println();
                 System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 0.5 + "s)");
