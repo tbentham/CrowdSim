@@ -70,17 +70,19 @@ public class BasicCanvas {
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
 
-        for(int i = 2; i < 100; i++) {
+        for(int i = 2; i < 2500; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
-            } catch (PersonOverlapException /*| */e) { } catch(WallOverlapException e) { }
+            } catch (PersonOverlapException | WallOverlapException e) {
+                e.printStackTrace();
+            }
         }
 
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
         LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50);
         LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50);
-        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 0, 50);
-        LayoutChunk bottomRight = new LayoutChunk(50, 100, 0, 50);
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0);
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0);
         chunks.add(topLeft);
         chunks.add(topRight);
         chunks.add(bottomLeft);
@@ -103,6 +105,80 @@ public class BasicCanvas {
             }
         }
 
+        for (Person p : world.getPeople()) {
+            if (topLeft.isPointInside(p.getLocation().x, p.getLocation().y)) {
+                topLeft.addPerson(p);
+            }
+            else if (topRight.isPointInside(p.getLocation().x, p.getLocation().y)) {
+                topRight.addPerson(p);
+            }
+            else if (bottomLeft.isPointInside(p.getLocation().x, p.getLocation().y)) {
+                bottomLeft.addPerson(p);
+            }
+            else if (bottomRight.isPointInside(p.getLocation().x, p.getLocation().y)) {
+                bottomRight.addPerson(p);
+            }
+            else {
+                System.out.println(p.getLocation().x);
+                System.out.println(p.getLocation().y);
+                throw new Exception("This shit is fucked");
+            }
+        }
+
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+
+        Runnable topLeftTask = (Runnable) topLeft;
+        Runnable topRightTask = (Runnable) topRight;
+        Runnable bottomLeftTask = (Runnable) bottomLeft;
+        Runnable bottomRightTask = (Runnable) bottomRight;
+
+        Thread worker1 = new Thread(topLeftTask);
+        threads.add(worker1);
+        Thread worker2 = new Thread(topRightTask);
+        threads.add(worker2);
+        Thread worker3 = new Thread(bottomLeftTask);
+        threads.add(worker3);
+        Thread worker4 = new Thread(bottomRightTask);
+        threads.add(worker4);
+
+        double startTime = System.currentTimeMillis();
+
+        worker1.start();
+        worker2.start();
+        worker3.start();
+        worker4.start();
+
+        int running;
+        do {
+            running = 0;
+            for (Thread thread : threads) {
+                if (thread.isAlive()) {
+                    running++;
+                }
+            }
+            System.out.println("We have " + running + " running threads.");
+            Thread.sleep(500);
+        } while (running > 0);
+
+        double endTime = System.currentTimeMillis();
+
+        System.out.println("The simulation took " + (endTime - startTime))  ;
+
+//        for (int i = 0; i < 100; i++) {
+//            for (Person p : topLeft.getPeople()) {
+//                p.advance(topLeft.getWalls(), topLeft.getPeople());
+//            }
+//            for (Person p : topRight.getPeople()) {
+//                p.advance(topRight.getWalls(), topRight.getPeople());
+//            }
+//            for (Person p : bottomRight.getPeople()) {
+//                p.advance(bottomRight.getWalls(), bottomRight.getPeople());
+//            }
+//            for (Person p : bottomLeft.getPeople()) {
+//                p.advance(bottomLeft.getWalls(), bottomLeft.getPeople());
+//            }
+//        }
+
         ArrayList<Person> people = world.getPeople();
 
         System.out.println("Printing persons starting location");
@@ -111,14 +187,14 @@ public class BasicCanvas {
             System.out.println(p.getLocation());
         }
 
-        for (int i = 0; i < 100; i++) {
-            for (Person p : people)
-                p.advance(world, people, 0.3);
-            if (i % 10 == 9) {
-                System.out.println();
-                System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 0.5 + "s)");
-            }
-        }
+//        for (int i = 0; i < 100; i++) {
+//            for (Person p : people)
+//                p.advance(world, people);
+//            if (i % 10 == 9) {
+//                System.out.println();
+//                System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 0.5 + "s)");
+//            }
+//        }
 
         System.out.println("Printing persons starting location");
 
@@ -127,11 +203,22 @@ public class BasicCanvas {
         }
 
         PrintWriter out = new PrintWriter("www/people.json");
-        out.print(peopleToJson(people));
+        //out.print(peopleToJson(people));
+
+        ArrayList<Person> output = new ArrayList<Person>();
+
+        output.addAll(topLeft.getPeople());
+        output.addAll(topRight.getPeople());
+        output.addAll(bottomLeft.getPeople());
+        output.addAll(bottomRight.getPeople());
+        out.print(peopleToJson(output));
+        System.out.println("I'm done");
         out.close();
 
 
+
         server.join();
+
     }
 
     public static String peopleToJson(ArrayList<Person> people) {
@@ -164,7 +251,7 @@ public class BasicCanvas {
 
         finalString += "]";
 
-        System.out.println(finalString);
+        // System.out.println(finalString);
 
         return finalString;
     }

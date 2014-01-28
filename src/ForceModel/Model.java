@@ -50,23 +50,6 @@ public class Model {
 
         // sum forces
         v1.add(v2);
-
-/*      Vector2d aVector = new Vector2d(aPerson.getLocation());
-        aVector.sub(new Vector2d(bPerson.getLocation()));
-        
-        double d = 3.5 * Math.exp((-b(aPerson, bPerson, timeStep)) / 0.3);
-//      double d = 2.0 / b(bPerson);
-
-        aVector.normalize();
-        aVector.scale(d);
-
-        // Consider field of vision
-        Vector2d direction = new Vector2d(aPerson.getVelocity());
-        direction.normalize();
-        // TODO: Come up with example which triggers this case
-        if (direction.dot(v) < v.length() * Math.cos(100.0 * Math.PI / 180.0)) {
-            v.scale(0.5);
-        }*/
         
         return v1;
     }

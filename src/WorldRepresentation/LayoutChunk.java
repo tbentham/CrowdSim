@@ -3,20 +3,24 @@ package WorldRepresentation;
 import javax.vecmath.Point2d;
 import java.util.ArrayList;
 
-public class LayoutChunk {
+public class LayoutChunk implements Runnable {
 
     private ArrayList<Wall> walls;
     private double topYBoundary;
     private double bottomYBoundary;
     private double rightXBoundary;
     private double leftXBoundary;
+    private ArrayList<Person> people;
+    boolean finished;
 
     public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary) {
+        people = new ArrayList<>();
         this.topYBoundary = topYBoundary;
         this.bottomYBoundary = bottomYBoundary;
         this.leftXBoundary = leftXBoundary;
         this.rightXBoundary = rightXBoundary;
-        walls = new ArrayList<Wall>();
+        walls = new ArrayList<>();
+        finished = false;
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
@@ -25,6 +29,14 @@ public class LayoutChunk {
 
     public ArrayList<Wall> getWalls() {
         return walls;
+    }
+
+    public void addPerson(Person p) {
+        people.add(p);
+    }
+
+    public ArrayList<Person> getPeople() {
+        return people;
     }
 
     public boolean isPointInside(double x, double y) {
@@ -62,5 +74,18 @@ public class LayoutChunk {
             num++;
         }
         return num;
+    }
+
+    public void run() {
+        for (int i = 0; i < 500; i++) {
+            for (Person p : people) {
+                try {
+                    p.advance(walls, people, 0.25);
+                }
+                catch (Exception e) {
+                    //
+                }
+            }
+        }
     }
 }

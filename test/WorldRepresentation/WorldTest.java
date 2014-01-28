@@ -68,7 +68,7 @@ public class WorldTest {
         sizesToTest.add(10);
         sizesToTest.add(25);
         sizesToTest.add(50);
-//        sizesToTest.add(100);
+        sizesToTest.add(100);
 //        sizesToTest.add(250);
 
         ArrayList<Long> endTimes = new ArrayList<>();
