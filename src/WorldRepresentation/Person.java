@@ -1,10 +1,10 @@
 package WorldRepresentation;
 
-import Dijkstra.Vertex;
 import Exceptions.NaNException;
 import Exceptions.NoGoalException;
 import Exceptions.PersonOverlapException;
 import ForceModel.Model;
+import NewDijkstra.Node;
 
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
@@ -23,7 +23,7 @@ public class Person {
     private double relaxTime;
     private Vector2d actualVelocity;
 
-    private LinkedList<Vertex> goalList;
+    private LinkedList<Node> goalList;
     
     private Model forceModel;
 
@@ -38,7 +38,7 @@ public class Person {
         relaxTime = 0.5;
         actualVelocity = new Vector2d(0, 0);
 
-        goalList = new LinkedList<Vertex>();
+        goalList = new LinkedList<Node>();
 
         forceModel = new Model();
     }
@@ -49,37 +49,6 @@ public class Person {
             goalList.remove(0);
     }
 
-    // TODO: Use this in BasicCanvas
-    private void goalUpdate(ArrayList<Wall> walls) {
-    	boolean nextGoalClear = true;
-    	
-    	if ( goalList.size() > 1 ) {
-    		for (Wall w : walls) {
-    			if ( w.intersects(location, goalList.get(1).toPoint2d(), size+1.0) ) {
-    				nextGoalClear = false;
-    				break;
-    			}
-    		}
-    	}
-    	
-        while ( ( goalList.size() == 1 &&
-        		location.distance(goalList.get(0).toPoint2d()) < (size * 2.0) ) ||
-        		( goalList.size() > 1 && nextGoalClear ) ) {
-        	
-            goalList.remove(0);
-            
-            
-            if ( goalList.size() > 1 ) {
-            	nextGoalClear = true;
-        		for (Wall w : walls) {
-        			if ( w.intersects(location, goalList.get(1).toPoint2d(), size+1.0) ) {
-        				nextGoalClear = false;
-        				break;
-        			}
-        		}
-        	}
-        }
-    }
 
     // TODO: Write test case(s) for this function
     public Point2d advance(ArrayList<Wall> walls, ArrayList<Person> people, double timeStep) throws NaNException,
@@ -177,11 +146,11 @@ public class Person {
         return location;
     }
 
-    public void setGoalList(LinkedList<Vertex> goalList) {
+    public void setGoalList(LinkedList<Node> goalList) {
         this.goalList = goalList;
     }
 
-    public LinkedList<Vertex> getGoalList() {
+    public LinkedList<Node> getGoalList() {
         return goalList;
     }
 

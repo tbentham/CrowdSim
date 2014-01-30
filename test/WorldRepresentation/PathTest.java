@@ -1,6 +1,7 @@
 package WorldRepresentation;
 
 import Dijkstra.Vertex;
+import NewDijkstra.Node;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -12,9 +13,9 @@ public class PathTest {
 
     @Test
     public void baseCases() {
-        LinkedList<Vertex> vertices = new LinkedList<>();
-        vertices.add(new Vertex(0, 0));
-        vertices.add(new Vertex(1, 0));
+        LinkedList<Node> vertices = new LinkedList<>();
+        vertices.add(new Node(0, 0));
+        vertices.add(new Node(1, 0));
 
         LinkedList<Vertex> exSubGoals = new LinkedList<>();
         exSubGoals.add(new Vertex(1, 0));
@@ -32,7 +33,7 @@ public class PathTest {
         }
 
         vertices.clear();
-        vertices.add(new Vertex(0, 0));
+        vertices.add(new Node(0, 0));
         path = new Path(vertices);
 
         assertTrue(path.getSubGoals().size() == 0); // check if subgoals list is empty (not enough vertices to generate a subgoal)
@@ -40,14 +41,14 @@ public class PathTest {
 
     @Test
     public void pathConstructorShouldNotReverseGivenVertices() {
-        LinkedList<Vertex> vertices = new LinkedList<>();
-        vertices.add(new Vertex(0, 0));
-        vertices.add(new Vertex(1, 0));
+        LinkedList<Node> vertices = new LinkedList<>();
+        vertices.add(new Node(0, 0));
+        vertices.add(new Node(1, 0));
         Path path = new Path(vertices);
-        assertTrue(path.getVertices().get(0).toPoint2d().x == 0.0);
-        assertTrue(path.getVertices().get(0).toPoint2d().y == 0.0);
-        assertTrue(path.getVertices().get(1).toPoint2d().x == 1.0);
-        assertTrue(path.getVertices().get(1).toPoint2d().y == 0.0);
+        assertTrue(path.getNodes().get(0).toPoint2d().x == 0.0);
+        assertTrue(path.getNodes().get(0).toPoint2d().y == 0.0);
+        assertTrue(path.getNodes().get(1).toPoint2d().x == 1.0);
+        assertTrue(path.getNodes().get(1).toPoint2d().y == 0.0);
     }
 
 }

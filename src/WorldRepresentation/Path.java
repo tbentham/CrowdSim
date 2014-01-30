@@ -1,39 +1,39 @@
 package WorldRepresentation;
 
-import Dijkstra.Vertex;
+import NewDijkstra.Node;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class Path {
-    private LinkedList<Vertex> vertices;
-    private LinkedList<Vertex> subgoals;
+    private LinkedList<Node> vertices;
+    private LinkedList<Node> subgoals;
 
-    public Path(List<Vertex> vertexList) {
-        vertices = new LinkedList<Vertex>();
-        subgoals = new LinkedList<Vertex>();
-        vertices.addAll(vertexList);
+    public Path(List<Node> nodeList) {
+        vertices = new LinkedList<Node>();
+        subgoals = new LinkedList<Node>();
+        vertices.addAll(nodeList);
         generateSubGoals();
     }
 
-    public LinkedList<Vertex> getVertices() {
+    public LinkedList<Node> getNodes() {
         return vertices;
     }
 
-    public LinkedList<Vertex> getSubGoals() {
+    public LinkedList<Node> getSubGoals() {
         return subgoals;
     }
 
     private void generateSubGoals() {
         if (vertices.size() > 2) {
-            Vertex lastVertex = vertices.get(0);
-            Vertex curVertex = vertices.get(1);
+            Node lastVertex = vertices.get(0);
+            Node curVertex = vertices.get(1);
 
             double lastDiffX;  // last difference in x-coord value
             double lastDiffY;  // last difference in y-coord value
 
-            double curDiffX = lastVertex.getX() - curVertex.getX();
-            double curDiffY = lastVertex.getY() - curVertex.getY();
+            double curDiffX = lastVertex.x - curVertex.x;
+            double curDiffY = lastVertex.y - curVertex.y;
 
             for (int i = 2; i < vertices.size(); i++) {
                 // current differences are now last differences
@@ -44,8 +44,8 @@ public class Path {
                 curVertex = vertices.get(i);
 
                 // calculate current differences
-                curDiffX = lastVertex.getX() - curVertex.getX();
-                curDiffY = lastVertex.getY() - curVertex.getY();
+                curDiffX = lastVertex.x - curVertex.x;
+                curDiffY = lastVertex.y - curVertex.y;
 
                 //System.out.print("Iteration: "+i+". Considering: "+curVertex.toString()+"\t\tLast Difference: ("+lastDiffX+", "+lastDiffY+").\tCurrent Difference: ("+curDiffX+", "+curDiffY+").\t");
 

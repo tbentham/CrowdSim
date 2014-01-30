@@ -77,7 +77,7 @@ public class LayoutChunk implements Runnable {
     }
 
     public void run() {
-        for (int i = 0; i < 500; i++) {
+        //for (int i = 0; i < 500; i++) {
             for (Person p : people) {
                 try {
                     p.advance(walls, people, 0.25);
@@ -86,6 +86,6 @@ public class LayoutChunk implements Runnable {
                     //
                 }
             }
-        }
+        //}
     }
 }

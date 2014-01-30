@@ -1,18 +1,21 @@
 package WorldRepresentation;
 
-import Dijkstra.DijkstraAlgorithm;
 import Dijkstra.Edge;
-import Dijkstra.Graph;
 import Dijkstra.Vertex;
 import Exceptions.PersonOverlapException;
 import Exceptions.RoutesNotComputedException;
 import Exceptions.WallOverlapException;
 import Exceptions.WorldNotSetUpException;
+import NewDijkstra.Connection;
+import NewDijkstra.FastDijkstra;
+import NewDijkstra.Node;
+import NewDijkstra.NodeRecord;
+import org.jgrapht.util.FibonacciHeap;
+import org.jgrapht.util.FibonacciHeapNode;
 
 import javax.vecmath.Point2d;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class World {
@@ -25,8 +28,7 @@ public class World {
     private Vertex[][] nodeArray;
     private List<Vertex> nodes;
     private List<Edge> edges;
-
-    private DijkstraAlgorithm dijkstra;
+    private FastDijkstra fastDijkstra;
 
     private boolean isSetUp;
     private boolean routesComputed;
@@ -34,6 +36,9 @@ public class World {
     private ArrayList<Person> people;
 
     public World(int sideLength) {
+
+        fastDijkstra = new FastDijkstra();
+
         this.sideLength = sideLength;
 
         walls = new ArrayList<Wall>();
@@ -47,10 +52,6 @@ public class World {
         routesComputed = false;
 
         people = new ArrayList<Person>();
-    }
-
-    public void addWall(Point2d from, Point2d to) {
-        addWall(from.x, from.y, to.x, to.y);
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
@@ -112,29 +113,6 @@ public class World {
         }
     }
 
-    public void printDijsktras() throws RoutesNotComputedException, WorldNotSetUpException {
-        if (!routesComputed) {
-            throw new RoutesNotComputedException("");
-        }
-        if (!isSetUp) {
-            throw new WorldNotSetUpException("");
-        }
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                System.out.print(round(dijkstra.distance.get(nodeArray[i][j]), 2) + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, BigDecimal.ROUND_HALF_UP);
-        return bd.doubleValue();
-    }
-
     private void populateNodeArray() {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
@@ -181,26 +159,48 @@ public class World {
     public void computeDijsktraTowards(int x, int y) throws WorldNotSetUpException {
         if (!isSetUp)
             throw new WorldNotSetUpException("computerDijsktraTowards called before setting up world");
-        dijkstra = new DijkstraAlgorithm(new Graph(nodes, edges));
-        dijkstra.execute(nodeArray[x][y]);
+
+        fastDijkstra = new FastDijkstra();
+        fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
+        fastDijkstra.connections = new HashMap<Integer, ArrayList<Connection>>();
+
+        for (int i = 0; i < sideLength; i++) {
+            for (int j = 0; j < sideLength; j++) {
+                FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((i * sideLength) + j));
+                fastDijkstra.nodes.add(newNode);
+            }
+        }
+        FibonacciHeap fibonacciHeap = fastDijkstra.pathFind(0, sideLength * sideLength, this);
+
         routesComputed = true;
     }
 
-    public void computeDijsktraTowards(Point2d goal) throws WorldNotSetUpException {
-        computeDijsktraTowards((int) Math.round(goal.x), (int) Math.round(goal.y));
-    }
 
     public Path getPath(int x, int y) throws RoutesNotComputedException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("getPath called before routes were computed");
         }
-        ArrayList<Vertex> vertexList = new ArrayList<Vertex>(dijkstra.getPath(nodeArray[x][y]));
-        Collections.reverse(vertexList);
-        return new Path(vertexList);
-    }
-
-    public Path getPath(Point2d location) throws RoutesNotComputedException {
-        return getPath((int) Math.round(location.x), (int) Math.round(location.y));
+        FibonacciHeapNode fibonacciHeapNode = fastDijkstra.nodes.get((x * sideLength) + y);
+        NodeRecord nr = (NodeRecord) fibonacciHeapNode.getData();
+        ArrayList<Node> nodeList = new ArrayList<Node>();
+        while (true) {
+            if (nr.predecessor == null) {
+                nodeList = new ArrayList<Node>();
+                break;
+            }
+            Integer i = nr.predecessor;
+            Integer prevX = ((NodeRecord) fastDijkstra.nodes.get(i).getData()).node / sideLength;
+            Integer prevY = ((NodeRecord) fastDijkstra.nodes.get(i).getData()).node % sideLength;
+            if (prevX == 0 && prevY == 0) {
+                nodeList.add(new Node(0, 0));
+                break;
+            }
+            else {
+                nodeList.add(new Node(prevX, prevY));
+                nr = (NodeRecord) fastDijkstra.nodes.get(i).getData();
+            }
+        }
+        return new Path(nodeList);
     }
 
     public int getSideLength() {

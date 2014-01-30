@@ -1,11 +1,3 @@
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.vecmath.Point2d;
-import java.io.IOException;
-
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
 import WorldRepresentation.LayoutChunk;
@@ -13,11 +5,19 @@ import WorldRepresentation.Person;
 import WorldRepresentation.Wall;
 import WorldRepresentation.World;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.handler.*;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.vecmath.Point2d;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 public class BasicCanvas {
 
@@ -49,7 +49,7 @@ public class BasicCanvas {
 
         World world = new World(100);
         Point2d goal = new Point2d(0, 0);
-        
+
         for (Cobject co : cobjs) {
         	if (co.getType() == 0){
         		world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
@@ -63,18 +63,18 @@ public class BasicCanvas {
 
         world.setUp();
         world.printFloorPlan();
-        world.computeDijsktraTowards(goal);
+        world.computeDijsktraTowards((int) goal.x, (int) goal.y);
 
         // world.printDijsktras();
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
 
-        for(int i = 2; i < 2500; i++) {
+        for(int i = 2; i < 500; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
             } catch (PersonOverlapException | WallOverlapException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             }
         }
 
@@ -132,33 +132,55 @@ public class BasicCanvas {
         Runnable bottomLeftTask = (Runnable) bottomLeft;
         Runnable bottomRightTask = (Runnable) bottomRight;
 
-        Thread worker1 = new Thread(topLeftTask);
-        threads.add(worker1);
-        Thread worker2 = new Thread(topRightTask);
-        threads.add(worker2);
-        Thread worker3 = new Thread(bottomLeftTask);
-        threads.add(worker3);
-        Thread worker4 = new Thread(bottomRightTask);
-        threads.add(worker4);
+//        Thread worker1 = new Thread(topLeftTask);
+//        threads.add(worker1);
+//        Thread worker2 = new Thread(topRightTask);
+//        threads.add(worker2);
+//        Thread worker3 = new Thread(bottomLeftTask);
+//        threads.add(worker3);
+//        Thread worker4 = new Thread(bottomRightTask);
+//        threads.add(worker4);
 
-        double startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-        worker1.start();
-        worker2.start();
-        worker3.start();
-        worker4.start();
-
-        int running;
-        do {
-            running = 0;
-            for (Thread thread : threads) {
-                if (thread.isAlive()) {
-                    running++;
+        for (int i = 0; i < 250; i++) {
+            Thread worker1 = new Thread(topLeftTask);
+            threads.add(worker1);
+            Thread worker2 = new Thread(topRightTask);
+            threads.add(worker2);
+            Thread worker3 = new Thread(bottomLeftTask);
+            threads.add(worker3);
+            Thread worker4 = new Thread(bottomRightTask);
+            threads.add(worker4);
+            worker1.start();
+            worker2.start();
+            worker3.start();
+            worker4.start();
+            int running;
+            do {
+                running = 0;
+                for (Thread thread : threads) {
+                    if (thread.isAlive()) {
+                        running++;
+                    }
                 }
-            }
-            System.out.println("We have " + running + " running threads.");
-            Thread.sleep(500);
-        } while (running > 0);
+                //System.out.println("We have " + running + " running threads.");
+            } while (running > 0);
+        }
+
+
+
+//    int running;
+//        do {
+//            running = 0;
+//            for (Thread thread : threads) {
+//                if (thread.isAlive()) {
+//                    running++;
+//                }
+//            }
+//            System.out.println("We have " + running + " running threads.");
+//            Thread.sleep(500);
+//        } while (running > 0);
 
         double endTime = System.currentTimeMillis();
 
@@ -202,6 +224,9 @@ public class BasicCanvas {
             System.out.println(p.locations.get(0));
         }
 
+
+        System.out.println("Time taken before file I/O: " + (System.currentTimeMillis() - d));
+
         PrintWriter out = new PrintWriter("www/people.json");
         //out.print(peopleToJson(people));
 
@@ -213,6 +238,7 @@ public class BasicCanvas {
         output.addAll(bottomRight.getPeople());
         out.print(peopleToJson(output));
         System.out.println("I'm done");
+        System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
         out.close();
 
 
