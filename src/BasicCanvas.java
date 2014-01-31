@@ -73,16 +73,18 @@ public class BasicCanvas {
         for(int i = 2; i < 500; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
-            } catch (PersonOverlapException | WallOverlapException e) {
+            } catch (PersonOverlapException e) {
+            	
+            } catch (WallOverlapException e) {
                 // e.printStackTrace();
             }
         }
 
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
-        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50);
-        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50);
-        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0);
-        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0);
+        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls());
+        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls());
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls());
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls());
         chunks.add(topLeft);
         chunks.add(topRight);
         chunks.add(bottomLeft);

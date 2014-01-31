@@ -22,7 +22,7 @@ public class ModelTest {
     @Before
     public void setUp() {
         forceModel = new Model();
-        testPeople = new ArrayList<>();
+        testPeople = new ArrayList<Person>();
         testPeople.add(new Person(0.01, 0));
         testPeople.add(new Person(0.01, 0.01));
         testPeople.add(new Person(0.1, 0.1));
@@ -45,7 +45,7 @@ public class ModelTest {
 
     @Test
     public void socialForcesDecreaseWithDistance() throws Exception {
-        ArrayList<Double> forceMagnitudes = new ArrayList<>();
+        ArrayList<Double> forceMagnitudes = new ArrayList<Double>();
         for (Person testPerson : testPeople) {
             forceMagnitudes.add(forceModel.socialForce(p, testPerson).length());
         }
@@ -73,12 +73,12 @@ public class ModelTest {
 
     @Test
     public void socialForcesAreEqualAndOpposite() throws Exception {
-        ArrayList<Vector2d> forceVectors = new ArrayList<>();
+        ArrayList<Vector2d> forceVectors = new ArrayList<Vector2d>();
         for (Person testPerson : testPeople) {
             forceVectors.add(forceModel.socialForce(p, testPerson));
         }
 
-        ArrayList<Vector2d> reverseForceVectors = new ArrayList<>();
+        ArrayList<Vector2d> reverseForceVectors = new ArrayList<Vector2d>();
         for (Person testPerson : testPeople) {
             reverseForceVectors.add(forceModel.socialForce(testPerson, p));
         }

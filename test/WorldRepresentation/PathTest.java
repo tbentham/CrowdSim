@@ -13,11 +13,11 @@ public class PathTest {
 
     @Test
     public void baseCases() {
-        LinkedList<Node> vertices = new LinkedList<>();
+        LinkedList<Node> vertices = new LinkedList<Node>();
         vertices.add(new Node(0, 0));
         vertices.add(new Node(1, 0));
 
-        LinkedList<Vertex> exSubGoals = new LinkedList<>();
+        LinkedList<Vertex> exSubGoals = new LinkedList<Vertex>();
         exSubGoals.add(new Vertex(1, 0));
 
 
@@ -41,7 +41,7 @@ public class PathTest {
 
     @Test
     public void pathConstructorShouldNotReverseGivenVertices() {
-        LinkedList<Node> vertices = new LinkedList<>();
+        LinkedList<Node> vertices = new LinkedList<Node>();
         vertices.add(new Node(0, 0));
         vertices.add(new Node(1, 0));
         Path path = new Path(vertices);

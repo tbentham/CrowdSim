@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 public class LayoutChunk implements Runnable {
 
-    private ArrayList<Wall> walls;
+    private ArrayList<Wall> lWalls;
+    private ArrayList<Wall> gWalls;
     private double topYBoundary;
     private double bottomYBoundary;
     private double rightXBoundary;
@@ -13,22 +14,23 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> people;
     boolean finished;
 
-    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary) {
-        people = new ArrayList<>();
+    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls) {
+        people = new ArrayList<Person>();
         this.topYBoundary = topYBoundary;
         this.bottomYBoundary = bottomYBoundary;
         this.leftXBoundary = leftXBoundary;
         this.rightXBoundary = rightXBoundary;
-        walls = new ArrayList<>();
+        lWalls = new ArrayList<Wall>();
+        gWalls = walls;
         finished = false;
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
-        walls.add(new Wall(x1, y1, x2, y2));
+        lWalls.add(new Wall(x1, y1, x2, y2));
     }
 
     public ArrayList<Wall> getWalls() {
-        return walls;
+        return lWalls;
     }
 
     public void addPerson(Person p) {
@@ -80,7 +82,7 @@ public class LayoutChunk implements Runnable {
         //for (int i = 0; i < 500; i++) {
             for (Person p : people) {
                 try {
-                    p.advance(walls, people, 0.25);
+                    p.advance(gWalls, people, 0.25);
                 }
                 catch (Exception e) {
                     //

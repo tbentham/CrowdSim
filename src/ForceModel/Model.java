@@ -98,10 +98,10 @@ public class Model {
         v2.scale(240000 * g * aPerson.getVelocity().dot(v2));
         
         // calculate direct force
-        v1.scale(2000 * Math.exp(-distance / 0.08) + 240000 * g);
+        v1.scale(2000 * Math.exp(-distance / 0.08) + 120000 * g);
         
-        // sum forces
-        v1.add(v2);
+        // subtract tangential force
+        v1.sub(v2);
         
 /*      Vector2d aVector = new Vector2d(aPerson.getLocation());
         aVector.sub(new Vector2d(wall.nearestPoint(aPerson)));
