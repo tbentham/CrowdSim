@@ -10,6 +10,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import java.io.FileWriter;
+import com.google.gson.Gson;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -233,17 +235,25 @@ public class BasicCanvas {
         //out.print(peopleToJson(people));
 
         ArrayList<Person> output = new ArrayList<Person>();
-
+        
         output.addAll(topLeft.getPeople());
         output.addAll(topRight.getPeople());
         output.addAll(bottomLeft.getPeople());
         output.addAll(bottomRight.getPeople());
+        
         out.print(peopleToJson(output));
+
+        Point2d[][] locations = new Point2d[output.size()][output.get(1).locations.size()];
+        for(int i = 0; i < output.size(); i++){
+        	Person p = output.get(i);
+        	for(int j = 0; j < p.locations.size(); j++){
+        		locations[i][j] = p.locations.get(j);
+        	}
+        }
+//        toJson(locations);
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
         out.close();
-
-
 
         server.join();
 
@@ -284,6 +294,29 @@ public class BasicCanvas {
         return finalString;
     }
 
+
+ 
+    public static void toJson(Object people) {
+ 
+	Gson gson = new Gson();
+ 
+	// convert java object to JSON format,
+	// and returned as JSON formatted string
+	String json = gson.toJson(people);
+ 
+	try {
+		//write converted json data to a file named "file.json"
+		FileWriter writer = new FileWriter("www/people.json");
+		writer.write(json);
+		writer.close();
+ 
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+ 
+//	System.out.println(json);
+ 
+	}
 }
 
 
