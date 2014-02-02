@@ -231,17 +231,12 @@ public class BasicCanvas {
 
         System.out.println("Time taken before file I/O: " + (System.currentTimeMillis() - d));
 
-        PrintWriter out = new PrintWriter("www/people.json");
-        //out.print(peopleToJson(people));
-
         ArrayList<Person> output = new ArrayList<Person>();
         
         output.addAll(topLeft.getPeople());
         output.addAll(topRight.getPeople());
         output.addAll(bottomLeft.getPeople());
         output.addAll(bottomRight.getPeople());
-        
-        out.print(peopleToJson(output));
 
         Point2d[][] locations = new Point2d[output.size()][output.get(1).locations.size()];
         for(int i = 0; i < output.size(); i++){
@@ -250,62 +245,20 @@ public class BasicCanvas {
         		locations[i][j] = p.locations.get(j);
         	}
         }
-//        toJson(locations);
+        toJson(locations);
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
-        out.close();
 
         server.join();
 
     }
-
-    public static String peopleToJson(ArrayList<Person> people) {
-
-        String[] locations = new String[people.size()];
-        Person curPerson;
-        String finalString = "";
-        for (int i = 0; i < people.size(); i++) {
-            curPerson = people.get(i);
-            locations[i] = "";
-            for (int j = 0; j < curPerson.locations.size(); j++) {
-                locations[i] += "{\"x\":" + (curPerson.locations.get(j).x * 10.0) + ", \"y\":" + (curPerson.locations.get(j).y * 10.0) + "}";
-                if (j < curPerson.locations.size() - 1)
-                    locations[i] += ", ";
-            }
-        }
-
-        finalString += "[";
-
-
-        for (int i = 0; i < locations.length; i++) {
-            finalString += "[";
-            finalString += locations[i];
-            finalString += "]";
-            if (i < locations.length - 1) {
-                finalString += ", ";
-            }
-        }
-
-
-        finalString += "]";
-
-        // System.out.println(finalString);
-
-        return finalString;
-    }
-
-
  
     public static void toJson(Object people) {
  
 	Gson gson = new Gson();
- 
-	// convert java object to JSON format,
-	// and returned as JSON formatted string
 	String json = gson.toJson(people);
  
 	try {
-		//write converted json data to a file named "file.json"
 		FileWriter writer = new FileWriter("www/people.json");
 		writer.write(json);
 		writer.close();
@@ -313,8 +266,6 @@ public class BasicCanvas {
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
- 
-//	System.out.println(json);
  
 	}
 }

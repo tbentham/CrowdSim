@@ -61,7 +61,7 @@ function populate(time, clear){
     }
 
     for(var i = 0; i < canvasPeople.length; i++){ 
-        canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x, people[i][time].y, 5); 
+        canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5); 
     }
 
     if(trace){
