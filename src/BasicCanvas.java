@@ -1,27 +1,35 @@
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
+import WorldRepresentation.ChunkSync;
 import WorldRepresentation.LayoutChunk;
 import WorldRepresentation.Person;
 import WorldRepresentation.Wall;
 import WorldRepresentation.World;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+
 import java.io.FileWriter;
+
 import com.google.gson.Gson;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.vecmath.Point2d;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
+	
+	static int TIME_STEPS = 250;
 
     public static void main(String[] args) throws Exception {
 
@@ -82,11 +90,12 @@ public class BasicCanvas {
             }
         }
 
+        CyclicBarrier barrier = new CyclicBarrier(4, new ChunkSync());
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
-        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls());
-        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls());
-        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls());
-        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls());
+        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS);
+        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS);
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS);
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS);
         chunks.add(topLeft);
         chunks.add(topRight);
         chunks.add(bottomLeft);
@@ -146,8 +155,8 @@ public class BasicCanvas {
 //        threads.add(worker4);
 
         long startTime = System.currentTimeMillis();
-
-        for (int i = 0; i < 250; i++) {
+        
+        for (int i = 0; i < TIME_STEPS; i++) {
             Thread worker1 = new Thread(topLeftTask);
             threads.add(worker1);
             Thread worker2 = new Thread(topRightTask);
@@ -160,17 +169,11 @@ public class BasicCanvas {
             worker2.start();
             worker3.start();
             worker4.start();
-            int running;
-            do {
-                running = 0;
-                for (Thread thread : threads) {
-                    if (thread.isAlive()) {
-                        running++;
-                    }
-                }
-                //System.out.println("We have " + running + " running threads.");
-            } while (running > 0);
         }
+        for(Thread t: threads){
+        	t.join();
+        }
+        System.out.println("All threads have finished.");
 
 
 

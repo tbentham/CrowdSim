@@ -1,7 +1,10 @@
 package WorldRepresentation;
 
 import javax.vecmath.Point2d;
+
 import java.util.ArrayList;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 public class LayoutChunk implements Runnable {
 
@@ -13,8 +16,11 @@ public class LayoutChunk implements Runnable {
     private double leftXBoundary;
     private ArrayList<Person> people;
     boolean finished;
+    private CyclicBarrier barrier;
+    private int steps;
+    private int barriers;
 
-    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls) {
+    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls, CyclicBarrier barrier, int steps) {
         people = new ArrayList<Person>();
         this.topYBoundary = topYBoundary;
         this.bottomYBoundary = bottomYBoundary;
@@ -23,6 +29,10 @@ public class LayoutChunk implements Runnable {
         lWalls = new ArrayList<Wall>();
         gWalls = walls;
         finished = false;
+        this.barrier = barrier;
+        this.steps = steps;
+        this.barriers = 0;
+        
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
@@ -79,7 +89,7 @@ public class LayoutChunk implements Runnable {
     }
 
     public void run() {
-        //for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < this.steps; i++) {
             for (Person p : people) {
                 try {
                     p.advance(gWalls, people, 0.25);
@@ -88,6 +98,12 @@ public class LayoutChunk implements Runnable {
                     //
                 }
             }
-        //}
+            
+            try {
+				barrier.await();
+			} catch (InterruptedException | BrokenBarrierException e) {
+				System.err.println("Barrier fuckage");
+			}
+        }
     }
 }
