@@ -156,7 +156,6 @@ public class BasicCanvas {
 
         long startTime = System.currentTimeMillis();
         
-        for (int i = 0; i < TIME_STEPS; i++) {
             Thread worker1 = new Thread(topLeftTask);
             threads.add(worker1);
             Thread worker2 = new Thread(topRightTask);
@@ -169,7 +168,7 @@ public class BasicCanvas {
             worker2.start();
             worker3.start();
             worker4.start();
-        }
+            
         for(Thread t: threads){
         	t.join();
         }
