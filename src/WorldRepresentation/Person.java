@@ -49,8 +49,19 @@ public class Person {
         while ( goalVisible(goalIndex+1, walls) || (goalIndex < goalList.size() &&
         		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0)) )
             goalIndex++;
-        while ( !goalVisible(goalIndex, walls) && 0 < goalIndex && goalIndex < goalList.size() )
+        
+        // Path recovery
+    	int diff = goalIndex;
+        while ( !goalVisible(goalIndex, walls) && goalIndex > 0 && goalIndex < goalList.size() ) {
             goalIndex--;
+        }
+        if ( goalIndex == 0 ) {
+        	goalIndex += diff;
+        	while ( !goalVisible(goalIndex, walls) && goalIndex < goalList.size() )
+        		goalIndex++;
+        	if ( goalIndex == goalList.size() )
+        		goalIndex = 0;
+        }
     }
 
     private void goalUpdate() {

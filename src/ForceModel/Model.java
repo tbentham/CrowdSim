@@ -98,7 +98,7 @@ public class Model {
         v2.scale(240000 * g * aPerson.getVelocity().dot(v2));
         
         // calculate direct force
-        v1.scale(2000 * Math.exp(-distance / 0.08) + 120000 * g);
+        v1.scale(2000 * Math.exp(-distance / 0.08) + 240000 * g);
         
         // subtract tangential force
         v1.sub(v2);
