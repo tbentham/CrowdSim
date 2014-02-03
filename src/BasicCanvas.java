@@ -32,8 +32,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BasicCanvas {
 	
-	static int TIME_STEPS = 1000;
-	static int PEOPLE = 500;
+	static int TIME_STEPS = 500;
+	static int PEOPLE = 200;
 
     public static void main(String[] args) throws Exception {
 

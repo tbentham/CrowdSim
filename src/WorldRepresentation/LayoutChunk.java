@@ -18,16 +18,19 @@ public class LayoutChunk implements Runnable {
     private double rightXBoundary;
     private double leftXBoundary;
     private ArrayList<Person> people;
+    private ArrayList<Person> overlapPeople;
     boolean finished;
     private CyclicBarrier barrier;
     private int steps;
     LayoutChunk[][] chunks;
     public LinkedBlockingQueue<Person> q;
+    public LinkedBlockingQueue<Person> qOverlap;
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
     
     public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls, CyclicBarrier barrier, int steps) {
         people = new ArrayList<Person>();
+        overlapPeople = new ArrayList<Person>();
         this.topYBoundary = topYBoundary;
         this.bottomYBoundary = bottomYBoundary;
         this.leftXBoundary = leftXBoundary;
@@ -38,6 +41,7 @@ public class LayoutChunk implements Runnable {
         this.barrier = barrier;
         this.steps = steps;
         q = new LinkedBlockingQueue<Person>();
+        qOverlap = new LinkedBlockingQueue<Person>();
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
@@ -111,16 +115,132 @@ public class LayoutChunk implements Runnable {
     	}
     }
     
+    private ArrayList<Person> peopleLeftEdge() {
+    	ArrayList<Person> ret = new ArrayList<Person>();
+    	for (Person p : people) {
+    		if (p.getLocation().x - leftXBoundary < 10) {
+    			ret.add(p);
+    		}
+    	}
+    	return ret;
+    }
+    
+    private ArrayList<Person> peopleTopEdge() {
+    	ArrayList<Person> ret = new ArrayList<Person>();
+    	for (Person p : people) {
+    		if (topYBoundary - p.getLocation().y < 10) {
+    			ret.add(p);
+    		}
+    	}
+    	return ret;
+    }
+    
+    private ArrayList<Person> peopleRightEdge() {
+    	ArrayList<Person> ret = new ArrayList<Person>();
+    	for (Person p : people) {
+    		if (rightXBoundary - p.getLocation().x < 10) {
+    			ret.add(p);
+    		}
+    	}
+    	return ret;
+    }
+    
+    private ArrayList<Person> peopleBottomEdge() {
+    	ArrayList<Person> ret = new ArrayList<Person>();
+    	for (Person p : people) {
+    		if (p.getLocation().y - bottomYBoundary < 10) {
+    			ret.add(p);
+    		}
+    	}
+    	return ret;
+    }
+    
+    private void sendLeftOverlap(){
+    	ArrayList<Person> l = peopleLeftEdge();
+    	
+    	int xIndex = (int) leftXBoundary / 50;
+    	int yIndex = (int) bottomYBoundary / 50;
+    	
+    	if (xIndex == 0) {
+    		return;
+    	}
+    	chunks[xIndex - 1][yIndex].qOverlap.addAll(l);
+    }
+    
+    private void sendRightOverlap(){
+    	ArrayList<Person> r = peopleRightEdge();
+    	
+    	int xIndex = (int) leftXBoundary / 50;
+    	int yIndex = (int) bottomYBoundary / 50;
+    	
+    	if (xIndex == chunks.length - 1) {
+    		return;
+    	}
+    	chunks[xIndex + 1][yIndex].qOverlap.addAll(r);
+    }
+    
+    private void sendTopOverlap(){
+    	ArrayList<Person> t = peopleTopEdge();
+    	
+    	int xIndex = (int) leftXBoundary / 50;
+    	int yIndex = (int) bottomYBoundary / 50;
+    	
+    	if (yIndex == chunks.length - 1) {
+    		return;
+    	}
+    	chunks[xIndex][yIndex + 1].qOverlap.addAll(t);
+    }
+    
+    private void sendBottomOverlap(){
+    	ArrayList<Person> b = peopleLeftEdge();
+    	
+    	int xIndex = (int) leftXBoundary / 50;
+    	int yIndex = (int) bottomYBoundary / 50;
+    	
+    	if (yIndex == 0) {
+    		return;
+    	}
+    	chunks[xIndex][yIndex - 1].qOverlap.addAll(b);
+    }
+    
+    private void addOverlapPeople() {
+    	while(!qOverlap.isEmpty()){
+    		overlapPeople.add(qOverlap.poll());
+    	}
+    }
+    
+    private void sendOverlaps() {
+    	sendLeftOverlap();
+    	sendRightOverlap();
+    	sendBottomOverlap();
+    	sendTopOverlap();
+    }
 
     public void run() {
         for (int i = 0; i < this.steps; i++) {
         	
         	System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
         	addPeople();
+        	sendOverlaps();
+        	
+        	try {
+        		barrier.await();
+        	} catch (InterruptedException | BrokenBarrierException e) {
+				System.err.println("Overlap fuckage");
+			}
+      
+        	addOverlapPeople();
+        	
+        	System.out.println("After My queue has: " + q.size() + " And I have: " + people.size());
+        	
+        	ArrayList<Person> allPeople = new ArrayList<Person>();
+        	allPeople.addAll(people);
+        	allPeople.addAll(overlapPeople);
+        	
         	ArrayList<Person> toRemove = new ArrayList<Person>();
         	for (Person p : people) {
                 try {
-                    p.advance(gWalls, people, 0.25);
+                    p.advance(gWalls, allPeople, 0.25);
                     if(!isPointInside(p.getLocation().x, p.getLocation().y)){
                     	int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;
