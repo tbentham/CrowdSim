@@ -241,11 +241,16 @@ public class LayoutChunk implements Runnable {
         	for (Person p : people) {
                 try {
                     p.advance(gWalls, allPeople, 0.25);
-                    if(!isPointInside(p.getLocation().x, p.getLocation().y)){
+                    if(!isPointInside(p.getLocation().x, p.getLocation().y)){ //OTODO
                     	int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;
-                    	chunks[xIndex][yIndex].putPerson(p);
-                    	toRemove.add(p);
+                    	if(!(xIndex < 0 || yIndex < 0)){
+                    		toRemove.add(p);
+                    		chunks[xIndex][yIndex].putPerson(p);
+                    	}
+                    	else{
+                    		System.out.println("Left Canvas");
+                    	}
                     }
                 }
                 catch (Exception e) {

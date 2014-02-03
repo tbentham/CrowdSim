@@ -218,6 +218,7 @@ public class BasicCanvas {
         		locations[i][j] = p.locations.get(j);
         	}
         }
+        
         toJson(locations);
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
