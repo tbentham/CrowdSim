@@ -97,7 +97,7 @@ public class Wall implements BuildingObject {
         return new Point2d(startToEnd);
     }
 
-    public boolean intersects(Point2d p1, Point2d p2, double width) {
+    public boolean intersects(Point2d p1, Point2d p2, double addedLength) {
     	double x1 = startVector.x;
     	double y1 = startVector.y;
     	double x2 = endVector.x;
@@ -108,39 +108,41 @@ public class Wall implements BuildingObject {
     	double x4 = p2.x;
     	double y4 = p2.y;
     	
-//		double addedLengthx;
-//		double addedLengthy;
-//		if ( x1 == x2 ) {
-//			addedLengthx = 0;
-//			addedLengthy = width/2.0;
-//    	}
-//    	else if ( y1 == y2 ) {
-//    		addedLengthx = width/2.0;
-//    		addedLengthy = 0;
-//    	}
-//    	else {
-//    		double gradientSq = Math.pow(y2-y1/x2-x1,2);
-//    		addedLengthx = Math.sqrt(Math.pow(width/2.0,2)/(1.0+gradientSq));
-//    		addedLengthy = Math.sqrt(Math.pow(width/2.0,2)/(1.0+1.0/gradientSq));
-//    	}
-//
-//		if ( Math.max(x1,x2) == x1 ) {
-//			x1 += addedLengthx;
-//			x2 -= addedLengthx;
-//		}
-//		else {
-//			x1 -= addedLengthx;
-//			x2 += addedLengthx;
-//		}
-//
-//		if ( Math.max(y1,y2) == y1 ) {
-//			y1 += addedLengthy;
-//			y2 -= addedLengthy;
-//		}
-//		else {
-//			y1 -= addedLengthy;
-//			y2 += addedLengthy;
-//		}
+    	if ( addedLength > 0.0 ) {
+			double addedX;
+			double addedY;
+			if ( x1 == x2 ) {
+				addedX = 0;
+				addedY = addedLength;
+	    	}
+	    	else if ( y1 == y2 ) {
+	    		addedX = addedLength;
+	    		addedY = 0;
+	    	}
+	    	else {
+	    		double gradientSq = Math.pow(y2-y1/x2-x1,2);
+	    		addedX = Math.sqrt(addedLength*addedLength/(1.0+gradientSq));
+	    		addedY = Math.sqrt(addedLength*addedLength/(1.0+1.0/gradientSq));
+	    	}
+	
+			if ( Math.max(x1,x2) == x1 ) {
+				x1 += addedX;
+				x2 -= addedX;
+			}
+			else {
+				x1 -= addedX;
+				x2 += addedX;
+			}
+	
+			if ( Math.max(y1,y2) == y1 ) {
+				y1 += addedY;
+				y2 -= addedY;
+			}
+			else {
+				y1 -= addedY;
+				y2 += addedY;
+			}
+    	}
     	
     	double divisor = (x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4);
     	if (divisor == 0)
@@ -150,6 +152,10 @@ public class Wall implements BuildingObject {
     	
     	return (Math.min(x1,x2) <= xInt && xInt <= Math.max(x1,x2) &&
     			Math.min(x3,x4) <= xInt && xInt <= Math.max(x3,x4));
+    }
+
+    public boolean intersects(Point2d p1, Point2d p2) {
+    	return intersects(p1, p2, 0.0);
     }
 
     public boolean intersects(Wall w, double width) {
