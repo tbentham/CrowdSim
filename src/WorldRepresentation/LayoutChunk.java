@@ -56,19 +56,19 @@ public class LayoutChunk implements Runnable {
     }
 
     public boolean intersectsTop(Wall w) {
-        return (w.intersects(new Point2d(leftXBoundary, topYBoundary), new Point2d(rightXBoundary, topYBoundary), 1));
+        return (w.intersects(new Point2d(leftXBoundary, topYBoundary), new Point2d(rightXBoundary, topYBoundary)));
     }
 
     public boolean intersectsBottom(Wall w) {
-        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(rightXBoundary, bottomYBoundary), 1));
+        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(rightXBoundary, bottomYBoundary)));
     }
 
     public boolean intersectsLeft(Wall w) {
-        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(leftXBoundary, topYBoundary), 1));
+        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(leftXBoundary, topYBoundary)));
     }
 
     public boolean intersectsRight(Wall w) {
-        return (w.intersects(new Point2d(rightXBoundary, bottomYBoundary), new Point2d(rightXBoundary, topYBoundary), 1));
+        return (w.intersects(new Point2d(rightXBoundary, bottomYBoundary), new Point2d(rightXBoundary, topYBoundary)));
     }
 
     public int numberOfIntersects(Wall w) {
@@ -101,7 +101,11 @@ public class LayoutChunk implements Runnable {
             
             try {
 				barrier.await();
-			} catch (InterruptedException | BrokenBarrierException e) {
+			}
+            catch (InterruptedException e) {
+				System.err.println("Barrier fuckage");
+            }
+            catch (BrokenBarrierException e) {
 				System.err.println("Barrier fuckage");
 			}
         }

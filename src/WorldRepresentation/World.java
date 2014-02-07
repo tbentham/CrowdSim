@@ -76,7 +76,7 @@ public class World {
                 throw new WallOverlapException("Cannot add person at " + x + " , " + y + " because wall exists there");
             }
         }
-        person.setGoalList(getPath(x, y).getSubGoals());
+        person.setGoalList(getPath(x, y).getNodes());
         people.add(person);
     }
 

@@ -46,21 +46,18 @@ public class Person {
     }
 
     private void goalUpdate(ArrayList<Wall> walls) {
-        while ( goalVisible(goalIndex+1, walls) || (goalIndex < goalList.size() &&
+        while ( goalVisible(goalIndex+1, walls/*, size+1.0*/) || (goalIndex < goalList.size() &&
         		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0)) )
             goalIndex++;
         
         // Path recovery
-    	int diff = goalIndex;
+    	int origIndex = goalIndex;
+    	// Try looking behind
         while ( !goalVisible(goalIndex, walls) && goalIndex > 0 && goalIndex < goalList.size() ) {
             goalIndex--;
         }
-        if ( goalIndex == 0 ) {
-        	goalIndex += diff;
-        	while ( !goalVisible(goalIndex, walls) && goalIndex < goalList.size() )
-        		goalIndex++;
-        	if ( goalIndex == goalList.size() )
-        		goalIndex = 0;
+        if ( goalIndex == 0 && !goalVisible(goalIndex, walls) ) {
+      	    goalIndex = origIndex;
         }
     }
 
@@ -145,10 +142,10 @@ public class Person {
         return v;
     }
 
-    public boolean goalVisible(int index, ArrayList<Wall> walls) {
+    public boolean goalVisible(int index, ArrayList<Wall> walls, double addedLength) {
     	if ( 0 <= index && index < goalList.size() ) {
     		for (Wall w : walls) {
-    			if ( w.intersects(location, goalList.get(index).toPoint2d(), size+1.0) ) {
+    			if ( w.intersects(location, goalList.get(index).toPoint2d(), addedLength) ) {
     				return false;
 				}
     		}
@@ -157,6 +154,10 @@ public class Person {
     	else {
     		return false;
     	}
+    }
+
+    public boolean goalVisible(int index, ArrayList<Wall> walls) {
+    	return goalVisible(index, walls, 0.0);
     }
     
     public Vector2d getDesiredDirection() {
