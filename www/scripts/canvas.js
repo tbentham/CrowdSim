@@ -23,6 +23,7 @@ var cursorItem;
 var cursorItemPixel; // This needs another tidy session
 
 var people = new Array();
+var blockages = new Array();
 var canvasPeople;
 var canvasPeople_colours = new Array();
 var canvasTraces = new Array();
@@ -34,7 +35,6 @@ function init() {
     stage.update();
 }
 
-// Need some connection shit before this happens, the JSON needs to come from the server. It is currently in a file.
 function populate(time, clear){
 
     if(time >= people[0].length){
@@ -61,7 +61,14 @@ function populate(time, clear){
     }
 
     for(var i = 0; i < canvasPeople.length; i++){ 
-        canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5); 
+    	if(blockages[i][time] == true){
+	        canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+    	}
+    	else{
+	        // canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+	        canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+    	}
+
     }
 
     if(trace){
@@ -77,7 +84,6 @@ function populate(time, clear){
     }
 
     //Update the timestep number
-   
     num =  (time * 0.1);
     $("#timestep")[0].textContent = num.toFixed(2);
     stage.update();
@@ -304,6 +310,9 @@ function getPeople(){
         $(".slider").slider({max: people[0].length, min: 0});
         $(".slider").slider({slide: function( event, ui ) { populate(ui.value)}});
         populate(0);
+    });
+    $.get("/stuck.json", function(data){
+        blockages = JSON.parse(data.toString().trim());
     });
 }
 
