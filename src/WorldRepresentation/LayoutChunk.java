@@ -239,7 +239,7 @@ public class LayoutChunk implements Runnable {
         	ArrayList<Person> toRemove = new ArrayList<Person>();
         	for (Person p : people) {
                 try {
-                    p.advance(gWalls, allPeople, 0.25);
+                    p.advance(gWalls, allPeople, 0.1);
                     if(!isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0){
                         int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;

@@ -20,8 +20,8 @@ import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
 	
-	static int TIME_STEPS = 200;
-	static int PEOPLE = 500;
+	static int TIME_STEPS = 300;
+	static int PEOPLE = 1000;
 
     public static void main(String[] args) throws Exception {
 
