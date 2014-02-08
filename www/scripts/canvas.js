@@ -75,6 +75,11 @@ function populate(time, clear){
             }
         }
     }
+
+    //Update the timestep number
+   
+    num =  (time * 0.1);
+    $("#timestep")[0].textContent = num.toFixed(2);
     stage.update();
 }
     
@@ -409,7 +414,7 @@ function mouseInterest(e){
 }
 
 function showBlockages(){
-	
+
 }
 
 /*
