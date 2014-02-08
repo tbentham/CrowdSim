@@ -1,10 +1,7 @@
 package WorldRepresentation;
 
 import javax.vecmath.Point2d;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -219,8 +216,10 @@ public class LayoutChunk implements Runnable {
     public void run() {
         for (int i = 0; i < this.steps; i++) {
         	
-        	System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
+        	// System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
+            overlapPeople = new ArrayList<Person>();
         	addPeople();
+            // System.out.println("U have " + overlapPeople.size() + " overlap to send");
         	sendOverlaps();
         	
         	try {
@@ -231,7 +230,7 @@ public class LayoutChunk implements Runnable {
       
         	addOverlapPeople();
         	
-        	System.out.println("After My queue has: " + q.size() + " And I have: " + people.size());
+        	// System.out.println("After My queue has: " + q.size() + " And I have: " + people.size());
         	
         	ArrayList<Person> allPeople = new ArrayList<Person>();
         	allPeople.addAll(people);
@@ -241,14 +240,14 @@ public class LayoutChunk implements Runnable {
         	for (Person p : people) {
                 try {
                     p.advance(gWalls, allPeople, 0.25);
-                    if(!isPointInside(p.getLocation().x, p.getLocation().y)){ //OTODO
-                    	int xIndex = (int) p.getLocation().x / 50;
+                    if(!isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0){
+                        int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;
                     	if(!(xIndex < 0 || yIndex < 0)){
                     		toRemove.add(p);
                     		chunks[xIndex][yIndex].putPerson(p);
                     	}
-                    	else{
+                    	else {
                     		System.out.println("Left Canvas");
                     	}
                     }
@@ -257,7 +256,9 @@ public class LayoutChunk implements Runnable {
                     //
                 } 
             }
+            if (i != this.steps - 1) {
         	people.removeAll(toRemove);
+            }
             try {
 				barrier.await();
 			}
@@ -267,6 +268,8 @@ public class LayoutChunk implements Runnable {
 			catch (BrokenBarrierException e) {
 				System.err.println("Barrier fuckage");
 			}
+
+            // System.out.println(people.size());
         }
     }
 }

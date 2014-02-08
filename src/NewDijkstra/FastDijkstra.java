@@ -56,13 +56,18 @@ public class FastDijkstra {
 
         FibonacciHeap fibonacciHeap = new FibonacciHeap();
         FibonacciHeapNode fibonacciHeapNode = new FibonacciHeapNode(new NodeRecord(startNode));
-        fibonacciHeap.insert(fibonacciHeapNode, 0);
+        //fibonacciHeap.insert(fibonacciHeapNode, 0);
 
         keys = new Double[numNodes];
-        for (int i = 1; i < numNodes; i++) {
-            fibonacciHeap.insert(nodes.get(i), 100000.0);
-            keys[i] = 10000.0;
-
+        for (int i = 0; i < numNodes; i++) {
+            if (i == startNode) {
+                fibonacciHeap.insert(nodes.get(i), 0);
+                keys[i] = 0.0;
+            }
+            else {
+                fibonacciHeap.insert(nodes.get(i), 100000.0);
+                keys[i] = 10000.0;
+            }
         }
 
         for (int k = 1; k < numNodes; k++) {

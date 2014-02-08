@@ -1,11 +1,7 @@
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
-import WorldRepresentation.ChunkSync;
-import WorldRepresentation.LayoutChunk;
-import WorldRepresentation.Person;
-import WorldRepresentation.Wall;
-import WorldRepresentation.World;
-
+import WorldRepresentation.*;
+import com.google.gson.Gson;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -13,27 +9,19 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
-import java.io.FileWriter;
-
-import com.google.gson.Gson;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.vecmath.Point2d;
-
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class BasicCanvas {
 	
-	static int TIME_STEPS = 500;
-	static int PEOPLE = 200;
+	static int TIME_STEPS = 50;
+	static int PEOPLE = 100;
 
     public static void main(String[] args) throws Exception {
 
@@ -96,7 +84,7 @@ public class BasicCanvas {
 
         //Each chunk needs a reference to its own queue, every queue should be kept in a publicly accessible hashmap.
         LayoutChunk[][] chunks2d = new LayoutChunk[2][2];
-        
+
         CyclicBarrier barrier = new CyclicBarrier(4, new ChunkSync());
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
         LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS);
@@ -108,7 +96,7 @@ public class BasicCanvas {
         chunks.add(topLeft);
         chunks.add(bottomRight);
         chunks.add(topRight);
-        
+
         chunks2d[0][0] = bottomLeft;
         bottomLeft.addChunks(chunks2d);
         chunks2d[0][1] = topLeft;
@@ -117,7 +105,7 @@ public class BasicCanvas {
         bottomRight.addChunks(chunks2d);
         chunks2d[1][1] = topRight;
         topRight.addChunks(chunks2d);
-        
+
         for (LayoutChunk lc : chunks) {
             for (Wall w : world.getWalls()) {
                 boolean startInside = false;
@@ -163,7 +151,7 @@ public class BasicCanvas {
         Runnable bottomRightTask = (Runnable) bottomRight;
 
         long startTime = System.currentTimeMillis();
-        
+
             Thread worker1 = new Thread(topLeftTask);
             threads.add(worker1);
             Thread worker2 = new Thread(topRightTask);
@@ -176,12 +164,19 @@ public class BasicCanvas {
             worker2.start();
             worker3.start();
             worker4.start();
-            
+
         for(Thread t: threads){
         	t.join();
         }
         System.out.println("All threads have finished.");
 
+        // double startTime = System.currentTimeMillis();
+
+//        for (int i = 0; i < TIME_STEPS; i++) {
+//            for (Person p : world.getPeople()) {
+//                p.advance(world, world.getPeople(), 0.25);
+//            }
+//        }
 
         double endTime = System.currentTimeMillis();
 
@@ -210,6 +205,7 @@ public class BasicCanvas {
         output.addAll(topRight.getPeople());
         output.addAll(bottomLeft.getPeople());
         output.addAll(bottomRight.getPeople());
+        // output.addAll(world.getPeople());
 
         Point2d[][] locations = new Point2d[output.size()][output.get(1).locations.size()+1];
         for(int i = 0; i < output.size(); i++){
@@ -218,8 +214,16 @@ public class BasicCanvas {
         		locations[i][j] = p.locations.get(j);
         	}
         }
-        
-        toJson(locations);
+
+        Boolean[][] stuckStatus = new Boolean[output.size()][output.get(1).locations.size() + 1];
+        for (int i = 0; i < output.size(); i++) {
+            Person p = output.get(i);
+            stuckStatus[i] = p.blockedList.toArray(new Boolean[p.blockedList.size()]);
+        }
+
+
+        toJson(stuckStatus, "www/stuck.json");
+        toJson(locations, "www/people.json");
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
 
@@ -227,13 +231,13 @@ public class BasicCanvas {
 
     }
  
-    public static void toJson(Object people) {
+    public static void toJson(Object people, String outputFile) {
  
 	Gson gson = new Gson();
 	String json = gson.toJson(people);
  
 	try {
-		FileWriter writer = new FileWriter("www/people.json");
+		FileWriter writer = new FileWriter(outputFile);
 		writer.write(json);
 		writer.close();
  

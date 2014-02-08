@@ -25,8 +25,13 @@ public class Person {
 
     private LinkedList<Node> goalList;
     private int goalIndex;
+
+    public ArrayList<Boolean> blockedList;
     
     private Model forceModel;
+
+    private double distanceToNextGoal;
+    private double expectedTimeStepAtNextGoal;
 
     public Person(double x1, double y1) {
         location = new Point2d(x1, y1);
@@ -43,6 +48,11 @@ public class Person {
         goalIndex = 0;
 
         forceModel = new Model();
+
+        distanceToNextGoal = location.distance(getNextGoal());
+        expectedTimeStepAtNextGoal = (desiredSpeed / distanceToNextGoal) + 10;
+
+        blockedList = new ArrayList<Boolean>();
     }
 
     private void goalUpdate(ArrayList<Wall> walls) {
@@ -81,7 +91,16 @@ public class Person {
             return location;
         }
 
+
+        distanceToNextGoal = location.distance(getNextGoal());
+        expectedTimeStepAtNextGoal = (desiredSpeed / distanceToNextGoal) + locations.size();
+        // System.out.println("I am " + this.toString() + " and my speed is " + actualVelocity.length());
+
+        int currentGoal = goalIndex;
         goalUpdate();
+//        if (goalIndex != currentGoal) {
+//            System.out.println("I've reached a goal bitches, I am : " + this.toString());
+//        }
 
         if (goalIndex < goalList.size()) {
         	Vector2d accTerm = new Vector2d(0,0);
@@ -121,8 +140,24 @@ public class Person {
 
         locations.add(new Point2d(location.x, location.y));
 
+        Boolean stuckStatus = false;
         goalUpdate();
+        if (goalIndex != currentGoal) {
+//            System.out.println("I expected to reach my first goal at: " + expectedTimeStepAtNextGoal + ", bitches");
+//            System.out.println("I've reached a goal bitches, I am: " + this.toString());
+//            System.out.println("Current timestep is " + locations.size());
+            if (expectedTimeStepAtNextGoal + 4 < locations.size()) {
+                System.out.println(this.toString() + ": I'm stuck pls halp :(");
+                stuckStatus = true;
+            }
+            else {
+                System.out.println(this.toString() + ": Made it to my goal on time :)");
+            }
+            distanceToNextGoal = location.distance(getNextGoal());
+            expectedTimeStepAtNextGoal = (desiredSpeed / distanceToNextGoal) + 10;
+        }
 
+        blockedList.add(stuckStatus);
         return location;
     }
 

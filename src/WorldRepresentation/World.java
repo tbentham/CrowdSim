@@ -170,7 +170,7 @@ public class World {
                 fastDijkstra.nodes.add(newNode);
             }
         }
-        FibonacciHeap fibonacciHeap = fastDijkstra.pathFind(0, sideLength * sideLength, this);
+        FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((x * sideLength) + y, sideLength * sideLength, this);
 
         routesComputed = true;
     }
@@ -185,7 +185,7 @@ public class World {
         ArrayList<Node> nodeList = new ArrayList<Node>();
         while (true) {
             if (nr.predecessor == null) {
-                nodeList = new ArrayList<Node>();
+                // nodeList = new ArrayList<Node>();
                 break;
             }
             Integer i = nr.predecessor;
