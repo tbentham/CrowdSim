@@ -408,6 +408,10 @@ function mouseInterest(e){
     stage.update();
 }
 
+function showBlockages(){
+	
+}
+
 /*
 client todo list.
 
