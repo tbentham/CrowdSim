@@ -146,7 +146,7 @@ public class Person {
 //            System.out.println("I expected to reach my first goal at: " + expectedTimeStepAtNextGoal + ", bitches");
 //            System.out.println("I've reached a goal bitches, I am: " + this.toString());
 //            System.out.println("Current timestep is " + locations.size());
-            if (expectedTimeStepAtNextGoal + 4 < locations.size()) {
+            if (expectedTimeStepAtNextGoal < locations.size()) {
                 System.out.println(this.toString() + ": I'm stuck pls halp :(");
                 stuckStatus = true;
             }
