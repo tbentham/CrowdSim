@@ -141,18 +141,15 @@ public class Person {
         locations.add(new Point2d(location.x, location.y));
 
         Boolean stuckStatus = false;
+        if (expectedTimeStepAtNextGoal < locations.size()) {
+            System.out.println(this.toString() + ": I'm stuck pls halp :(");
+            stuckStatus = true;
+        }
         goalUpdate();
         if (goalIndex != currentGoal) {
 //            System.out.println("I expected to reach my first goal at: " + expectedTimeStepAtNextGoal + ", bitches");
 //            System.out.println("I've reached a goal bitches, I am: " + this.toString());
 //            System.out.println("Current timestep is " + locations.size());
-            if (expectedTimeStepAtNextGoal < locations.size()) {
-                System.out.println(this.toString() + ": I'm stuck pls halp :(");
-                stuckStatus = true;
-            }
-            else {
-                System.out.println(this.toString() + ": Made it to my goal on time :)");
-            }
             distanceToNextGoal = location.distance(getNextGoal());
             expectedTimeStepAtNextGoal = (desiredSpeed / distanceToNextGoal) + 10;
         }
