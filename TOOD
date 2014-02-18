@@ -1,16 +1,19 @@
 SHIT WE NEED TO DO:
 
-Make agents smarter
-    path recalculation
-    fixing social force
-    Density
+-Make agents smarter
+    -path recalculation
+    -fixing social force
+    -Density
 
-Bottleneck Identification
+-Bottleneck Identification
 
-Points of Interest - Normal Sim
+-Points of Interest - Normal Sim
 
-Evacuation Sim
-    Drop people on canvas
+-Evacuation Sim
+    -Drop people on canvas
 
-General Sim analysis to determine running time - for predictions.
-UI prettification
+-General Sim analysis to determine running time - for predictions.
+-UI prettification
+
+-Unit testing; update existing tests
+-General commenting and organisation of code
