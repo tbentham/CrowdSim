@@ -227,7 +227,7 @@ public class Person {
         goalIndex = 0;
         distanceToNextGoal = location.distance(getNextGoal());
         expectedTimeStepAtNextGoal = (distanceToNextGoal / (desiredSpeed * 0.1)) + 5;
-        System.out.println("");
+//        System.out.println("");
     }
 
     public LinkedList<Node> getGoalList() {

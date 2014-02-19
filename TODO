@@ -4,7 +4,8 @@ SHIT WE NEED TO DO:
     -path recalculation
     -fixing social force
     -Density
-
+	 - NEVER FORGET horizontal vision problem after implementing A star.
+	(people not detecting blockage when they have subgoal near blockage).
 -Bottleneck Identification
 
 -Points of Interest - Normal Sim

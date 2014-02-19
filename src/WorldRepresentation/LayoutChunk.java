@@ -1,6 +1,13 @@
 package WorldRepresentation;
 
 import javax.vecmath.Point2d;
+
+import Dijkstra.Edge;
+import Dijkstra.Vertex;
+import Exceptions.WorldNotSetUpException;
+
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -19,26 +26,45 @@ public class LayoutChunk implements Runnable {
     boolean finished;
     private CyclicBarrier barrier;
     private int steps;
+    private int[][] floorPlan;
+    private int[][] densityMap;
+    private World w;
+    private ArrayList<Edge> edges;
+    private Vertex[][] nodes;
     LayoutChunk[][] chunks;
     public LinkedBlockingQueue<Person> q;
     public LinkedBlockingQueue<Person> qOverlap;
+    private ArrayList<Person> allPeople;
+    
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
     
-    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls, CyclicBarrier barrier, int steps) {
-        people = new ArrayList<Person>();
+    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls, CyclicBarrier barrier, int steps, World w) {
+        System.out.println("LayoutChunk Created");
+    	people = new ArrayList<Person>();
         overlapPeople = new ArrayList<Person>();
         this.topYBoundary = topYBoundary;
         this.bottomYBoundary = bottomYBoundary;
         this.leftXBoundary = leftXBoundary;
         this.rightXBoundary = rightXBoundary;
+        nodes = new Vertex[w.getSideLength()][w.getSideLength()];
+        edges = new ArrayList<Edge>();
         lWalls = new ArrayList<Wall>();
+        floorPlan = new int[w.getSideLength()][w.getSideLength()];
         gWalls = walls;
+        densityMap = new int[w.getSideLength()][w.getSideLength()];
         finished = false;
+        this.w = w;
         this.barrier = barrier;
         this.steps = steps;
         q = new LinkedBlockingQueue<Person>();
         qOverlap = new LinkedBlockingQueue<Person>();
+        
+        populateFloorPlan();
+        createEdges();
+        if(topYBoundary == 50 && leftXBoundary == 0) {
+        	printFloorPlan();
+        }
     }
 
     public void addWall(double x1, double y1, double x2, double y2) {
@@ -227,19 +253,28 @@ public class LayoutChunk implements Runnable {
         	} catch (InterruptedException | BrokenBarrierException e) {
 				System.err.println("Overlap fuckage");
 			}
-      
+        	
         	addOverlapPeople();
         	
         	// System.out.println("After My queue has: " + q.size() + " And I have: " + people.size());
         	
-        	ArrayList<Person> allPeople = new ArrayList<Person>();
+        	allPeople = new ArrayList<Person>();
         	allPeople.addAll(people);
         	allPeople.addAll(overlapPeople);
+        	populateDensityMap();
+            if(topYBoundary == 50 && leftXBoundary == 0) {
+            	printDensity();
+            }
         	
         	ArrayList<Person> toRemove = new ArrayList<Person>();
         	for (Person p : people) {
                 try {
+
                     p.advance(gWalls, allPeople, 0.1);
+                	if (visibleBlockage(p) != null) {
+                		p.blockedList.set(p.blockedList.size() - 1, true);
+                	}
+                	
                     if(!isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0){
                         int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;
@@ -271,5 +306,142 @@ public class LayoutChunk implements Runnable {
 
             // System.out.println(people.size());
         }
+    }
+    
+    private void populateDensityMap() {	 	
+    	int sideLength = w.getSideLength();
+	    densityMap = new int[sideLength][sideLength];
+    	for(Person p : people) {
+    		Point2d l = new Point2d((int) Math.round(p.getLocation().x), (int) Math.round(p.getLocation().y));
+    		if (l.x < 0) {
+    			l.x = 0;
+    		}
+    		if (l.x >= sideLength) {
+    			l.x = sideLength - 1;
+    		}
+    		if (l.y >= sideLength) {
+    			l.y = sideLength - 1;
+    		}
+    		if (l.y < 0) {
+    			l.y = 0;
+    		}
+    		
+    		densityMap[(int) l.x][(int) l.y]++;
+    		if (l.x > 0 && l.y > 0) {
+    			densityMap[(int) l.x - 1][(int) l.y - 1]++;
+    		}
+    		if (l.y > 0) {
+    			densityMap[(int) l.x][(int) l.y - 1]++;
+    		}
+    		if (l.y > 0 && l.x < sideLength - 1) {
+    			densityMap[(int) l.x + 1][(int) l.y - 1]++;
+    		}
+    		if (l.x > 0) {
+    			densityMap[(int) l.x - 1][(int) l.y]++;
+    		}
+    		if (l.x < sideLength - 1) {
+    			densityMap[(int) l.x + 1][(int) l.y]++;
+    		}
+    		if (l.x > 0 && l.y < sideLength - 1) {
+    			densityMap[(int) l.x - 1][(int) l.y + 1]++;
+    		}
+    		if (l.y < sideLength - 1) {
+    			densityMap[(int) l.x][(int) l.y + 1]++;
+    		}
+    		if (l.y < sideLength - 1 && l.x < sideLength - 1) {
+    			densityMap[(int) l.x + 1][(int) l.y + 1]++;
+    		}
+    	}
+    }
+   
+    
+    private void populateFloorPlan() {
+    	int sideLength = w.getSideLength();
+        for (int i = 0; i < sideLength; i++) {
+            for (int j = 0; j < sideLength; j++) {
+                floorPlan[i][j] = 0;
+                for (Wall wall : gWalls) {
+                    Point2d point2d = new Point2d(i, j);
+                    if (wall.touches(point2d, 1.0)) {
+                    	floorPlan[i][j] = 1;
+                        break;
+                    }
+                }
+                if(floorPlan[i][j] == 0) {
+                	nodes[i][j] = new Vertex(i, j);
+                }
+            }
+        }
+    }
+    
+    private void createEdges() {
+    	int sideLength = w.getSideLength();
+        for (int i = 0; i < sideLength; i++) {
+            for (int j = 0; j < sideLength; j++) {
+                if (floorPlan[i][j] == 0) {
+                    // if not at right-most node
+                    if (j < (sideLength - 1)) {
+                        // check right
+                        if (floorPlan[i][j + 1] == 0) {
+                            edges.add(new Edge(nodes[i][j], nodes[i][j + 1], 1.0));
+                        }
+                        // check bottom right
+                        if (i < (sideLength - 1) && floorPlan[i + 1][j + 1] == 0) {
+                            edges.add(new Edge(nodes[i][j], nodes[i + 1][j + 1], Math.sqrt(2)));
+                        }
+                    }
+                    // if not at bottom node
+                    if (i < sideLength - 1) {
+                        // check bottom
+                        if (floorPlan[i + 1][j] == 0) {
+                            edges.add(new Edge(nodes[i][j], nodes[i + 1][j], 1.0));
+                        }
+                        // check bottom left
+                        if (j > 0 && floorPlan[i + 1][j - 1] == 0) {
+                            edges.add(new Edge(nodes[i][j], nodes[i + 1][j - 1], Math.sqrt(2)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public void printFloorPlan() {
+
+    	int sideLength = w.getSideLength();
+        for (int i = 0; i < sideLength; i++) {
+            for (int j = 0; j < sideLength; j++) {
+            		System.out.print(floorPlan[j][i]);   
+            }
+            System.out.println();
+        }
+    }
+    
+    public void printDensity() {
+
+    	int sideLength = w.getSideLength();
+        for (int i = 0; i < sideLength; i++) {
+            for (int j = 0; j < sideLength; j++) {
+            		System.out.print(densityMap[j][i]);   
+            }
+            System.out.println();
+        }
+    }
+    
+    public Point2d visibleBlockage(Person p){
+    	
+    	Point2D l = new Point2D.Double(p.getLocation().x, p.getLocation().y);
+    	Point2D nextGoal = new Point2D.Double(p.getNextGoal().x, p.getNextGoal().y);
+    	
+    	int length = (int) l.distance(nextGoal);
+    	for (int i = 1; i < length; i++) {
+    		int y = (int) Math.round(((nextGoal.getY() - l.getY()) - (nextGoal.getX() - l.getX()) / length * i) + l.getY());
+    		int x = (int) Math.round(l.getX() + 1);
+    		if (densityMap[x][y] > 9) {
+    			return new Point2d(x, y);
+    		}
+    	}
+    	
+    	return null;
     }
 }
