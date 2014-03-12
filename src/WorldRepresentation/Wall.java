@@ -108,7 +108,7 @@ public class Wall implements BuildingObject {
     	double x4 = p2.x;
     	double y4 = p2.y;
     	
-    	if ( addedLength > 0.0 ) {
+    	if ( addedLength > 0.0 ) { /* consider extension of wall */
 			double addedX;
 			double addedY;
 			if ( x1 == x2 ) {
@@ -145,8 +145,20 @@ public class Wall implements BuildingObject {
     	}
     	
     	double divisor = (x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4);
-    	if (divisor == 0)
-    		return true;	// Fail-safe - assume intersect
+    	
+    	if (divisor == 0) {
+    		/* Consider cases where line intersect cannot be calculated */
+    		if (y1 <= y3 && y3 <= y2)
+    			return y3 == (x3-x1)*(y2-y1)/(x2-x1)+y1;
+    		else if (y1 <= y4 && y4 <= y2)
+    			return y4 == (x4-x1)*(y2-y1)/(x2-x1)+y1;
+    		else if (y3 <= y1 && y1 <= y4)
+    			return y1 == (x1-x3)*(y4-y3)/(x4-x3)+y3;
+    		else if (y3 <= y2 && y2 <= y4)
+    			return y2 == (x2-x3)*(y4-y3)/(x4-x3)+y3;
+    		else
+    			return false;
+    	}
     	
     	double xInt = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)) / divisor;
     	

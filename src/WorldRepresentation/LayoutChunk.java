@@ -250,8 +250,10 @@ public class LayoutChunk implements Runnable {
         	
         	try {
         		barrier.await();
-        	} catch (InterruptedException | BrokenBarrierException e) {
+        	} catch (InterruptedException e) {
 				System.err.println("Overlap fuckage");
+        	} catch (BrokenBarrierException e) {
+        		System.err.println("Overlap fuckage");
 			}
         	
         	addOverlapPeople();
