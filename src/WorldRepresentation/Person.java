@@ -15,6 +15,7 @@ public class Person {
 
     private Point2d location;
     public ArrayList<Point2d> locations;
+    public boolean astarCheck;
 
     private double size;
     private double mass;
@@ -39,7 +40,8 @@ public class Person {
         locations.add(new Point2d(location));
         size = Math.random() * 0.2 + 0.5;	// metres
         mass = 80;	// kilograms
-
+        astarCheck = false;
+        
         desiredSpeed = Math.random() * 0.52 + 1.08;    // metres per second
         relaxTime = 0.5;
         actualVelocity = new Vector2d(0, 0);
@@ -52,28 +54,28 @@ public class Person {
         blockedList = new ArrayList<Boolean>();
     }
 
-    private void goalUpdate(ArrayList<Wall> walls) {
-        while ( goalVisible(goalIndex+1, walls, size+1.0) || (goalIndex < goalList.size() &&
-        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0)) )
-            goalIndex++;
-        
-        // Path recovery
-    	int diff = goalIndex;
-        while ( !goalVisible(goalIndex, walls) && goalIndex > 0 && goalIndex < goalList.size() ) {
-            goalIndex--;
-        }
-        if ( goalIndex == 0 ) {
-        	goalIndex += diff;
-        	diff = goalList.size()-goalIndex;
-        	while ( !goalVisible(goalIndex, walls) && goalIndex < goalList.size() )
-        		goalIndex++;
-        	if ( goalIndex == goalList.size() )
-        		goalIndex -= diff;
-        }
-    }
+//    private void goalUpdate(ArrayList<Wall> walls) {
+//        while ( (goalVisible(goalIndex+1, walls, size+1.0) && (goalIndex < goalList.size()))|| (goalIndex < goalList.size() &&
+//        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0)) )
+//            goalIndex++;
+//        
+//        // Path recovery
+//    	int diff = goalIndex;
+//        while ( !goalVisible(goalIndex, walls) && goalIndex > 0 && goalIndex < goalList.size() ) {
+//            goalIndex--;
+//        }
+//        if ( goalIndex == 0 ) {
+//        	goalIndex += diff;
+//        	diff = goalList.size()-goalIndex;
+//        	while ( !goalVisible(goalIndex, walls) && goalIndex < goalList.size() )
+//        		goalIndex++;
+//        	if ( goalIndex == goalList.size() )
+//        		goalIndex -= diff;
+//        }
+//    }
 
     private void goalUpdate() {
-        while (goalIndex < goalList.size() &&
+        while (goalIndex < goalList.size() - 1 &&
         		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0))
             goalIndex++;
     }
@@ -84,8 +86,9 @@ public class Person {
             PersonOverlapException, NoGoalException {
 
         if (goalIndex == goalList.size() || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
-            locations.add(new Point2d(location));
-            return location;
+            //locations.add(new Point2d(location));
+        	location = null;
+        	return location;
         }
 
 
@@ -104,7 +107,7 @@ public class Person {
         	accTerm.add(desiredAcceleration());
 
             for (Person p : people) {
-                if (this != p) {
+                if (this != p && p.getLocation() != null) {
                 	accTerm.add(forceModel.socialForce(this, p));
                 	
                 }

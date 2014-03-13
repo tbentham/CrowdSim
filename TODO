@@ -6,6 +6,8 @@ SHIT WE NEED TO DO:
     -Density
 	 - NEVER FORGET horizontal vision problem after implementing A star.
 	(people not detecting blockage when they have subgoal near blockage).
+	report - heuristic comparison
+
 -Bottleneck Identification
 
 -Points of Interest - Normal Sim

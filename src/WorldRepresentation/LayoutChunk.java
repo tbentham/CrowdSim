@@ -2,13 +2,19 @@ package WorldRepresentation;
 
 import javax.vecmath.Point2d;
 
+import org.jgrapht.util.FibonacciHeapNode;
+
 import Dijkstra.Edge;
 import Dijkstra.Vertex;
 import Exceptions.WorldNotSetUpException;
+import NewDijkstra.FastDijkstra;
+import NewDijkstra.Node;
+import NewDijkstra.NodeRecord;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,6 +40,7 @@ public class LayoutChunk implements Runnable {
     LayoutChunk[][] chunks;
     public LinkedBlockingQueue<Person> q;
     public LinkedBlockingQueue<Person> qOverlap;
+    public int sideLength;
     private ArrayList<Person> allPeople;
     
 //    private HashMap<Point2d, Queue<Person>> queues;
@@ -50,6 +57,7 @@ public class LayoutChunk implements Runnable {
         nodes = new Vertex[w.getSideLength()][w.getSideLength()];
         edges = new ArrayList<Edge>();
         lWalls = new ArrayList<Wall>();
+        sideLength = w.getSideLength();
         floorPlan = new int[w.getSideLength()][w.getSideLength()];
         gWalls = walls;
         densityMap = new int[w.getSideLength()][w.getSideLength()];
@@ -141,7 +149,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleLeftEdge() {
     	ArrayList<Person> ret = new ArrayList<Person>();
     	for (Person p : people) {
-    		if (p.getLocation().x - leftXBoundary < 10) {
+    		if (p.getLocation() != null && p.getLocation().x - leftXBoundary < 10) {
     			ret.add(p);
     		}
     	}
@@ -151,7 +159,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleTopEdge() {
     	ArrayList<Person> ret = new ArrayList<Person>();
     	for (Person p : people) {
-    		if (topYBoundary - p.getLocation().y < 10) {
+    		if (p.getLocation() != null && topYBoundary - p.getLocation().y < 10) {
     			ret.add(p);
     		}
     	}
@@ -161,7 +169,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleRightEdge() {
     	ArrayList<Person> ret = new ArrayList<Person>();
     	for (Person p : people) {
-    		if (rightXBoundary - p.getLocation().x < 10) {
+    		if (p.getLocation() != null && rightXBoundary - p.getLocation().x < 10) {
     			ret.add(p);
     		}
     	}
@@ -171,7 +179,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleBottomEdge() {
     	ArrayList<Person> ret = new ArrayList<Person>();
     	for (Person p : people) {
-    		if (p.getLocation().y - bottomYBoundary < 10) {
+    		if (p.getLocation() != null && p.getLocation().y - bottomYBoundary < 10) {
     			ret.add(p);
     		}
     	}
@@ -262,20 +270,32 @@ public class LayoutChunk implements Runnable {
         	allPeople.addAll(people);
         	allPeople.addAll(overlapPeople);
         	populateDensityMap();
-            if(topYBoundary == 50 && leftXBoundary == 0) {
-            	printDensity();
-            }
-        	
+        	int blockages = 0;
+
         	ArrayList<Person> toRemove = new ArrayList<Person>();
         	for (Person p : people) {
+//        		System.out.println("There have been" + blockages + " blockages");
                 try {
-
-                    p.advance(gWalls, allPeople, 0.1);
-                	if (visibleBlockage(p) != null) {
-                		p.blockedList.set(p.blockedList.size() - 1, true);
+                	if(p.getLocation() == null){
+                		continue;
                 	}
+                    p.advance(gWalls, allPeople, 0.1);
+                	if (visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) {
+                		//Red on canvas
+                		blockages++;
+                		p.blockedList.set(p.blockedList.size() - 1, true);
+                		for (Node n : p.getGoalList()) {
+                			System.out.println(p.toString() + " goal before: " + n.x + ", " + n.y);
+                		}
+                		aStar(p);
+                		for (Node n : p.getGoalList()) {
+                			System.out.println(p.toString() + " goal after: " + n.x + ", " + n.y);
+                		}
+                	}
+
+
                 	
-                    if(!isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0){
+                    if(p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0){
                         int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;
                     	if(!(xIndex < 0 || yIndex < 0)){
@@ -288,7 +308,8 @@ public class LayoutChunk implements Runnable {
                     }
                 }
                 catch (Exception e) {
-                    //
+                    e.printStackTrace();
+                    
                 } 
             }
             if (i != this.steps - 1) {
@@ -308,48 +329,93 @@ public class LayoutChunk implements Runnable {
         }
     }
     
+    private void aStar(Person p) {
+    	
+    	FastDijkstra fd = new FastDijkstra();
+    	int x = (int) p.getLocation().x;
+    	int y = (int) p.getLocation().y;
+    	
+    	int startNode = x * sideLength + y;
+    	int goalNode = p.getGoalList().getLast().x * sideLength + p.getGoalList().getLast().y;
+    	if(goalNode != 0) {
+    		System.out.println("420");
+    		
+    	}
+    	p.astarCheck = true;
+    	
+    	System.out.println("I am calling with start node: " + startNode + " and goal node: " + goalNode);
+    	FibonacciHeapNode fn = fd.astar(startNode, goalNode, sideLength*sideLength, nodes, edges, densityMap, sideLength);
+    	LinkedList<Node> path = new LinkedList<Node>();
+    	
+    	while (((NodeRecord) fn.getData()).predecessor != null) {
+    		
+    		int nextNode = ((NodeRecord) fn.getData()).predecessor;
+    		
+            Integer prevX = ((NodeRecord) fd.nodes.get(nextNode).getData()).node / sideLength;
+            Integer prevY = ((NodeRecord) fd.nodes.get(nextNode).getData()).node % sideLength;
+            System.out.println("SPAM" + prevX);
+            if (prevX == goalNode / sideLength && prevY == goalNode % sideLength) {
+                path.add(new Node(goalNode / sideLength, goalNode % sideLength));
+                break;
+            }
+            else {
+                path.add(new Node(nextNode / sideLength , nextNode % sideLength));
+                fn = fd.nodes.get(nextNode);
+            }
+    	}
+    	
+    	//Generate subgoals.
+    	Path subgoals = new Path(path);
+       	p.setGoalList(subgoals.getSubGoals());
+       	if (p.getGoalList().getLast().x != 0) {
+       		System.out.println("fuckyeah");
+       	}
+    }
+    
     private void populateDensityMap() {	 	
     	int sideLength = w.getSideLength();
 	    densityMap = new int[sideLength][sideLength];
     	for(Person p : people) {
-    		Point2d l = new Point2d((int) Math.round(p.getLocation().x), (int) Math.round(p.getLocation().y));
-    		if (l.x < 0) {
-    			l.x = 0;
-    		}
-    		if (l.x >= sideLength) {
-    			l.x = sideLength - 1;
-    		}
-    		if (l.y >= sideLength) {
-    			l.y = sideLength - 1;
-    		}
-    		if (l.y < 0) {
-    			l.y = 0;
-    		}
-    		
-    		densityMap[(int) l.x][(int) l.y]++;
-    		if (l.x > 0 && l.y > 0) {
-    			densityMap[(int) l.x - 1][(int) l.y - 1]++;
-    		}
-    		if (l.y > 0) {
-    			densityMap[(int) l.x][(int) l.y - 1]++;
-    		}
-    		if (l.y > 0 && l.x < sideLength - 1) {
-    			densityMap[(int) l.x + 1][(int) l.y - 1]++;
-    		}
-    		if (l.x > 0) {
-    			densityMap[(int) l.x - 1][(int) l.y]++;
-    		}
-    		if (l.x < sideLength - 1) {
-    			densityMap[(int) l.x + 1][(int) l.y]++;
-    		}
-    		if (l.x > 0 && l.y < sideLength - 1) {
-    			densityMap[(int) l.x - 1][(int) l.y + 1]++;
-    		}
-    		if (l.y < sideLength - 1) {
-    			densityMap[(int) l.x][(int) l.y + 1]++;
-    		}
-    		if (l.y < sideLength - 1 && l.x < sideLength - 1) {
-    			densityMap[(int) l.x + 1][(int) l.y + 1]++;
+    		if (p.getLocation() != null) {
+	    		Point2d l = new Point2d((int) Math.round(p.getLocation().x), (int) Math.round(p.getLocation().y));
+	    		if (l.x < 0) {
+	    			l.x = 0;
+	    		}
+	    		if (l.x >= sideLength) {
+	    			l.x = sideLength - 1;
+	    		}
+	    		if (l.y >= sideLength) {
+	    			l.y = sideLength - 1;
+	    		}
+	    		if (l.y < 0) {
+	    			l.y = 0;
+	    		}
+	    		
+	    		densityMap[(int) l.x][(int) l.y]++;
+	    		if (l.x > 0 && l.y > 0) {
+	    			densityMap[(int) l.x - 1][(int) l.y - 1]++;
+	    		}
+	    		if (l.y > 0) {
+	    			densityMap[(int) l.x][(int) l.y - 1]++;
+	    		}
+	    		if (l.y > 0 && l.x < sideLength - 1) {
+	    			densityMap[(int) l.x + 1][(int) l.y - 1]++;
+	    		}
+	    		if (l.x > 0) {
+	    			densityMap[(int) l.x - 1][(int) l.y]++;
+	    		}
+	    		if (l.x < sideLength - 1) {
+	    			densityMap[(int) l.x + 1][(int) l.y]++;
+	    		}
+	    		if (l.x > 0 && l.y < sideLength - 1) {
+	    			densityMap[(int) l.x - 1][(int) l.y + 1]++;
+	    		}
+	    		if (l.y < sideLength - 1) {
+	    			densityMap[(int) l.x][(int) l.y + 1]++;
+	    		}
+	    		if (l.y < sideLength - 1 && l.x < sideLength - 1) {
+	    			densityMap[(int) l.x + 1][(int) l.y + 1]++;
+	    		}
     		}
     	}
     }
@@ -430,6 +496,9 @@ public class LayoutChunk implements Runnable {
     
     public Point2d visibleBlockage(Person p){
     	
+    	if(p.getLocation() == null){
+    		return null;
+    	}
     	Point2D l = new Point2D.Double(p.getLocation().x, p.getLocation().y);
     	Point2D nextGoal = new Point2D.Double(p.getNextGoal().x, p.getNextGoal().y);
     	
@@ -437,6 +506,9 @@ public class LayoutChunk implements Runnable {
     	for (int i = 1; i < length; i++) {
     		int y = (int) Math.round(((nextGoal.getY() - l.getY()) - (nextGoal.getX() - l.getX()) / length * i) + l.getY());
     		int x = (int) Math.round(l.getX() + 1);
+    		if(x < 0 || y < 0 || x >= sideLength || y >= sideLength){
+    			return null;
+    		}
     		if (densityMap[x][y] > 9) {
     			return new Point2d(x, y);
     		}

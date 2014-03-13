@@ -212,6 +212,9 @@ public class BasicCanvas {
         for(int i = 0; i < output.size(); i++){
         	Person p = output.get(i);
         	for(int j = 0; j < p.locations.size(); j++){
+        		if (p.locations.size() < j) {
+        			break;
+        		}
         		locations[i][j] = p.locations.get(j);
         	}
         }

@@ -61,14 +61,15 @@ function populate(time, clear){
     }
 
     for(var i = 0; i < canvasPeople.length; i++){ 
-    	if(blockages[i][time] == true){
-	        canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+    	if (people[i][time] != null) {
+	    	if(blockages[i][time] == true){
+		        canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+	    	}
+	    	else{
+		        // canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+		        canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+	    	}
     	}
-    	else{
-	        // canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
-	        canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
-    	}
-
     }
 
     if(trace){
