@@ -1,0 +1,20 @@
+SHIT WE NEED TO DO:
+
+-Make agents smarter
+    -path recalculation
+    -fixing social force
+    -Density
+	 - NEVER FORGET horizontal vision problem after implementing A star.
+	(people not detecting blockage when they have subgoal near blockage).
+-Bottleneck Identification
+
+-Points of Interest - Normal Sim
+
+-Evacuation Sim
+    -Drop people on canvas
+
+-General Sim analysis to determine running time - for predictions.
+-UI prettification
+
+-Unit testing; update existing tests
+-General commenting and organisation of code

@@ -1,11 +1,7 @@
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
-import WorldRepresentation.ChunkSync;
-import WorldRepresentation.LayoutChunk;
-import WorldRepresentation.Person;
-import WorldRepresentation.Wall;
-import WorldRepresentation.World;
-
+import WorldRepresentation.*;
+import com.google.gson.Gson;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -13,23 +9,19 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
-import java.io.FileWriter;
-
-import com.google.gson.Gson;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.vecmath.Point2d;
-
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
 	
-	static int TIME_STEPS = 250;
+	static int TIME_STEPS = 300;
+	static int PEOPLE = 1000;
 
     public static void main(String[] args) throws Exception {
 
@@ -80,7 +72,7 @@ public class BasicCanvas {
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms Towards " + goal.x + ", " + goal.y);
 
-        for(int i = 2; i < 500; i++) {
+        for(int i = 0; i < PEOPLE; i++) {
             try {
                 world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
             } catch (PersonOverlapException e) {
@@ -90,16 +82,30 @@ public class BasicCanvas {
             }
         }
 
+        //Each chunk needs a reference to its own queue, every queue should be kept in a publicly accessible hashmap.
+        LayoutChunk[][] chunks2d = new LayoutChunk[2][2];
+
         CyclicBarrier barrier = new CyclicBarrier(4, new ChunkSync());
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
-        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS);
-        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS);
-        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS);
-        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS);
-        chunks.add(topLeft);
-        chunks.add(topRight);
+        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS, world);
+        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world);
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS, world);
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world);
+        
+
         chunks.add(bottomLeft);
+        chunks.add(topLeft);
         chunks.add(bottomRight);
+        chunks.add(topRight);
+
+        chunks2d[0][0] = bottomLeft;
+        bottomLeft.addChunks(chunks2d);
+        chunks2d[0][1] = topLeft;
+        topLeft.addChunks(chunks2d);
+        chunks2d[1][0] = bottomRight;
+        bottomRight.addChunks(chunks2d);
+        chunks2d[1][1] = topRight;
+        topRight.addChunks(chunks2d);
 
         for (LayoutChunk lc : chunks) {
             for (Wall w : world.getWalls()) {
@@ -145,17 +151,8 @@ public class BasicCanvas {
         Runnable bottomLeftTask = (Runnable) bottomLeft;
         Runnable bottomRightTask = (Runnable) bottomRight;
 
-//        Thread worker1 = new Thread(topLeftTask);
-//        threads.add(worker1);
-//        Thread worker2 = new Thread(topRightTask);
-//        threads.add(worker2);
-//        Thread worker3 = new Thread(bottomLeftTask);
-//        threads.add(worker3);
-//        Thread worker4 = new Thread(bottomRightTask);
-//        threads.add(worker4);
-
         long startTime = System.currentTimeMillis();
-        
+
             Thread worker1 = new Thread(topLeftTask);
             threads.add(worker1);
             Thread worker2 = new Thread(topRightTask);
@@ -168,44 +165,23 @@ public class BasicCanvas {
             worker2.start();
             worker3.start();
             worker4.start();
-            
+
         for(Thread t: threads){
         	t.join();
         }
         System.out.println("All threads have finished.");
 
+        // double startTime = System.currentTimeMillis();
 
-
-//    int running;
-//        do {
-//            running = 0;
-//            for (Thread thread : threads) {
-//                if (thread.isAlive()) {
-//                    running++;
-//                }
+//        for (int i = 0; i < TIME_STEPS; i++) {
+//            for (Person p : world.getPeople()) {
+//                p.advance(world, world.getPeople(), 0.25);
 //            }
-//            System.out.println("We have " + running + " running threads.");
-//            Thread.sleep(500);
-//        } while (running > 0);
+//        }
 
         double endTime = System.currentTimeMillis();
 
         System.out.println("The simulation took " + (endTime - startTime))  ;
-
-//        for (int i = 0; i < 100; i++) {
-//            for (Person p : topLeft.getPeople()) {
-//                p.advance(topLeft.getWalls(), topLeft.getPeople());
-//            }
-//            for (Person p : topRight.getPeople()) {
-//                p.advance(topRight.getWalls(), topRight.getPeople());
-//            }
-//            for (Person p : bottomRight.getPeople()) {
-//                p.advance(bottomRight.getWalls(), bottomRight.getPeople());
-//            }
-//            for (Person p : bottomLeft.getPeople()) {
-//                p.advance(bottomLeft.getWalls(), bottomLeft.getPeople());
-//            }
-//        }
 
         ArrayList<Person> people = world.getPeople();
 
@@ -214,15 +190,6 @@ public class BasicCanvas {
         for (Person p : people) {
             System.out.println(p.getLocation());
         }
-
-//        for (int i = 0; i < 100; i++) {
-//            for (Person p : people)
-//                p.advance(world, people);
-//            if (i % 10 == 9) {
-//                System.out.println();
-//                System.out.println("Step " + (i + 1) + " (Simulated time: " + (i + 1) * 0.5 + "s)");
-//            }
-//        }
 
         System.out.println("Printing persons starting location");
 
@@ -239,15 +206,25 @@ public class BasicCanvas {
         output.addAll(topRight.getPeople());
         output.addAll(bottomLeft.getPeople());
         output.addAll(bottomRight.getPeople());
+        // output.addAll(world.getPeople());
 
-        Point2d[][] locations = new Point2d[output.size()][output.get(1).locations.size()];
+        Point2d[][] locations = new Point2d[output.size()][output.get(1).locations.size()+1];
         for(int i = 0; i < output.size(); i++){
         	Person p = output.get(i);
         	for(int j = 0; j < p.locations.size(); j++){
         		locations[i][j] = p.locations.get(j);
         	}
         }
-        toJson(locations);
+
+        Boolean[][] stuckStatus = new Boolean[output.size()][output.get(1).locations.size() + 1];
+        for (int i = 0; i < output.size(); i++) {
+            Person p = output.get(i);
+            stuckStatus[i] = p.blockedList.toArray(new Boolean[p.blockedList.size()]);
+        }
+
+
+        toJson(stuckStatus, "www/stuck.json");
+        toJson(locations, "www/people.json");
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
 
@@ -255,13 +232,13 @@ public class BasicCanvas {
 
     }
  
-    public static void toJson(Object people) {
+    public static void toJson(Object people, String outputFile) {
  
 	Gson gson = new Gson();
 	String json = gson.toJson(people);
  
 	try {
-		FileWriter writer = new FileWriter("www/people.json");
+		FileWriter writer = new FileWriter(outputFile);
 		writer.write(json);
 		writer.close();
  

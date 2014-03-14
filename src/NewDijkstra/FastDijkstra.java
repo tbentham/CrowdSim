@@ -56,13 +56,18 @@ public class FastDijkstra {
 
         FibonacciHeap fibonacciHeap = new FibonacciHeap();
         FibonacciHeapNode fibonacciHeapNode = new FibonacciHeapNode(new NodeRecord(startNode));
-        fibonacciHeap.insert(fibonacciHeapNode, 0);
+        //fibonacciHeap.insert(fibonacciHeapNode, 0);
 
         keys = new Double[numNodes];
-        for (int i = 1; i < numNodes; i++) {
-            fibonacciHeap.insert(nodes.get(i), 100000.0);
-            keys[i] = 10000.0;
-
+        for (int i = 0; i < numNodes; i++) {
+            if (i == startNode) {
+                fibonacciHeap.insert(nodes.get(i), 0);
+                keys[i] = 0.0;
+            }
+            else {
+                fibonacciHeap.insert(nodes.get(i), 100000.0);
+                keys[i] = 10000.0;
+            }
         }
 
         for (int k = 1; k < numNodes; k++) {
@@ -82,53 +87,4 @@ public class FastDijkstra {
         }
         return fibonacciHeap;
     }
-
-//    public static void badBoyTest() {
-//
-//        connections = new HashMap<Integer, ArrayList<Connection>>();
-//
-//        nodes = new ArrayList<FibonacciHeapNode>();
-//        nodes.add(new FibonacciHeapNode(0));
-//        nodes.add(new FibonacciHeapNode(1));
-//        nodes.add(new FibonacciHeapNode(2));
-//        nodes.add(new FibonacciHeapNode(3));
-//        nodes.add(new FibonacciHeapNode(4));
-//        nodes.add(new FibonacciHeapNode(5));
-//        nodes.add(new FibonacciHeapNode(6));
-//
-//
-//        ArrayList<Connection> connections1 = new ArrayList<Connection>();
-//
-//
-//        connections1.add(new Connection(1, nodes.get(0), nodes.get(1)));
-//        connections1.add(new Connection(2, nodes.get(0), nodes.get(2)));
-//        connections1.add(new Connection(4, nodes.get(0), nodes.get(4)));
-//        connections.put(0, connections1);
-//        connections1 = new ArrayList<Connection>();
-//        connections1.add(new Connection(1, nodes.get(1), nodes.get(4)));
-//        connections1.add(new Connection(1, nodes.get(1), nodes.get(2)));
-//        connections.put(1, connections1);
-//        connections1 = new ArrayList<Connection>();
-//        connections1.add(new Connection(5, nodes.get(2), nodes.get(5)));
-//        connections1.add(new Connection(1, nodes.get(2), nodes.get(3)));
-//        connections.put(2, connections1);
-//        connections1 = new ArrayList<Connection>();
-//        connections1.add(new Connection(2, nodes.get(3), nodes.get(6)));
-//        connections.put(3, connections1);
-//        connections1 = new ArrayList<Connection>();
-//        connections1.add(new Connection(6, nodes.get(6), nodes.get(5)));
-//        connections.put(5, connections1);
-//
-//        FibonacciHeap fibonacciHeap = pathFind(0, 7);
-//
-//        System.out.println("d");
-//
-//    }
-//
-//    public static void main(String[] args) {
-//
-//        badBoyTest();
-//
-//    }
-
 }
