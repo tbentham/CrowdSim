@@ -90,7 +90,7 @@ public class Person {
         // System.out.println("I am " + this.toString() + " and my speed is " + actualVelocity.length());
 
         int currentGoal = goalIndex;
-        goalUpdate();
+        goalUpdate(walls);
 //        if (goalIndex != currentGoal) {
 //            System.out.println("I've reached a goal bitches, I am : " + this.toString());
 //        }
@@ -136,7 +136,7 @@ public class Person {
         Boolean stuckStatus = false;
 
         currentGoal = goalIndex;
-        goalUpdate();
+        goalUpdate(walls);
         if (goalIndex != currentGoal) {
 //            System.out.println("I expected to reach my first goal at: " + expectedTimeStepAtNextGoal + ", bitches");
 //            System.out.println("I've reached a goal bitches, I am: " + this.toString());
