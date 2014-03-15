@@ -1,11 +1,20 @@
 package NewDijkstra;
 
-/**
- * Created with IntelliJ IDEA.
- * User: marcus
- * Date: 13/03/2014
- * Time: 17:31
- * To change this template use File | Settings | File Templates.
- */
 public class aConnection {
+
+    public double cost;
+    public Integer from;
+    public Integer to;
+
+    public aConnection(double cost, Integer from, Integer to) {
+        this.cost = cost;
+        this.from = from;
+        this.to = to;
+    }
+
+
+    public double getCost() {
+        return cost;
+    }
+
 }

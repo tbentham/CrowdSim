@@ -96,7 +96,7 @@ public class Model {
         // calculate tangential sliding force
         Vector2d v2 = new Vector2d(-v1.y, v1.x);
         v2.scale(240000 * g * aPerson.getVelocity().dot(v2));
-        
+
         // calculate direct force
         v1.scale(2000 * Math.exp(-distance / 0.08) + 480000 * g);
         

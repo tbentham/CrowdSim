@@ -64,4 +64,10 @@ public class Path {
             System.err.println("No vertices in list to generate sub-goals from.");
         }
     }
+
+    public void printPath() {
+        for (int i = 0; i < vertices.size(); i++) {
+           System.out.println(vertices.get(i));
+        }
+    }
 }

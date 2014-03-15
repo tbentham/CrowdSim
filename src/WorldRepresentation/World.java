@@ -107,8 +107,14 @@ public class World {
         if (!isSetUp)
             throw new WorldNotSetUpException("printFloorPlan called before setting up world");
         for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++)
-                System.out.print(floorPlan[j][i]);
+            for (int j = 0; j < sideLength; j++) {
+                if (floorPlan[j][i] == 0) {
+                    System.out.print('\267');
+                }
+                else {
+                    System.out.print(floorPlan[j][i]);
+                }
+            }
             System.out.println();
         }
     }

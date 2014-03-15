@@ -20,8 +20,8 @@ import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
 	
-	static int TIME_STEPS = 300;
-	static int PEOPLE = 1000;
+	static int TIME_STEPS = 400;
+	static int PEOPLE = 750;
 
     public static void main(String[] args) throws Exception {
 
@@ -208,14 +208,20 @@ public class BasicCanvas {
         output.addAll(bottomRight.getPeople());
         // output.addAll(world.getPeople());
 
-        Point2d[][] locations = new Point2d[output.size()][output.get(1).locations.size()+1];
+        Point2d[][] locations = new Point2d[output.size()][TIME_STEPS+1];
+        // loop through people
         for(int i = 0; i < output.size(); i++){
         	Person p = output.get(i);
         	for(int j = 0; j < p.locations.size(); j++){
-        		if (p.locations.size() < j) {
+                try{
+        		if (p.locations.get(j) == null) {
         			break;
         		}
         		locations[i][j] = p.locations.get(j);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
         	}
         }
 

@@ -16,4 +16,9 @@ public class Node {
         return new Point2d(x, y);
     }
 
+    @Override
+    public String toString() {
+        return (x + ", " + y);
+    }
+
 }

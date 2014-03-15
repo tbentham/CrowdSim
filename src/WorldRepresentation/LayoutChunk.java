@@ -1,20 +1,13 @@
 package WorldRepresentation;
 
-import javax.vecmath.Point2d;
-
-import org.jgrapht.util.FibonacciHeapNode;
-
 import Dijkstra.Edge;
 import Dijkstra.Vertex;
-import Exceptions.WorldNotSetUpException;
-import NewDijkstra.FastDijkstra;
+import NewDijkstra.AStar;
 import NewDijkstra.Node;
-import NewDijkstra.NodeRecord;
 
-import java.awt.geom.Line2D;
+import javax.vecmath.Point2d;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -42,6 +35,7 @@ public class LayoutChunk implements Runnable {
     public LinkedBlockingQueue<Person> qOverlap;
     public int sideLength;
     private ArrayList<Person> allPeople;
+    private AStar aStar;
     
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
@@ -70,6 +64,7 @@ public class LayoutChunk implements Runnable {
         
         populateFloorPlan();
         createEdges();
+        aStar = new AStar(sideLength * sideLength, nodes, edges, sideLength);
         if(topYBoundary == 50 && leftXBoundary == 0) {
         	printFloorPlan();
         }
@@ -248,6 +243,7 @@ public class LayoutChunk implements Runnable {
     }
 
     public void run() {
+        int astars = 0;
         for (int i = 0; i < this.steps; i++) {
         	
         	// System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
@@ -284,13 +280,21 @@ public class LayoutChunk implements Runnable {
                 		//Red on canvas
                 		blockages++;
                 		p.blockedList.set(p.blockedList.size() - 1, true);
-                		for (Node n : p.getGoalList()) {
-                			System.out.println(p.toString() + " goal before: " + n.x + ", " + n.y);
-                		}
-                		aStar(p);
-                		for (Node n : p.getGoalList()) {
-                			System.out.println(p.toString() + " goal after: " + n.x + ", " + n.y);
-                		}
+
+                        //Dont a star so often brah
+                        if(p.lastAStar + 5 < i) {
+                            for (Node n : p.getGoalList()) {
+                                System.out.println(p.toString() + " goal before: " + n.x + ", " + n.y);
+                            }
+                            aStar(p);
+                            astars++;
+                            p.lastAStar = i;
+                            for (Node n : p.getGoalList()) {
+                                System.out.println(p.toString() + " goal after: " + n.x + ", " + n.y);
+                            }
+                        }
+
+
                 	}
 
 
@@ -312,6 +316,7 @@ public class LayoutChunk implements Runnable {
                     
                 } 
             }
+            System.out.println("A stars for this chunk:" + astars);
             if (i != this.steps - 1) {
         	people.removeAll(toRemove);
             }
@@ -329,44 +334,24 @@ public class LayoutChunk implements Runnable {
         }
     }
     
-    private void aStar(Person p) {
-    	
-    	FastDijkstra fd = new FastDijkstra();
+    private void aStar(Person p) throws Exception {
     	int x = (int) p.getLocation().x;
     	int y = (int) p.getLocation().y;
-    	
+
     	int startNode = x * sideLength + y;
     	int goalNode = p.getGoalList().getLast().x * sideLength + p.getGoalList().getLast().y;
-    	if(goalNode != 0) {
-    		System.out.println("420");
-    		
-    	}
     	p.astarCheck = true;
-    	
+
     	System.out.println("I am calling with start node: " + startNode + " and goal node: " + goalNode);
-    	FibonacciHeapNode fn = fd.astar(startNode, goalNode, sideLength*sideLength, nodes, edges, densityMap, sideLength);
-    	LinkedList<Node> path = new LinkedList<Node>();
-    	
-    	while (((NodeRecord) fn.getData()).predecessor != null) {
-    		
-    		int nextNode = ((NodeRecord) fn.getData()).predecessor;
-    		
-            Integer prevX = ((NodeRecord) fd.nodes.get(nextNode).getData()).node / sideLength;
-            Integer prevY = ((NodeRecord) fd.nodes.get(nextNode).getData()).node % sideLength;
-            System.out.println("SPAM" + prevX);
-            if (prevX == goalNode / sideLength && prevY == goalNode % sideLength) {
-                path.add(new Node(goalNode / sideLength, goalNode % sideLength));
-                break;
-            }
-            else {
-                path.add(new Node(nextNode / sideLength , nextNode % sideLength));
-                fn = fd.nodes.get(nextNode);
-            }
-    	}
-    	
-    	//Generate subgoals.
-    	Path subgoals = new Path(path);
-       	p.setGoalList(subgoals.getSubGoals());
+
+        if (aStar.connections.get(startNode) == null) {
+            System.out.println("Tried to do AStar from " + x + ", " + y + " but couldn't find any connections");
+            // System.exit(1);
+        }
+
+        Path path = aStar.getPath(startNode, goalNode, densityMap);
+       	p.setGoalList(path.getSubGoals());
+
        	if (p.getGoalList().getLast().x != 0) {
        		System.out.println("fuckyeah");
        	}
@@ -418,6 +403,12 @@ public class LayoutChunk implements Runnable {
 	    		}
     		}
     	}
+//        for (int i = 0; i < densityMap.length; i++) {
+//            for ( int j = 0; j < densityMap.length; j++) {
+////                densityMap[i][j] = (int) Math.pow(densityMap[i][j], 2);
+//                  densityMap[i][j] = densit
+//            }
+//        }
     }
    
     

@@ -13,7 +13,7 @@ import java.util.LinkedList;
 
 public class Person {
 
-    private Point2d location;
+    public Point2d location;
     public ArrayList<Point2d> locations;
     public boolean astarCheck;
 
@@ -33,8 +33,10 @@ public class Person {
 
     private double distanceToNextGoal;
     private double expectedTimeStepAtNextGoal;
+    public int lastAStar;
 
     public Person(double x1, double y1) {
+        lastAStar = 0;
         location = new Point2d(x1, y1);
         locations = new ArrayList<Point2d>();
         locations.add(new Point2d(location));
@@ -161,7 +163,9 @@ public class Person {
             }
         }
 
-        blockedList.add(stuckStatus);
+        //Turn this back to stuck status
+
+        blockedList.add(false);
         return location;
     }
 
