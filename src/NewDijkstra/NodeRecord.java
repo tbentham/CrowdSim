@@ -25,7 +25,7 @@ public class NodeRecord implements Comparable<NodeRecord> {
             return false;
         }
         final NodeRecord other = (NodeRecord) o;
-        return this.node == other.node;
+        return this.node.equals(other.node);
     }
 
     @Override

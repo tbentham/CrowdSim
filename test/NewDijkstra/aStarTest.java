@@ -24,17 +24,17 @@ public class aStarTest {
 	
 	@Before
 	public void setUp() throws Exception {
-    	goalNode = 6806;
-    	startNode = 5324;
+    	goalNode = 0;     // 6806?
+    	startNode = 2688;
     	sideLength = 100;
     	w = new World(100);
-    	w.addWall(32.7, 16.3, 33.7, 56.7);
-        w.addWall(32.3, 16.5, 45.9, 16.3);
-        w.addWall(55.2, 16.0, 61.3, 15.9);
-        w.addWall(33.0, 16.6, 42.5, 16.3);
-        w.addWall(47.5, 16.1, 51.8, 16.0);
-        w.addWall(56.4, 15.9, 91.3, 15.2);
-        w.addWall(96.0, 15.4, 95.9, 59.3);
+    	w.addWall(35.7, 65.2, 35.5, 16.2);
+        w.addWall(35.5, 16.2, 39.5, 16.3);
+        w.addWall(42.2, 16.6, 45.3, 16.6);
+        w.addWall(48.6, 16.6, 72.0, 16.7);
+        w.addWall(72.0, 16.7, 99.6, 104.1);
+        w.addWall(35.2, 65.3, 2.5, 14.6);
+        w.addWall(7.6, 12.7, 0, 16.1);
 //        for(int i = 0; i < 15; i++ ) {
 //            densityMap[i][3] = 9;
 //            densityMap[i][4] = 8;
@@ -70,7 +70,7 @@ public class aStarTest {
                 }
             }
             System.out.println(min);
-            Path path = aStar.getPath(5324, 6806, densityMap);
+            Path path = aStar.getPath(startNode, goalNode, densityMap);
             path.printPath();
             System.out.println("");
             printPathOnMap(w.getFloorPlan(), path);
@@ -155,8 +155,9 @@ public class aStarTest {
                 if (line == null) {
                     break;
                 }
-                for (int i = 0; i < line.length() - 1; i++) {
-                    densityMap[count][i] = Character.getNumericValue(line.charAt(i));
+                String [] parts = line.split(" ");
+                for (int i = 0; i < parts.length - 1; i++) {
+                    densityMap[count][i] = Integer.parseInt(parts[i]);
                 }
                 count++;
             }

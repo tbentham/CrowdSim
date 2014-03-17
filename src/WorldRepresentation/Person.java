@@ -23,6 +23,7 @@ public class Person {
     private double desiredSpeed;
     private double relaxTime;
     private Vector2d actualVelocity;
+    public int stuckOnWallSince;
 
     private LinkedList<Node> goalList;
     private int goalIndex;
@@ -31,8 +32,8 @@ public class Person {
     
     private Model forceModel;
 
-    private double distanceToNextGoal;
-    private double expectedTimeStepAtNextGoal;
+    public double distanceToNextGoal;
+    public double expectedTimeStepAtNextGoal;
     public int lastAStar;
 
     public Person(double x1, double y1) {
@@ -54,27 +55,8 @@ public class Person {
         forceModel = new Model();
 
         blockedList = new ArrayList<Boolean>();
+        stuckOnWallSince = 0;
     }
-
-//    private void goalUpdate(ArrayList<Wall> walls) {
-//        while ( (goalVisible(goalIndex+1, walls, size+1.0) && (goalIndex < goalList.size()))|| (goalIndex < goalList.size() &&
-//        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0)) )
-//            goalIndex++;
-//        
-//        // Path recovery
-//    	int diff = goalIndex;
-//        while ( !goalVisible(goalIndex, walls) && goalIndex > 0 && goalIndex < goalList.size() ) {
-//            goalIndex--;
-//        }
-//        if ( goalIndex == 0 ) {
-//        	goalIndex += diff;
-//        	diff = goalList.size()-goalIndex;
-//        	while ( !goalVisible(goalIndex, walls) && goalIndex < goalList.size() )
-//        		goalIndex++;
-//        	if ( goalIndex == goalList.size() )
-//        		goalIndex -= diff;
-//        }
-//    }
 
     private void goalUpdate() {
         while (goalIndex < goalList.size() - 1 &&

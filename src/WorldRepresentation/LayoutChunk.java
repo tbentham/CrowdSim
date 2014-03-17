@@ -3,7 +3,7 @@ package WorldRepresentation;
 import Dijkstra.Edge;
 import Dijkstra.Vertex;
 import NewDijkstra.AStar;
-import NewDijkstra.Node;
+import NewDijkstra.aConnection;
 
 import javax.vecmath.Point2d;
 import java.awt.geom.Point2D;
@@ -35,7 +35,7 @@ public class LayoutChunk implements Runnable {
     public LinkedBlockingQueue<Person> qOverlap;
     public int sideLength;
     private ArrayList<Person> allPeople;
-    private AStar aStar;
+    private AStar chunkStar;
     
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
@@ -64,7 +64,7 @@ public class LayoutChunk implements Runnable {
         
         populateFloorPlan();
         createEdges();
-        aStar = new AStar(sideLength * sideLength, nodes, edges, sideLength);
+        chunkStar = new AStar(sideLength * sideLength, nodes, edges, sideLength);
         if(topYBoundary == 50 && leftXBoundary == 0) {
         	printFloorPlan();
         }
@@ -277,26 +277,21 @@ public class LayoutChunk implements Runnable {
                 	if(p.getLocation() == null){
                 		continue;
                 	}
-                    p.advance(gWalls, allPeople, 0.1);
-                	if (visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) {
-                		//Red on canvas
-                		blockages++;
-                		p.blockedList.set(p.blockedList.size() - 1, true);
+                    if(stuckOnWall(p, i)){
+                        System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
 
+
+                    }
+                	if ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
+                            p.expectedTimeStepAtNextGoal + 1 < p.locations.size() ||  stuckOnWall(p, i)){
+                		blockages++;
+                        p.blockedList.set(p.blockedList.size() - 1, true);
                         //Dont a star so often brah
                         if(p.lastAStar + 5 < i) {
-                            for (Node n : p.getGoalList()) {
-                                System.out.println(p.toString() + " goal before: " + n.x + ", " + n.y);
-                            }
                             aStar(p);
                             astars++;
                             p.lastAStar = i;
-                            for (Node n : p.getGoalList()) {
-                                System.out.println(p.toString() + " goal after: " + n.x + ", " + n.y);
-                            }
                         }
-
-
                 	}
 
 
@@ -312,13 +307,15 @@ public class LayoutChunk implements Runnable {
                     		System.out.println("Left Canvas");
                     	}
                     }
+
+                    p.advance(gWalls, allPeople, 0.1);
+
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                     
                 } 
             }
-            System.out.println("A stars for this chunk:" + astars);
             if (i != this.steps - 1) {
         	people.removeAll(toRemove);
             }
@@ -337,26 +334,43 @@ public class LayoutChunk implements Runnable {
     }
     
     private void aStar(Person p) throws Exception {
-    	int x = (int) p.getLocation().x;
-    	int y = (int) p.getLocation().y;
+    	int x = (int) Math.round(p.getLocation().x);
+    	int y = (int) Math.round(p.getLocation().y);
 
+        //Incase off map
+
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+
+        ArrayList<aConnection> aconn = chunkStar.connections.get(x * sideLength + y);
+        int rand1 = x;
+        int rand2 = y;
+
+        // Akon fixes people disappearing.
+        while (aconn == null) {
+            rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
+            rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
+
+            aconn = chunkStar.connections.get(rand1 * sideLength + rand2);
+        }
+
+        x = rand1;
+        y = rand2;
     	int startNode = x * sideLength + y;
     	int goalNode = p.getGoalList().getLast().x * sideLength + p.getGoalList().getLast().y;
     	p.astarCheck = true;
 
-    	System.out.println("I am calling with start node: " + startNode + " and goal node: " + goalNode);
-
-        if (aStar.connections.get(startNode) == null) {
+        if (chunkStar.connections.get(startNode) == null) {
             System.out.println("Tried to do AStar from " + x + ", " + y + " but couldn't find any connections");
-            // System.exit(1);
         }
 
-        Path path = aStar.getPath(startNode, goalNode, densityMap);
+        Path path = chunkStar.getPath(startNode, goalNode, densityMap);
        	p.setGoalList(path.getSubGoals());
 
-       	if (p.getGoalList().getLast().x != 0) {
-       		System.out.println("fuckyeah");
-       	}
     }
     
     private void populateDensityMap() {	 	
@@ -405,12 +419,6 @@ public class LayoutChunk implements Runnable {
 	    		}
     		}
     	}
-//        for (int i = 0; i < densityMap.length; i++) {
-//            for ( int j = 0; j < densityMap.length; j++) {
-////                densityMap[i][j] = (int) Math.pow(densityMap[i][j], 2);
-//                  densityMap[i][j] = densit
-//            }
-//        }
     }
    
     
@@ -508,5 +516,21 @@ public class LayoutChunk implements Runnable {
     	}
     	
     	return null;
+    }
+
+    boolean stuckOnWall(Person p, int time){
+
+        boolean allwalls = false;
+        for (Wall w : lWalls) {
+            if (w.distance(p) < 0.7) {
+                    p.stuckOnWallSince++;
+                    allwalls = true;
+                    break;
+            }
+        }
+        if(!allwalls){
+            p.stuckOnWallSince = 0;
+        }
+        return p.stuckOnWallSince > 10;
     }
 }

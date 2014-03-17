@@ -19,7 +19,7 @@ public class AStar {
     public ArrayList<NodeRecord> aNodes;
     public HashMap<Integer, ArrayList<aConnection>> connections;
     public Double[] keys;
-    private static final int DENSITY_COEFF = 5;
+    private static final int DENSITY_COEFF = 2;
 
     public AStar(int numNodes, Vertex[][] chunkNodes, ArrayList<Edge> edges, int sideLength) {
         this.numNodes = numNodes;
@@ -80,7 +80,8 @@ public class AStar {
 
         int k;
         int[][] considered = new int[sideLength][sideLength];
-        System.out.println(priorityQueue.contains(aNodes.get(goalNode)));
+
+
         for (k = 0; k < numNodes; k++) {
             if (priorityQueue.isEmpty()) {
                 // System.out.println("K is" + k);
@@ -99,28 +100,22 @@ public class AStar {
                 // System.out.println(treeBidiMap.size() + " k is " + k);
             }
 
-            // System.out.println("Trying to remove min");
-            // Double thisKey = priorityQueuefirstKey();
-            // NodeRecord currentHeapNode = treeBidiMap.get(thisKey);
+
+            int preSize = priorityQueue.size();
             NodeRecord currentHeapNode = priorityQueue.poll();
+
             double thisKey = currentHeapNode.value;
             considered[currentHeapNode.node / sideLength][currentHeapNode.node % sideLength] = 1;
-            // treeBidiMap.remove(thisKey);
-            // System.out.println("Successfully removed min");
 
             NodeRecord nr = currentHeapNode;
             Integer i = nr.node;
-            // System.out.println("I am on node:" + i);
-            //            keys[i] = currentHeapNode.getKey();
+
             if (i == goalNode.intValue()) {
-                System.out.println("Laterz");
                 return aNodes.get(i);
 
             }
             if (connections.get(nr.node) == null){
-                // System.out.println("I am continuing");
                 continue;
-                //return null;
             }
 
             for (aConnection connection : connections.get(nr.node)) {
@@ -137,13 +132,15 @@ public class AStar {
                 int nextDensity = density[toNodeRecord.node / sideLength][toNodeRecord.node % sideLength];
 
                 //+ (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)
-                if ((thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
+                //Add remove curr density again
+                if ((thisKey + connection.cost + euTo -euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
 
-                    if (toNodeRecord.node == goalNode) {
-                        System.out.println("Found Goal");
+                    if (!priorityQueue.contains(toNodeRecord)) {
+                        continue;
                     }
-                    // treeBidiMap.put(thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity), toNodeRecord);
+
                     priorityQueue.remove(toNodeRecord);
+
                     toNodeRecord.value = (thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity));
                     toNodeRecord.predecessor = nr.node;
                     priorityQueue.add(toNodeRecord);
@@ -151,10 +148,8 @@ public class AStar {
 
                 }
             }
-            // System.out.println("im out");
-
         }
-        System.out.println("I have looped" + k + " times");
+//        System.out.println("I have looped" + k + " times");
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
                 if (considered[j][i] == 0) {
@@ -167,7 +162,6 @@ public class AStar {
             System.out.println("");
         }
         throw new Exception("No Path Found from "  + startNode + " to " + goalNode);
-        // return null;
     }
 
     void dumpDensityToFile(int[][] density) throws Exception {
@@ -175,6 +169,7 @@ public class AStar {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
                 writer.print(density[i][j]);
+                writer.print(" ");
             }
             writer.println("");
         }
