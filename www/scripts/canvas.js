@@ -16,6 +16,7 @@ var featureID = 0;
 var click = false;
 var trace = false;
 var debug = false;
+var densityOn = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var interval;
@@ -24,9 +25,11 @@ var cursorItemPixel; // This needs another tidy session
 
 var people = new Array();
 var blockages = new Array();
+var density = new Array();
 var canvasPeople;
 var canvasPeople_colours = new Array();
 var canvasTraces = new Array();
+var canvasDensity;
 
 function init() {
 
@@ -315,6 +318,47 @@ function getPeople(){
     $.get("/stuck.json", function(data){
         blockages = JSON.parse(data.toString().trim());
     });
+}
+
+function drawDensityMap() {
+    canvasDensity = new Array();
+    for (var i = 0; i < density.length; i++) {
+	canvasDensity[i] = new Array();
+	for (var j = 0; j < density[i].length; j++) {      
+	var s = new createjs.Shape();
+	    canvasDensity[i].push(s);
+	    stage.addChild(s);
+	}
+    }
+    
+    for (var i = 0; i < density.length; i++) {
+	for (var j = 0; j < density[i].length; j++) {
+	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
+	  canvasDensity[i][j].graphics.endFill();
+        }
+    }
+}
+
+function toggleDensityMap() {
+    if ( densityOn ) {
+	for (var i = 0; i < canvasDensity.length; i++) {
+	    for (var j = 0; j < canvasDensity[i].length; j++) {
+		canvasDensity[i][j].graphics.clear();
+	    }
+	}
+        densityOn = false;
+	console.log("Map off");
+    }
+    else {
+	$.get("/bottlenecks.json", function(data){
+	    density = JSON.parse(data.toString().trim());
+	});
+	drawDensityMap();
+	densityOn = true;
+	console.log("Map on");
+	console.log(density.length);
+    }
+    stage.update();
 }
 
 function traceToggle(){
