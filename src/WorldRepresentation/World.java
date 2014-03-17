@@ -29,6 +29,8 @@ public class World {
     private List<Vertex> nodes;
     private List<Edge> edges;
     private FastDijkstra fastDijkstra;
+    
+    private int[][] densityMap;
 
     private boolean isSetUp;
     private boolean routesComputed;
@@ -207,6 +209,39 @@ public class World {
             }
         }
         return new Path(nodeList);
+    }
+        
+    public int[][] getDensityMap() throws RoutesNotComputedException { 
+        if (!routesComputed) {
+            throw new RoutesNotComputedException("getPath called before routes were computed");
+        }
+        
+        if ( densityMap == null ) { /* Create density map */
+        	densityMap = new int[sideLength][sideLength];
+        	for (int i = 0; i < sideLength; i++) {
+        		for (int j = 0; j < sideLength; j++) {
+        			densityMap[i][j] = 0;  // initialise density values
+        		}
+        	}
+        	for (int i = 0; i < sideLength; i++) {
+        		for (int j = 0; j < sideLength; j++) {
+        			if (floorPlan[i][j] != 0 )
+        				continue;  // if node (i,j) is a wall, skip it
+        			
+    				/* Add whole path from (i,j) to density map */
+        			for ( Node n : getPath(i,j).getNodes() ) {
+        				Point2d p = new Point2d(n.toPoint2d());
+        				densityMap[(int) p.getX()][(int) p.getY()]++;
+        			}
+        		}
+        	}
+        }
+        
+        return densityMap;
+    }
+    
+    public int getDensity(int i, int j) throws RoutesNotComputedException {
+    	return (getDensityMap())[i][j];
     }
 
     public int getSideLength() {

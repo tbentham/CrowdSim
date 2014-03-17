@@ -234,6 +234,7 @@ public class BasicCanvas {
 
         toJson(stuckStatus, "www/stuck.json");
         toJson(locations, "www/people.json");
+        toJson(world.getDensityMap(), "www/bottlenecks.json");
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
 
@@ -243,17 +244,17 @@ public class BasicCanvas {
  
     public static void toJson(Object people, String outputFile) {
  
-	Gson gson = new Gson();
-	String json = gson.toJson(people);
+    	Gson gson = new Gson();
+    	String json = gson.toJson(people);
  
-	try {
-		FileWriter writer = new FileWriter(outputFile);
-		writer.write(json);
-		writer.close();
+    	try {
+    		FileWriter writer = new FileWriter(outputFile);
+    		writer.write(json);
+    		writer.close();
  
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
  
 	}
 }
