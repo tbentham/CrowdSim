@@ -2,6 +2,7 @@ var WALL_MODE = 0;
 var DOOR_MODE = 1;
 var INTEREST_MODE = 2;
 var EVAC_MODE = 3;
+var STAIRCASE_MODE = 4;
 var KILL_MODE = 99;
 
 var stage;
@@ -20,10 +21,12 @@ var debug = false;
 var densityOn = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
+var floor = 0;
 var interval;
 var cursorItem;
 var cursorItemPixel; // This needs another tidy session
 
+var floor_canvasFeatures = new Array();
 var people = new Array();
 var blockages = new Array();
 var density = new Array();
@@ -125,6 +128,11 @@ function drawMode(mode){
         stage.addEventListener("stagemousedown", drawEvac);
         stage.addEventListener("stagemousemove", mouseEvac);
     }
+    else if ( mode == STAIRCASE_MODE) {
+        stage.removeAllEventListeners();
+        stage.addEventListener("stagemousedown", drawStaircase);
+        stage.addEventListener("stagemousemove", mouseStaircase);
+    }
 }
 
 function removeItem(e){
@@ -181,8 +189,8 @@ function drawDoor(e){
     }
    
     d = new Feature(featureID, 1); featureID++;
-    d.setFromCoords(hinge[0], hinge[1]); 
-    d.setToCoords(close[0], close[1]);
+    d.setFromCoords(hinge[0], hinge[1], floor); 
+    d.setToCoords(close[0], close[1], floor);
 
     features.push(d);
     canvasFeatures.push(door);
@@ -201,12 +209,12 @@ function startLine(e){
         endOfArray++; featureID++;
 
         if(e.nativeEvent.shiftKey){
-            features[endOfArray].setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
-            features[endOfArray].setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            features[endOfArray].setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            features[endOfArray].setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            features[endOfArray].setFromCoords(e.stageX, e.stageY);
-            features[endOfArray].setToCoords(e.stageX, e.stageY);
+            features[endOfArray].setFromCoords(e.stageX, e.stageY, floor);
+            features[endOfArray].setToCoords(e.stageX, e.stageY, floor);
         }
 
         stage.addChild(canvasFeatures[endOfArray]);
@@ -226,10 +234,10 @@ function endLine(e){
 
         //Drawing
         if(e.nativeEvent.shiftKey){
-            line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            line.setToCoords(e.stageX, e.stageY);
+            line.setToCoords(e.stageX, e.stageY, floor);
         }
 
         //Only draw non point walls, and remove walls which are points.
@@ -253,7 +261,7 @@ function drawLine(e){
         var canvasLine = canvasFeatures[endOfArray];
 
         if(e.nativeEvent.shiftKey){
-            line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
             line.setToCoords(e.stageX, e.stageY);
@@ -459,12 +467,12 @@ function drawInterest(e){
 
         //Drawing
         if(e.nativeEvent.shiftKey){
-            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
-            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            circle.setToCoords(e.stageX, e.stageY);
-            circle.setFromCoords(e.stageX, e.stageY);
+            circle.setToCoords(e.stageX, e.stageY, floor);
+            circle.setFromCoords(e.stageX, e.stageY, floor);
         }
 
         canvasCircle.graphics.setStrokeStyle(3).beginStroke("blue").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
@@ -487,12 +495,12 @@ function drawEvac(e){
 
         //Drawing
         if(e.nativeEvent.shiftKey){
-            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
-            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            circle.setToCoords(e.stageX, e.stageY);
-            circle.setFromCoords(e.stageX, e.stageY);
+            circle.setToCoords(e.stageX, e.stageY, floor);
+            circle.setFromCoords(e.stageX, e.stageY, floor);
         }
 
         canvasCircle.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
@@ -530,6 +538,92 @@ function mouseEvac(e){
         cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(e.stageX, e.stageY, 15).endStroke();
     }
     stage.addChild(cursorItem);
+    stage.update();
+}
+
+function mouseStaircase(e){
+
+    if(cursorItem)cursorItem.graphics.clear();
+    cursorItem = new createjs.Shape();
+
+    if(e.nativeEvent.shiftKey){
+        cursorItem.graphics.setStrokeStyle(3).beginStroke("green").drawCircle(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, 15).endStroke();
+    }
+    else{
+        cursorItem.graphics.setStrokeStyle(3).beginStroke("green").drawCircle(e.stageX, e.stageY, 15).endStroke();
+    }
+    stage.addChild(cursorItem);
+    stage.update();
+}
+
+function drawStaircase(e){
+
+    if(stage.mouseInBounds){
+
+        //Increases readability since they are accessed multiple times.
+        features.push(new Feature(featureID, 4)); canvasFeatures.push(new createjs.Shape());
+        endOfArray++; featureID++;
+
+        var canvasCircle = canvasFeatures[endOfArray];
+        var circle = features[endOfArray];
+
+        //Drawing
+        if(e.nativeEvent.shiftKey){
+            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+        }
+        else{
+            circle.setToCoords(e.stageX, e.stageY, floor);
+            circle.setFromCoords(e.stageX, e.stageY, floor);
+        }
+
+        canvasCircle.graphics.setStrokeStyle(3).beginStroke("green").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
+
+        stage.addChild(canvasCircle);
+        stage.update();
+    }
+}
+
+function upstairs() {
+
+    floor++;
+
+    if (floor_canvasFeatures.length < floor) {
+        floor_canvasFeatures.push(canvasFeatures);
+        canvasFeatures = new Array();
+        endOfArray = -1;
+    }
+    else {
+        canvasFeatures = floor_canvasFeatures[floor];
+    }
+
+    redrawCanvas();
+
+}
+
+function downstairs() {
+
+    //If at top level and about to go down for the first time (just drawn)
+    if ( floor == floor_canvasFeatures.length){
+        floor_canvasFeatures.push(canvasFeatures);
+    }
+
+    if(floor > 0){
+        floor--;
+    }
+
+    canvasFeatures = floor_canvasFeatures[floor];
+    endOfArray = canvasFeatures.length;
+    redrawCanvas();
+}
+
+function redrawCanvas(){
+
+    stage.removeAllChildren();
+
+    for (i = 0; i < canvasFeatures.length; i++) {
+        stage.addChild(canvasFeatures[i]);
+    }
     stage.update();
 }
 
