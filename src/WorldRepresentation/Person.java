@@ -76,7 +76,7 @@ public class Person {
             PersonOverlapException, NoGoalException, RoutesNotComputedException{
 
         if (goalIndex == goalList.size() || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
-            if (location.distance(w.evac) < (size * 2.0)) {
+            if (evacBool) {
                 location = null;
                 return location;
             }

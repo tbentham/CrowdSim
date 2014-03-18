@@ -310,7 +310,11 @@ function sendFeatures(){
     //Use jquery to grab div
     totalTime = $("[name=totalTime]").val();
     evacTime = $("[name=evacTime]").val();
-    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + '}'});
+    numPeople = $("[name=numPeople]").val();
+    astarToggle = $("[name=astarToggle]").val();
+    astarFreq = $("[name=astarFreq]").val();
+
+    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + '}'});
 }
 
 function hand(data){ // Turn json into objects

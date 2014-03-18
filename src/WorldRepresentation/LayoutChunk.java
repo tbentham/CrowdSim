@@ -36,12 +36,19 @@ public class LayoutChunk implements Runnable {
     public int sideLength;
     private ArrayList<Person> allPeople;
     private AStar chunkStar;
+    private Integer evacTime;
+    private Integer ASTAR;
+    private Integer ASTAR_FREQUENCY;
     
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
     
-    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary, ArrayList<Wall> walls, CyclicBarrier barrier, int steps, World w) {
+    public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary,
+                       ArrayList<Wall> walls, CyclicBarrier barrier, int steps, World w, Integer evacTime, Integer astarToggle, Integer astarFreq) {
         System.out.println("LayoutChunk Created");
+        this.ASTAR = astarToggle;
+        this.ASTAR_FREQUENCY = astarFreq;
+        this.evacTime = evacTime;
     	people = new ArrayList<Person>();
         overlapPeople = new ArrayList<Person>();
         this.topYBoundary = topYBoundary;
@@ -272,6 +279,50 @@ public class LayoutChunk implements Runnable {
         	ArrayList<Person> toRemove = new ArrayList<Person>();
         	for (Person p : people) {
                 try {
+                    if (i == evacTime) {
+                        int x = (int) Math.round(p.getLocation().x);
+                        int y = (int) Math.round(p.getLocation().y);
+
+                        //Incase off map
+
+                        if (x < 0) {
+                            x = 0;
+                        }
+                        if (y < 0) {
+                            y = 0;
+                        }
+
+                        ArrayList<aConnection> aconn = chunkStar.connections.get(x * sideLength + y);
+                        int rand1 = x;
+                        int rand2 = y;
+
+                        // Akon fixes people disappearing.
+                        while (aconn == null) {
+                            rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
+                            rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
+
+                            aconn = chunkStar.connections.get(rand1 * sideLength + rand2);
+                        }
+
+                        x = rand1;
+                        y = rand2;
+                        Path thisPath = w.getPath(x, y, 0, true);
+                        int pathLength = thisPath.getNodes().size();
+                        if (w.fdEvacList.size() > 1) {
+                            for (int q = 1; q < w.fdEvacList.size(); q++) {
+                                Path newPath = w.getPath(x, y, q, true);
+                                if (newPath.getNodes().size() < pathLength) {
+                                    thisPath = newPath;
+                                    pathLength = newPath.getNodes().size();
+                                }
+                            }
+                        }
+
+                        p.setGoalList(thisPath.getSubGoals());
+                        p.evacBool = true;
+
+                    }
+
                 	if(p.getLocation() == null){
                 		continue;
                 	}
@@ -280,12 +331,12 @@ public class LayoutChunk implements Runnable {
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
                     }
 
-                	if ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
-                            p.expectedTimeStepAtNextGoal + 1 < p.locations.size() ||  stuckOnWall(p, i)){
+                	if (((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
+                            p.expectedTimeStepAtNextGoal + 1 < p.locations.size() ||  stuckOnWall(p, i)) && ASTAR == 1){
                 		blockages++;
                         p.blockedList.set(p.blockedList.size() - 1, true);
                         //Dont a star so often brah
-                        if(p.lastAStar + 5 < i) {
+                        if(p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
                             astars++;
                             p.lastAStar = i;
@@ -309,8 +360,8 @@ public class LayoutChunk implements Runnable {
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    
-                } 
+
+                }
             }
             if (i != this.steps - 1) {
         	people.removeAll(toRemove);
@@ -328,7 +379,7 @@ public class LayoutChunk implements Runnable {
             // System.out.println(people.size());
         }
     }
-    
+
     private void aStar(Person p) throws Exception {
     	int x = (int) Math.round(p.getLocation().x);
     	int y = (int) Math.round(p.getLocation().y);
@@ -368,8 +419,8 @@ public class LayoutChunk implements Runnable {
        	p.setGoalList(path.getSubGoals());
 
     }
-    
-    private void populateDensityMap() {	 	
+
+    private void populateDensityMap() {
     	int sideLength = w.getSideLength();
 	    densityMap = new int[sideLength][sideLength];
     	for(Person p : people) {
@@ -387,7 +438,7 @@ public class LayoutChunk implements Runnable {
 	    		if (l.y < 0) {
 	    			l.y = 0;
 	    		}
-	    		
+
 	    		densityMap[(int) l.x][(int) l.y]++;
 	    		if (l.x > 0 && l.y > 0) {
 	    			densityMap[(int) l.x - 1][(int) l.y - 1]++;
@@ -416,8 +467,8 @@ public class LayoutChunk implements Runnable {
     		}
     	}
     }
-   
-    
+
+
     private void populateFloorPlan() {
     	int sideLength = w.getSideLength();
         for (int i = 0; i < sideLength; i++) {
@@ -436,7 +487,7 @@ public class LayoutChunk implements Runnable {
             }
         }
     }
-    
+
     private void createEdges() {
     	int sideLength = w.getSideLength();
         for (int i = 0; i < sideLength; i++) {
@@ -468,31 +519,31 @@ public class LayoutChunk implements Runnable {
             }
         }
     }
-    
+
     public void printFloorPlan() {
 
     	int sideLength = w.getSideLength();
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
-            		System.out.print(floorPlan[j][i]);   
+            		System.out.print(floorPlan[j][i]);
             }
             System.out.println();
         }
     }
-    
+
     public void printDensity() {
 
     	int sideLength = w.getSideLength();
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
-            		System.out.print(densityMap[j][i]);   
+            		System.out.print(densityMap[j][i]);
             }
             System.out.println();
         }
     }
-    
+
     public Point2d visibleBlockage(Person p){
-    	
+
     	if(p.getLocation() == null){
     		return null;
     	}
