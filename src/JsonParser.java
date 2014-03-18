@@ -1,5 +1,7 @@
 import com.google.gson.Gson;
 
+import java.util.HashMap;
+
 // TODO: Doesn't need an explanation
 class JsonParser{
     
@@ -16,9 +18,9 @@ class JsonParser{
     	
         return objs;
     }
-    public String[] parseConf(){
+    public HashMap parseConf(){
 
-        String[] objs = gson.fromJson(json, String[].class);
+        HashMap<String, Integer> objs = gson.fromJson(json, HashMap.class);
 
         return objs;
     }

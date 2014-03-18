@@ -16,6 +16,7 @@ import javax.vecmath.Point2d;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
@@ -275,7 +276,7 @@ class JettyExample extends AbstractHandler {
     private JsonParser jparseC;
 
     private Cobject[] objs;
-    private String[] conf;
+    private HashMap<String, Integer> conf;
 
     private boolean newObjs = false;
 
@@ -299,9 +300,11 @@ class JettyExample extends AbstractHandler {
             for (Cobject c : objs) {
                 System.out.println(c.toString());
             }
-            for (String s: conf) {
-                System.out.println(s);
+            for (String s: conf.keySet()) {
+                System.out.println(s + ": " + conf.get(s));
+
             }
+
 
             newObjs = true;
 

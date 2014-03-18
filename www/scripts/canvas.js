@@ -301,7 +301,10 @@ function rotate(){
 
 //These functions are responsible for GET-ing and POST-ing.
 function sendFeatures(){
-    $.post("/", {objects: jsonDump(), config: "marcus:goon"});
+    //Use jquery to grab div
+    totalTime = $("[name=totalTime]").val();
+    evacTime = $("[name=evacTime]").val();
+    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + '}'});
 }
 
 function hand(data){ // Turn json into objects
