@@ -58,7 +58,7 @@ public class Path {
                 //System.out.println();
             }
         }
-        if (vertices.size() > 1) {
+        if (vertices.size() >= 1) {
             subgoals.add(vertices.get(vertices.size() - 1));
         } else {
             System.err.println("No vertices in list to generate sub-goals from.");

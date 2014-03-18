@@ -3,6 +3,7 @@ package WorldRepresentation;
 import Exceptions.NaNException;
 import Exceptions.NoGoalException;
 import Exceptions.PersonOverlapException;
+import Exceptions.RoutesNotComputedException;
 import ForceModel.Model;
 import NewDijkstra.Node;
 
@@ -25,6 +26,7 @@ public class Person {
     private Vector2d actualVelocity;
     public int stuckOnWallSince;
 
+    private int goalID;
     private LinkedList<Node> goalList;
     private int goalIndex;
 
@@ -36,7 +38,10 @@ public class Person {
     public double expectedTimeStepAtNextGoal;
     public int lastAStar;
 
-    public Person(double x1, double y1) {
+    public boolean evacBool;
+
+    public Person(double x1, double y1, int goalID) {
+        this.goalID = goalID;
         lastAStar = 0;
         location = new Point2d(x1, y1);
         locations = new ArrayList<Point2d>();
@@ -56,6 +61,7 @@ public class Person {
 
         blockedList = new ArrayList<Boolean>();
         stuckOnWallSince = 0;
+        evacBool = false;
     }
 
     private void goalUpdate() {
@@ -66,25 +72,40 @@ public class Person {
 
 
     // TODO: Write test case(s) for this function
-    public Point2d advance(ArrayList<Wall> walls, ArrayList<Person> people, double timeStep) throws NaNException,
-            PersonOverlapException, NoGoalException {
+    public Point2d advance(ArrayList<Wall> walls, ArrayList<Person> people, double timeStep, World w) throws NaNException,
+            PersonOverlapException, NoGoalException, RoutesNotComputedException{
 
         if (goalIndex == goalList.size() || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
-            //locations.add(new Point2d(location));
-        	location = null;
-        	return location;
+            if (location.distance(w.evac) < (size * 2.0)) {
+                location = null;
+                return location;
+            }
+            else {
+                if(this.goalList.size() == 0) {
+                    System.out.println("/SHIZ");
+                }
+                //pick a new random goal
+                int tGoalID = (int)Math.round(Math.random() * (w.fdPOIList.size() -1));
+
+                //Randomize new goal until it works
+                while(tGoalID == this.goalID) {
+                    tGoalID = (int)Math.round(Math.random() * (w.fdPOIList.size() -1));
+                }
+                if (tGoalID == -1) {
+                    System.out.println("");
+                }
+                Path path = w.getPath((int)Math.round(location.x), (int)Math.round(location.y), tGoalID, evacBool);
+                this.goalID = tGoalID;
+                this.setGoalList(path.getSubGoals());
+                if(this.goalList.size() == 0) {
+                    System.out.println("/shiz");
+                }
+            }
         }
-
-
-//        distanceToNextGoal = location.distance(getNextGoal());
-//        expectedTimeStepAtNextGoal = (desiredSpeed / distanceToNextGoal) + locations.size();
-        // System.out.println("I am " + this.toString() + " and my speed is " + actualVelocity.length());
 
         int currentGoal = goalIndex;
         goalUpdate();
-//        if (goalIndex != currentGoal) {
-//            System.out.println("I've reached a goal bitches, I am : " + this.toString());
-//        }
+
 
         if (goalIndex < goalList.size()) {
         	Vector2d accTerm = new Vector2d(0,0);
@@ -152,8 +173,8 @@ public class Person {
     }
 
     public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
-            PersonOverlapException, NoGoalException {
-        return advance(world.getWalls(), people, timeStep);
+            PersonOverlapException, NoGoalException, RoutesNotComputedException {
+        return advance(world.getWalls(), people, timeStep, world);
     }
 
 

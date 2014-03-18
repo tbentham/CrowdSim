@@ -262,8 +262,7 @@ public class LayoutChunk implements Runnable {
         	
         	addOverlapPeople();
         	
-        	// System.out.println("After My queue has: " + q.size() + " And I have: " + people.size());
-        	
+
         	allPeople = new ArrayList<Person>();
         	allPeople.addAll(people);
         	allPeople.addAll(overlapPeople);
@@ -272,16 +271,15 @@ public class LayoutChunk implements Runnable {
 
         	ArrayList<Person> toRemove = new ArrayList<Person>();
         	for (Person p : people) {
-//        		System.out.println("There have been" + blockages + " blockages");
                 try {
                 	if(p.getLocation() == null){
                 		continue;
                 	}
+
                     if(stuckOnWall(p, i)){
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
-
-
                     }
+
                 	if ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
                             p.expectedTimeStepAtNextGoal + 1 < p.locations.size() ||  stuckOnWall(p, i)){
                 		blockages++;
@@ -294,8 +292,6 @@ public class LayoutChunk implements Runnable {
                         }
                 	}
 
-
-                	
                     if(p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0){
                         int xIndex = (int) p.getLocation().x / 50;
                     	int yIndex = (int) p.getLocation().y / 50;
@@ -308,7 +304,7 @@ public class LayoutChunk implements Runnable {
                     	}
                     }
 
-                    p.advance(gWalls, allPeople, 0.1);
+                    p.advance(gWalls, allPeople, 0.1, w);
 
                 }
                 catch (Exception e) {

@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
-	
-	static int TIME_STEPS = 400;
-	static int PEOPLE = 750;
+
+    static int TIME_STEPS = 600;
+    static int PEOPLE = 100;
 
     public static void main(String[] args) throws Exception {
 
@@ -49,38 +49,52 @@ public class BasicCanvas {
 
         double d = System.currentTimeMillis();
 
+        ArrayList<Point2d> poi = new ArrayList<Point2d>();
+        ArrayList<Point2d> evacuationPoints = new ArrayList<>();
+
         World world = new World(100);
-        Point2d goal = new Point2d(0, 0);
+        Point2d goal;
+        Point2d evac = new Point2d(0, 0);
+        boolean evacBool = false;
 
         for (Cobject co : cobjs) {
-        	if (co.getType() == 0){
-        		world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
-        	}
-        	else if (co.getType() == 2) {
-        		//Do something with goals here.
-        		System.out.println("I have a goal at " + co.getFrom().toString());
-        		goal = new Point2d(co.getFrom().x/ 10 , co.getFrom().y / 10.0);
-        	}
+            if (co.getType() == 0) {
+
+                world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
+            } else if (co.getType() == 2) {
+
+                System.out.println("I have a wl at " + co.getFrom().toString());
+                goal = new Point2d(co.getFrom().x / 10.0, co.getFrom().y / 10.0);
+                poi.add(goal);
+            } else if (co.getType() == 3) {
+
+                evac = new Point2d(co.getFrom().x / 10.0, co.getFrom().y / 10.0);
+                evacuationPoints.add(evac);
+            } else if (co.getType() == 4) {
+
+                evacBool = true;
+            }
         }
 
         world.setUp();
         world.printFloorPlan();
-        world.computeDijsktraTowards((int) goal.x, (int) goal.y);
+        world.setEvac(evac);
 
-        // world.printDijsktras();
+        world.computeDijsktraTowards(poi, evacuationPoints);
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
-                + "ms Towards " + goal.x + ", " + goal.y);
+                + "ms");
 
-        for(int i = 0; i < PEOPLE; i++) {
+        for (int i = 0; i < PEOPLE; i++) {
             try {
-                world.addNewPersonAt((int)(Math.random()*100),(int)(Math.random()*100));
+                int num = (int) Math.round(Math.random() * (poi.size() - 1));
+                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), num, evacBool);
             } catch (PersonOverlapException e) {
-            	
+
             } catch (WallOverlapException e) {
-                // e.printStackTrace();
             }
         }
+
 
         //Each chunk needs a reference to its own queue, every queue should be kept in a publicly accessible hashmap.
         LayoutChunk[][] chunks2d = new LayoutChunk[2][2];
@@ -91,7 +105,7 @@ public class BasicCanvas {
         LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world);
         LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS, world);
         LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world);
-        
+
 
         chunks.add(bottomLeft);
         chunks.add(topLeft);
@@ -127,17 +141,13 @@ public class BasicCanvas {
         for (Person p : world.getPeople()) {
             if (topLeft.isPointInside(p.getLocation().x, p.getLocation().y)) {
                 topLeft.addPerson(p);
-            }
-            else if (topRight.isPointInside(p.getLocation().x, p.getLocation().y)) {
+            } else if (topRight.isPointInside(p.getLocation().x, p.getLocation().y)) {
                 topRight.addPerson(p);
-            }
-            else if (bottomLeft.isPointInside(p.getLocation().x, p.getLocation().y)) {
+            } else if (bottomLeft.isPointInside(p.getLocation().x, p.getLocation().y)) {
                 bottomLeft.addPerson(p);
-            }
-            else if (bottomRight.isPointInside(p.getLocation().x, p.getLocation().y)) {
+            } else if (bottomRight.isPointInside(p.getLocation().x, p.getLocation().y)) {
                 bottomRight.addPerson(p);
-            }
-            else {
+            } else {
                 System.out.println(p.getLocation().x);
                 System.out.println(p.getLocation().y);
                 throw new Exception("This shit is fucked");
@@ -153,21 +163,21 @@ public class BasicCanvas {
 
         long startTime = System.currentTimeMillis();
 
-            Thread worker1 = new Thread(topLeftTask);
-            threads.add(worker1);
-            Thread worker2 = new Thread(topRightTask);
-            threads.add(worker2);
-            Thread worker3 = new Thread(bottomLeftTask);
-            threads.add(worker3);
-            Thread worker4 = new Thread(bottomRightTask);
-            threads.add(worker4);
-            worker1.start();
-            worker2.start();
-            worker3.start();
-            worker4.start();
+        Thread worker1 = new Thread(topLeftTask);
+        threads.add(worker1);
+        Thread worker2 = new Thread(topRightTask);
+        threads.add(worker2);
+        Thread worker3 = new Thread(bottomLeftTask);
+        threads.add(worker3);
+        Thread worker4 = new Thread(bottomRightTask);
+        threads.add(worker4);
+        worker1.start();
+        worker2.start();
+        worker3.start();
+        worker4.start();
 
-        for(Thread t: threads){
-        	t.join();
+        for (Thread t : threads) {
+            t.join();
         }
         System.out.println("All threads have finished.");
 
@@ -181,7 +191,7 @@ public class BasicCanvas {
 
         double endTime = System.currentTimeMillis();
 
-        System.out.println("The simulation took " + (endTime - startTime))  ;
+        System.out.println("The simulation took " + (endTime - startTime));
 
         ArrayList<Person> people = world.getPeople();
 
@@ -201,28 +211,27 @@ public class BasicCanvas {
         System.out.println("Time taken before file I/O: " + (System.currentTimeMillis() - d));
 
         ArrayList<Person> output = new ArrayList<Person>();
-        
+
         output.addAll(topLeft.getPeople());
         output.addAll(topRight.getPeople());
         output.addAll(bottomLeft.getPeople());
         output.addAll(bottomRight.getPeople());
         // output.addAll(world.getPeople());
 
-        Point2d[][] locations = new Point2d[output.size()][TIME_STEPS+1];
+        Point2d[][] locations = new Point2d[output.size()][TIME_STEPS + 1];
         // loop through people
-        for(int i = 0; i < output.size(); i++){
-        	Person p = output.get(i);
-        	for(int j = 0; j < p.locations.size(); j++){
-                try{
-        		if (p.locations.get(j) == null) {
-        			break;
-        		}
-        		locations[i][j] = p.locations.get(j);
-                }
-                catch(Exception e){
+        for (int i = 0; i < output.size(); i++) {
+            Person p = output.get(i);
+            for (int j = 0; j < p.locations.size(); j++) {
+                try {
+                    if (p.locations.get(j) == null) {
+                        break;
+                    }
+                    locations[i][j] = p.locations.get(j);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-        	}
+            }
         }
 
         Boolean[][] stuckStatus = new Boolean[output.size()][output.get(1).locations.size() + 1];
@@ -241,22 +250,22 @@ public class BasicCanvas {
         server.join();
 
     }
- 
+
     public static void toJson(Object people, String outputFile) {
- 
-    	Gson gson = new Gson();
-    	String json = gson.toJson(people);
- 
-    	try {
-    		FileWriter writer = new FileWriter(outputFile);
-    		writer.write(json);
-    		writer.close();
- 
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    	}
- 
-	}
+
+        Gson gson = new Gson();
+        String json = gson.toJson(people);
+
+        try {
+            FileWriter writer = new FileWriter(outputFile);
+            writer.write(json);
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
 
 
