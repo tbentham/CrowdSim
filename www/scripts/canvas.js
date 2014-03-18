@@ -1,6 +1,7 @@
 var WALL_MODE = 0;
 var DOOR_MODE = 1;
 var INTEREST_MODE = 2;
+var EVAC_MODE = 3;
 var KILL_MODE = 99;
 
 var stage;
@@ -118,6 +119,11 @@ function drawMode(mode){
         stage.removeAllEventListeners();
         stage.addEventListener("stagemousedown", drawInterest);
         stage.addEventListener("stagemousemove", mouseInterest);
+    }
+    else if(mode == EVAC_MODE){
+        stage.removeAllEventListeners();
+        stage.addEventListener("stagemousedown", drawEvac);
+        stage.addEventListener("stagemousemove", mouseEvac);
     }
 }
 
@@ -431,7 +437,7 @@ function drawInterest(e){
     if(stage.mouseInBounds){
 
         //Increases readability since they are accessed multiple times.
-        features.push(new Feature(featureID, 2)); canvasFeatures.push(new createjs.Shape());
+            features.push(new Feature(featureID, 2)); canvasFeatures.push(new createjs.Shape());
         endOfArray++; featureID++;
 
         var canvasCircle = canvasFeatures[endOfArray];
@@ -447,7 +453,35 @@ function drawInterest(e){
             circle.setFromCoords(e.stageX, e.stageY);
         }
 
-        canvasCircle.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke(); 
+        canvasCircle.graphics.setStrokeStyle(3).beginStroke("blue").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
+
+        stage.addChild(canvasCircle);
+        stage.update();
+    }
+}
+
+function drawEvac(e){
+
+    if(stage.mouseInBounds){
+
+        //Increases readability since they are accessed multiple times.
+        features.push(new Feature(featureID, 3)); canvasFeatures.push(new createjs.Shape());
+        endOfArray++; featureID++;
+
+        var canvasCircle = canvasFeatures[endOfArray];
+        var circle = features[endOfArray];
+
+        //Drawing
+        if(e.nativeEvent.shiftKey){
+            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+            circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50);
+        }
+        else{
+            circle.setToCoords(e.stageX, e.stageY);
+            circle.setFromCoords(e.stageX, e.stageY);
+        }
+
+        canvasCircle.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
 
         stage.addChild(canvasCircle);
         stage.update();
@@ -461,10 +495,25 @@ function mouseInterest(e){
     cursorItem = new createjs.Shape();
 
     if(e.nativeEvent.shiftKey){
-       cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, 15).endStroke(); 
+       cursorItem.graphics.setStrokeStyle(3).beginStroke("blue").drawCircle(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, 15).endStroke();
     }
     else{
-       cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(e.stageX, e.stageY, 15).endStroke(); 
+       cursorItem.graphics.setStrokeStyle(3).beginStroke("blue").drawCircle(e.stageX, e.stageY, 15).endStroke();
+    }
+    stage.addChild(cursorItem);
+    stage.update();
+}
+
+function mouseEvac(e){
+
+    if(cursorItem)cursorItem.graphics.clear();
+    cursorItem = new createjs.Shape();
+
+    if(e.nativeEvent.shiftKey){
+        cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, 15).endStroke();
+    }
+    else{
+        cursorItem.graphics.setStrokeStyle(3).beginStroke("red").drawCircle(e.stageX, e.stageY, 15).endStroke();
     }
     stage.addChild(cursorItem);
     stage.update();
