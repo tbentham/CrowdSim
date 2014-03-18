@@ -16,21 +16,20 @@ import org.jgrapht.util.FibonacciHeapNode;
 import javax.vecmath.Point2d;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class World {
 
     public int sideLength;
 
-    private ArrayList<Wall> walls;
-    private int[][] floorPlan;
+    private ArrayList<ArrayList<Wall>> walls;
+    private int[][][] floorPlan;
 
-    private Vertex[][] nodeArray;
-    private List<Vertex> nodes;
-    private List<Edge> edges;
+    private Vertex[][][] nodeArray;
+    private ArrayList<Vertex> nodes;
+    private ArrayList<Edge> edges;
     public Point2d evac;
 
-    private int[][] densityMap;
+    private int[][][] densityMap;
 
     private boolean isSetUp;
     private boolean routesComputed;
@@ -41,17 +40,23 @@ public class World {
 
     private ArrayList<Person> people;
 
-    public World(int sideLength) {
+    public int numFloors;
+
+    public World(int sideLength, int numFloors) {
 
         fdPOIList = new ArrayList<FastDijkstra>();
         fdEvacList = new ArrayList<FastDijkstra>();
 
+        this.numFloors = numFloors;
         this.sideLength = sideLength;
 
-        walls = new ArrayList<Wall>();
-        floorPlan = new int[sideLength][sideLength];
+        walls = new ArrayList<ArrayList<Wall>>();
+        for (int i = 0; i < numFloors; i++) {
+            walls.add(new ArrayList<Wall>());
+        }
+        floorPlan = new int[sideLength][sideLength][numFloors];
 
-        nodeArray = new Vertex[sideLength][sideLength];
+        nodeArray = new Vertex[sideLength][sideLength][numFloors];
         nodes = new ArrayList<Vertex>();
         edges = new ArrayList<Edge>();
 
@@ -61,13 +66,13 @@ public class World {
         people = new ArrayList<Person>();
     }
 
-    public void addWall(double x1, double y1, double x2, double y2) {
+    public void addWall(double x1, double y1, double x2, double y2, int floor) {
         isSetUp = false;
         routesComputed = false;
-        walls.add(new Wall(x1, y1, x2, y2));
+        walls.get(floor).add(new Wall(x1, y1, x2, y2));
     }
 
-    public void addNewPersonAt(int x, int y, int goalID, boolean evac) throws RoutesNotComputedException,
+    public void addNewPersonAt(int x, int y, int floor, int goalID, boolean evac) throws RoutesNotComputedException,
             PersonOverlapException, WallOverlapException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("Cannot add people until world has routes computed");
@@ -77,9 +82,9 @@ public class World {
                 throw new PersonOverlapException("Cannot create second person at " + x + ", " + y);
             }
         }
-        Person person = new Person(x, y, goalID);
+        Person person = new Person(x, y, floor, goalID);
         person.evacBool = evac;
-        for (Wall w : walls) {
+        for (Wall w : walls.get(person.floor)) {
             if (w.touches(person)) {
                 throw new WallOverlapException("Cannot add person at " + x + " , " + y + " because wall exists there");
             }
@@ -103,12 +108,14 @@ public class World {
     private void populateFloorPlan() {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
-                floorPlan[i][j] = 0;
-                for (Wall wall : walls) {
-                    Point2d point2d = new Point2d(i, j);
-                    if (wall.touches(point2d, 1)) {
-                        floorPlan[i][j] = 1;
-                        break;
+                for (int z = 0; z < numFloors; z++) {
+                    floorPlan[i][j][z] = 0;
+                    for (Wall wall : walls.get(z)) {
+                        Point2d point2d = new Point2d(i, j);
+                        if (wall.touches(point2d, 1)) {
+                            floorPlan[i][j][z] = 1;
+                            break;
+                        }
                     }
                 }
             }
@@ -118,55 +125,61 @@ public class World {
     public void printFloorPlan() throws WorldNotSetUpException {
         if (!isSetUp)
             throw new WorldNotSetUpException("printFloorPlan called before setting up world");
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                if (floorPlan[j][i] == 0) {
-                    System.out.print('\267');
+        for (int z = 0; z < numFloors; z++) {
+            System.out.println("Printing floor: " + z);
+            for (int i = 0; i < sideLength; i++) {
+                for (int j = 0; j < sideLength; j++) {
+                    if (floorPlan[j][i][z] == 0) {
+                        System.out.print('\267');
+                    } else {
+                        System.out.print(floorPlan[j][i]);
+                    }
                 }
-                else {
-                    System.out.print(floorPlan[j][i]);
-                }
+                System.out.println();
             }
-            System.out.println();
         }
     }
 
     private void populateNodeArray() {
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                nodeArray[i][j] = null;
-                if (floorPlan[i][j] == 0) {
-                    nodeArray[i][j] = new Vertex(i, j);
-                    nodes.add(nodeArray[i][j]);
+        for (int z = 0; z < numFloors; z++) {
+            for (int i = 0; i < sideLength; i++) {
+                for (int j = 0; j < sideLength; j++) {
+                    nodeArray[i][j][z] = null;
+                    if (floorPlan[i][j][z] == 0) {
+                        nodeArray[i][j][z] = new Vertex(i, j);
+                        nodes.add(nodeArray[i][j][z]);
+                    }
                 }
             }
         }
     }
 
     private void createEdges() {
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                if (floorPlan[i][j] == 0) {
-                    // if not at right-most node
-                    if (j < (sideLength - 1)) {
-                        // check right
-                        if (floorPlan[i][j + 1] == 0) {
-                            edges.add(new Edge(nodeArray[i][j], nodeArray[i][j + 1], 1.0));
+        for (int z = 0; z < numFloors; z++) {
+            for (int i = 0; i < sideLength; i++) {
+                for (int j = 0; j < sideLength; j++) {
+                    if (floorPlan[i][j][z] == 0) {
+                        // if not at right-most node
+                        if (j < (sideLength - 1)) {
+                            // check right
+                            if (floorPlan[i][j + 1][z] == 0) {
+                                edges.add(new Edge(nodeArray[i][j][z], nodeArray[i][j + 1][z], 1.0, z));
+                            }
+                            // check bottom right
+                            if (i < (sideLength - 1) && floorPlan[i + 1][j + 1][z] == 0) {
+                                edges.add(new Edge(nodeArray[i][j][z], nodeArray[i + 1][j + 1][z], Math.sqrt(2), z));
+                            }
                         }
-                        // check bottom right
-                        if (i < (sideLength - 1) && floorPlan[i + 1][j + 1] == 0) {
-                            edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j + 1], Math.sqrt(2)));
-                        }
-                    }
-                    // if not at bottom node
-                    if (i < sideLength - 1) {
-                        // check bottom
-                        if (floorPlan[i + 1][j] == 0) {
-                            edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j], 1.0));
-                        }
-                        // check bottom left
-                        if (j > 0 && floorPlan[i + 1][j - 1] == 0) {
-                            edges.add(new Edge(nodeArray[i][j], nodeArray[i + 1][j - 1], Math.sqrt(2)));
+                        // if not at bottom node
+                        if (i < sideLength - 1) {
+                            // check bottom
+                            if (floorPlan[i + 1][j][z] == 0) {
+                                edges.add(new Edge(nodeArray[i][j][z], nodeArray[i + 1][j][z], 1.0, z));
+                            }
+                            // check bottom left
+                            if (j > 0 && floorPlan[i + 1][j - 1][z] == 0) {
+                                edges.add(new Edge(nodeArray[i][j][z], nodeArray[i + 1][j - 1][z], Math.sqrt(2), z));
+                            }
                         }
                     }
                 }
@@ -180,7 +193,7 @@ public class World {
 
         this.poi = poi;
 
-        for ( int f = 0; f < goals.size(); f++) {
+        for (int f = 0; f < goals.size(); f++) {
 
             FastDijkstra fastDijkstra = new FastDijkstra();
             fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
@@ -196,7 +209,7 @@ public class World {
             FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) goals.get(f).x * sideLength + (int) goals.get(f).y, sideLength * sideLength, this);
             fdPOIList.add(fastDijkstra);
         }
-        for ( int g = 0; g < evacuationPoints.size(); g++) {
+        for (int g = 0; g < evacuationPoints.size(); g++) {
 
             FastDijkstra fastDijkstra = new FastDijkstra();
             fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
@@ -235,14 +248,14 @@ public class World {
                 break;
             }
             Integer i = nr.predecessor;
+            Integer prevZ = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node / (sideLength * sideLength);
             Integer prevX = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node / sideLength;
             Integer prevY = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node % sideLength;
-            if (prevX == 0 && prevY == 0) {
-                nodeList.add(new Node(0, 0));
+            if (prevX == 0 && prevY == 0 && prevZ == 0) {
+                nodeList.add(new Node(0, 0, 0));
                 break;
-            }
-            else {
-                nodeList.add(new Node(prevX, prevY));
+            } else {
+                nodeList.add(new Node(prevX, prevY, prevX));
                 nr = (NodeRecord) goalList.get(goalID).nodes.get(i).getData();
             }
         }
@@ -250,44 +263,41 @@ public class World {
     }
 
 
-    public int[][] getDensityMap() throws RoutesNotComputedException {
+    public int[][][] getDensityMap() throws RoutesNotComputedException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("getPath called before routes were computed");
         }
         if (fdEvacList.size() == 0) {
-            return new int[sideLength][sideLength];
+            return new int[sideLength][sideLength][numFloors];
         }
 
-        if ( densityMap == null ) { /* Create density map */
-            densityMap = new int[sideLength][sideLength];
+        if (densityMap == null) { /* Create density map */
+            densityMap = new int[sideLength][sideLength][numFloors];
+        }
+        for (int z = 0; z < numFloors; z++) {
             for (int i = 0; i < sideLength; i++) {
                 for (int j = 0; j < sideLength; j++) {
-                    densityMap[i][j] = 0;  // initialise density values
-                }
-            }
-            for (int i = 0; i < sideLength; i++) {
-                for (int j = 0; j < sideLength; j++) {
-                    if (floorPlan[i][j] != 0 )
+                    if (floorPlan[i][j][z] != 0)
                         continue;  // if node (i,j) is a wall, skip it
 
     				/* Add whole path from (i,j) to density map */
 
-                    // changed for compiling FIX ME
+                    // TODO: changed for compiling FIX ME
                     Path thisPath = getPath(i, j, 0, true);
                     int pathLength = thisPath.getNodes().size();
                     if (fdEvacList.size() > 1) {
                         for (int q = 1; q < fdEvacList.size(); q++) {
-                           Path newPath = getPath(i, j, q, true);
-                           if (newPath.getNodes().size() < pathLength) {
-                               thisPath = newPath;
-                               pathLength = newPath.getNodes().size();
-                           }
+                            Path newPath = getPath(i, j, q, true);
+                            if (newPath.getNodes().size() < pathLength) {
+                                thisPath = newPath;
+                                pathLength = newPath.getNodes().size();
+                            }
                         }
                     }
 
-                    for ( Node n : thisPath.getNodes() ) {
+                    for (Node n : thisPath.getNodes()) {
                         Point2d p = new Point2d(n.toPoint2d());
-                        densityMap[(int) p.x][(int) p.y]++;
+                        densityMap[(int) p.x][(int) p.y][z]++;
                     }
                 }
             }
@@ -296,31 +306,31 @@ public class World {
         return densityMap;
     }
 
-    public int getDensity(int i, int j) throws RoutesNotComputedException {
-        return (getDensityMap())[i][j];
+    public int getDensity(int i, int j, int z) throws RoutesNotComputedException {
+        return (getDensityMap())[i][j][z];
     }
 
     public int getSideLength() {
         return this.sideLength;
     }
 
-    public ArrayList<Wall> getWalls() {
+    public ArrayList<ArrayList<Wall>> getWalls() {
         return walls;
     }
 
-    public int[][] getFloorPlan() {
+    public int[][][] getFloorPlan() {
         return floorPlan;
     }
 
-    public Vertex[][] getNodeArray() {
+    public Vertex[][][] getNodeArray() {
         return nodeArray;
     }
 
-    public List<Vertex> getNodes() {
+    public ArrayList<Vertex> getNodes() {
         return nodes;
     }
 
-    public List<Edge> getEdges() {
+    public ArrayList<Edge> getEdges() {
         return edges;
     }
 

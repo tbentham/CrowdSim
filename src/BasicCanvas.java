@@ -56,6 +56,8 @@ public class BasicCanvas {
             Thread.sleep(100);
         }
 
+        int numFloors = 1;
+
         TIME_STEPS = ((Double) jettyHandle.getConfig().get("totalTime")).intValue();
         EVAC_TIME = ((Double) jettyHandle.getConfig().get("evacTime")).intValue();
         PEOPLE = ((Double) jettyHandle.getConfig().get("numPeople")).intValue();
@@ -68,7 +70,7 @@ public class BasicCanvas {
         ArrayList<Point2d> poi = new ArrayList<Point2d>();
         ArrayList<Point2d> evacuationPoints = new ArrayList<Point2d>();
 
-        World world = new World(100);
+        World world = new World(100, 2);
         Point2d goal;
         Point2d evac = new Point2d(0, 0);
         boolean evacBool = false;
@@ -76,7 +78,7 @@ public class BasicCanvas {
         for (Cobject co : cobjs) {
             if (co.getType() == 0) {
 
-                world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0);
+                world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0, co.getFloor());
             } else if (co.getType() == 2) {
 
                 System.out.println("I have a wl at " + co.getFrom().toString());
@@ -104,7 +106,7 @@ public class BasicCanvas {
         for (int i = 0; i < PEOPLE; i++) {
             try {
                 int num = (int) Math.round(Math.random() * (poi.size() - 1));
-                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), num, evacBool);
+                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 0, num, evacBool);
             } catch (PersonOverlapException e) {
 
             } catch (WallOverlapException e) {
@@ -118,10 +120,10 @@ public class BasicCanvas {
         ChunkSync chunkSyn = new ChunkSync();
         CyclicBarrier barrier = new CyclicBarrier(4, chunkSyn);
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
-        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
-        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
-        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
-        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
+        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
 
 
 
@@ -143,7 +145,8 @@ public class BasicCanvas {
         topRight.addChunks(chunks2d);
 
         for (LayoutChunk lc : chunks) {
-            for (Wall w : world.getWalls()) {
+            for (int i = 0; i < numFloors; i++)
+            for (Wall w : world.getWalls().get(i)) {
                 boolean startInside = false;
                 boolean endInside = false;
                 if (lc.isPointInside(w.getStartVector().x, w.getStartVector().y)) {
@@ -154,10 +157,11 @@ public class BasicCanvas {
                 }
                 if (startInside || endInside || topLeft.numberOfIntersects(w) == 2) {
                     lc.addWall(w.getStartVector().x, w.getStartVector().y,
-                            w.getEndVector().x, w.getEndVector().y);
+                            w.getEndVector().x, w.getEndVector().y, i);
                 }
             }
         }
+
 
         for (Person p : world.getPeople()) {
             if (topLeft.isPointInside(p.getLocation().x, p.getLocation().y)) {
@@ -209,12 +213,6 @@ public class BasicCanvas {
         System.out.println("The simulation took " + (endTime - startTime));
 
         ArrayList<Person> people = world.getPeople();
-
-        System.out.println("Printing persons starting location");
-
-        for (Person p : people) {
-            System.out.println(p.getLocation());
-        }
 
         System.out.println("Printing persons starting location");
 

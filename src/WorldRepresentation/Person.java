@@ -29,6 +29,7 @@ public class Person {
     private int goalID;
     private LinkedList<Node> goalList;
     private int goalIndex;
+    public int floor;
 
     public ArrayList<Boolean> blockedList;
     
@@ -40,8 +41,9 @@ public class Person {
 
     public boolean evacBool;
 
-    public Person(double x1, double y1, int goalID) {
+    public Person(double x1, double y1, int z, int goalID) {
         this.goalID = goalID;
+        this.floor = z;
         lastAStar = 0;
         location = new Point2d(x1, y1);
         locations = new ArrayList<Point2d>();
@@ -70,9 +72,7 @@ public class Person {
             goalIndex++;
     }
 
-
-    // TODO: Write test case(s) for this function
-    public Point2d advance(ArrayList<Wall> walls, ArrayList<Person> people, double timeStep, World w) throws NaNException,
+    public Point2d advance(ArrayList<ArrayList<Wall>> walls, ArrayList<Person> people, double timeStep, World w) throws NaNException,
             PersonOverlapException, NoGoalException, RoutesNotComputedException{
 
         if (goalIndex == goalList.size() || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
@@ -118,7 +118,7 @@ public class Person {
                 }
             }
 
-            for (Wall wall : walls) {
+            for (Wall wall : walls.get(floor)) {
                 accTerm.add(forceModel.obstacleAvoidance(this, wall));
             }
             

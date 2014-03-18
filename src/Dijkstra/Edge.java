@@ -5,19 +5,14 @@ public class Edge {
     private final Vertex source;
     private final Vertex destination;
     private final double weight;
+    private int floor;
 
-    public Edge(String id, Vertex source, Vertex destination, double weight) {
-        this.id = id;
-        this.source = source;
-        this.destination = destination;
-        this.weight = weight;
-    }
-
-    public Edge(Vertex source, Vertex destination, double weight) {
+    public Edge(Vertex source, Vertex destination, double weight, int floor) {
         this.id = source.getId() + "_" + destination.getId();
         this.source = source;
         this.destination = destination;
         this.weight = weight;
+        this.floor = floor;
     }
 
     public String getId() {
@@ -41,5 +36,9 @@ public class Edge {
         return source + " " + destination;
     }
 
+    public int getFloor() {
+        return floor;
+    }
 
-} 
+
+}
