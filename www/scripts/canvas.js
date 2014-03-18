@@ -331,6 +331,9 @@ function getPeople(){
     $.get("/stuck.json", function(data){
         blockages = JSON.parse(data.toString().trim());
     });
+    $.get("/console.txt", function(data){
+        alert(data.toString().trim());
+    })
 }
 
 function drawDensityMap() {

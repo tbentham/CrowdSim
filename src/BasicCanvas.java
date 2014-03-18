@@ -256,6 +256,15 @@ public class BasicCanvas {
         }
 
 
+        try {
+            FileWriter writer = new FileWriter("www/console.txt");
+            writer.write("Evacuation took: " + evacTook/10.0 + " seconds.");
+            writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         toJson(stuckStatus, "www/stuck.json");
         toJson(locations, "www/people.json");
         toJson(world.getDensityMap(), "www/bottlenecks.json");
