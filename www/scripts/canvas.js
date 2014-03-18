@@ -301,7 +301,7 @@ function rotate(){
 
 //These functions are responsible for GET-ing and POST-ing.
 function sendFeatures(){
-    $.post("/", {objects: jsonDump()});
+    $.post("/", {objects: jsonDump(), config: "marcus:goon"});
 }
 
 function hand(data){ // Turn json into objects
