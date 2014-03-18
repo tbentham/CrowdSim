@@ -12,12 +12,9 @@ var objectList = {
 
 function resizeCanvas() {
 	var canvas = document.getElementById("mainCanvas"); // canvas handle
-	var mainDiv = document.getElementById("main"); // main div handle
-	var panel = document.getElementById("panel"); //control and options panel
 
-	canvas.width = mainDiv.offsetWidth;
-	canvas.height = mainDiv.offsetHeight;
-	panel.height = mainDiv.offsetHeight;
+	canvas.width = 1000;
+	canvas.height = 1000;
 }
 
 function modeSelected(mode) {
