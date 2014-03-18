@@ -1,4 +1,4 @@
-import com.google.gson.*;
+import com.google.gson.Gson;
 
 // TODO: Doesn't need an explanation
 class JsonParser{
@@ -14,6 +14,12 @@ class JsonParser{
 
     	Cobject[] objs = gson.fromJson(json, Cobject[].class);
     	
+        return objs;
+    }
+    public String[] parseConf(){
+
+        String[] objs = gson.fromJson(json, String[].class);
+
         return objs;
     }
 }

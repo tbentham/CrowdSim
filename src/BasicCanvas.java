@@ -271,8 +271,12 @@ public class BasicCanvas {
 
 class JettyExample extends AbstractHandler {
 
-    private JsonParser jparse;
+    private JsonParser jparseO;
+    private JsonParser jparseC;
+
     private Cobject[] objs;
+    private String[] conf;
+
     private boolean newObjs = false;
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -280,9 +284,12 @@ class JettyExample extends AbstractHandler {
         if (baseRequest.getMethod().equals("POST") && baseRequest.getParameter("objects") != null) {
             System.out.println("Recieved " + baseRequest.getParameter("objects"));
 
-            jparse = new JsonParser(baseRequest.getParameter("objects"));
+            jparseO = new JsonParser(baseRequest.getParameter("objects"));
+            jparseC = new JsonParser(baseRequest.getParameter("config"));
+
             try {
-                objs = jparse.parse();
+                objs = jparseO.parse();
+                conf = jparseC.parseConf();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -291,6 +298,9 @@ class JettyExample extends AbstractHandler {
             //Dump objects to screen for debugging
             for (Cobject c : objs) {
                 System.out.println(c.toString());
+            }
+            for (String s: conf) {
+                System.out.println(s);
             }
 
             newObjs = true;
