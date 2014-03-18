@@ -21,10 +21,13 @@ import java.util.concurrent.CyclicBarrier;
 
 public class BasicCanvas {
 
-    static int TIME_STEPS = 600;
+
     static int PEOPLE = 100;
 
     public static void main(String[] args) throws Exception {
+
+        Integer TIME_STEPS = 600;
+        Integer EVAC_TIME = 0;
 
         Server server = new Server(8881);
 
@@ -47,6 +50,10 @@ public class BasicCanvas {
             cobjs = jettyHandle.getLatestObjs();
             Thread.sleep(100);
         }
+
+        TIME_STEPS = ((Double) jettyHandle.getConfig().get("totalTime")).intValue();
+        EVAC_TIME = ((Double) jettyHandle.getConfig().get("evacTime")).intValue();
+
 
         double d = System.currentTimeMillis();
 
@@ -102,10 +109,10 @@ public class BasicCanvas {
 
         CyclicBarrier barrier = new CyclicBarrier(4, new ChunkSync());
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
-        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS, world);
-        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world);
-        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS, world);
-        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world);
+        LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME);
+        LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME);
+        LayoutChunk bottomLeft = new LayoutChunk(0, 50, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME);
+        LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME);
 
 
         chunks.add(bottomLeft);
@@ -322,6 +329,10 @@ class JettyExample extends AbstractHandler {
             newObjs = false;
             return objs;
         } else return null; // probably ought to be some exception in the name of java programming.
+    }
+
+    public HashMap getConfig() {
+        return conf;
     }
 
 }
