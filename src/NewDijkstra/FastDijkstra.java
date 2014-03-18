@@ -34,9 +34,8 @@ public class FastDijkstra {
         wEdge.addAll(w.getEdges());
 
         for (Edge e : w.getEdges()) {
-           wEdge.add(new Edge(e.getDestination(), e.getSource(), e.getWeight()));
+            wEdge.add(new Edge(e.getDestination(), e.getSource(), e.getWeight(), e.getFloor()));
         }
-
 
         for (Edge e : wEdge) {
             Integer source = (int) Math.round((e.getSource().getX() * w.getSideLength()) + (e.getSource().getY()));
@@ -48,8 +47,7 @@ public class FastDijkstra {
             ArrayList<Connection> connections2;
             if (connections.containsKey(source)) {
                 connections2 = connections.get(source);
-            }
-            else {
+            } else {
                 connections2 = new ArrayList<Connection>();
             }
             connections2.add(newConn);
@@ -66,8 +64,7 @@ public class FastDijkstra {
             if (i == startNode) {
                 fibonacciHeap.insert(nodes.get(i), 0);
                 keys[i] = 0.0;
-            }
-            else {
+            } else {
                 fibonacciHeap.insert(nodes.get(i), 100000.0);
                 keys[i] = 100000.0;
             }

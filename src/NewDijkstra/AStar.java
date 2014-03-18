@@ -13,7 +13,7 @@ import java.util.PriorityQueue;
 public class AStar {
 
     public int numNodes;
-    public Vertex[][] chunkNodes;
+    public Vertex[][][] chunkNodes;
     public ArrayList<Edge> edges;
     public int sideLength;
     public ArrayList<NodeRecord> aNodes;
@@ -21,7 +21,7 @@ public class AStar {
     public Double[] keys;
     private static final int DENSITY_COEFF = 2;
 
-    public AStar(int numNodes, Vertex[][] chunkNodes, ArrayList<Edge> edges, int sideLength) {
+    public AStar(int numNodes, Vertex[][][] chunkNodes, ArrayList<Edge> edges, int sideLength) {
         this.numNodes = numNodes;
         this.chunkNodes = chunkNodes;
         this.edges = edges;
@@ -29,19 +29,21 @@ public class AStar {
         createConnections(edges);
     }
 
-    public Path getPath(Integer startNode, Integer goalNode, int[][] density) throws Exception {
+    public Path getPath(Integer startNode, Integer goalX, Integer goalY, Integer goalFloor, int[][][] density) throws Exception {
+        Integer goalNode = (goalFloor * sideLength * sideLength) + (goalX * sideLength) + goalY;
         NodeRecord nr = pathFind(startNode, goalNode, density);
         // Create path from node
         ArrayList<Node> nodeList = new ArrayList<Node>();
-        nodeList.add(new Node(goalNode / sideLength, goalNode % sideLength));
+        nodeList.add(new Node(goalX, goalY, goalFloor));
         while (true) {
             Integer i = nr.predecessor;
             if (i == startNode || i == null) {
                 break;
             }
+            Integer prevFloor = i / (sideLength * sideLength);
             Integer prevX = aNodes.get(i).node / sideLength;
             Integer prevY = aNodes.get(i).node % sideLength;
-            nodeList.add(new Node(prevX, prevY));
+            nodeList.add(new Node(prevX, prevY, goalFloor));
             nr = aNodes.get(i);
         }
         Collections.reverse(nodeList);
@@ -49,13 +51,13 @@ public class AStar {
         return new Path(nodeList);
     }
 
-    private NodeRecord pathFind(Integer startNode, Integer goalNode, int[][] density) throws Exception {
+    private NodeRecord pathFind(Integer startNode, Integer goalNode, int[][][] density) throws Exception {
 
         // aNodes is a list of all nodes for this search
         createNodes();
 
-       // TreeBidiMap<Double, NodeRecord> treeBidiMap = new TreeBidiMap<Double, NodeRecord>();
-       PriorityQueue<NodeRecord> priorityQueue = new PriorityQueue<NodeRecord>();
+        // TreeBidiMap<Double, NodeRecord> treeBidiMap = new TreeBidiMap<Double, NodeRecord>();
+        PriorityQueue<NodeRecord> priorityQueue = new PriorityQueue<NodeRecord>();
 
         keys = new Double[numNodes];
         for (int i = 0; i < numNodes; i++) {
@@ -69,8 +71,7 @@ public class AStar {
                 priorityQueue.add(aNodes.get(i));
                 // treeBidiMap.put(euclid, aNodes.get(i));
                 keys[i] = euclid;
-            }
-            else {
+            } else {
                 //treeBidiMap.put(10000.0, aNodes.get(i));
                 aNodes.get(i).value = 10000.0;
                 priorityQueue.add(aNodes.get(i));
@@ -89,8 +90,7 @@ public class AStar {
                     for (int j = 0; j < sideLength; j++) {
                         if (considered[j][i] == 0) {
                             System.out.print('\267');
-                        }
-                        else {
+                        } else {
                             System.out.print(considered[j][i]);
                         }
                     }
@@ -114,7 +114,7 @@ public class AStar {
                 return aNodes.get(i);
 
             }
-            if (connections.get(nr.node) == null){
+            if (connections.get(nr.node) == null) {
                 continue;
             }
 
@@ -125,15 +125,16 @@ public class AStar {
                 double euTo = euclidDistance(sideLength, toNodeRecord.node, goalNode);
                 double euCurr = euclidDistance(sideLength, i, goalNode);
 
+                int z = i / (sideLength * sideLength);
                 int x = (int) Math.round(i / sideLength);
                 int y = (int) Math.round(i % sideLength);
 
-                int currDensity = density[x][y];
-                int nextDensity = density[toNodeRecord.node / sideLength][toNodeRecord.node % sideLength];
+                int currDensity = density[x][y][z];
+                int nextDensity = density[toNodeRecord.node / sideLength][toNodeRecord.node % sideLength][z];
 
                 //+ (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)
                 //Add remove curr density again
-                if ((thisKey + connection.cost + euTo -euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
+                if ((thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
 
                     if (!priorityQueue.contains(toNodeRecord)) {
                         continue;
@@ -154,14 +155,13 @@ public class AStar {
             for (int j = 0; j < sideLength; j++) {
                 if (considered[j][i] == 0) {
                     System.out.print('\267');
-                }
-                else {
+                } else {
                     System.out.print(considered[j][i]);
                 }
             }
             System.out.println("");
         }
-        throw new Exception("No Path Found from "  + startNode + " to " + goalNode);
+        throw new Exception("No Path Found from " + startNode + " to " + goalNode);
     }
 
     void dumpDensityToFile(int[][] density) throws Exception {
@@ -201,23 +201,22 @@ public class AStar {
         ArrayList<Edge> wEdge = new ArrayList<Edge>();
         wEdge.addAll(edges);
 
-        for (Edge e : edges) {
-            wEdge.add(new Edge(e.getDestination(), e.getSource(), e.getWeight()));
-        }
 
+        for (Edge e : edges) {
+            wEdge.add(new Edge(e.getDestination(), e.getSource(), e.getWeight(), e.getFloor()));
+        }
 
         for (Edge e : wEdge) {
             Integer source = (int) Math.round((e.getSource().getX() * sideLength) + (e.getSource().getY()));
             Integer destination = (int) Math.round((e.getDestination().getX() * sideLength) + (e.getDestination().getY()));
             Double weight = e.getWeight();
-            aConnection newConn = new aConnection(weight, source, destination);
+            aConnection newConn = new aConnection(weight, source, destination, e.getFloor());
 
 
             ArrayList<aConnection> connections2;
             if (connections.containsKey(source)) {
                 connections2 = connections.get(source);
-            }
-            else {
+            } else {
                 connections2 = new ArrayList<aConnection>();
             }
             connections2.add(newConn);
