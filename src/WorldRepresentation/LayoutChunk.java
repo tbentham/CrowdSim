@@ -37,13 +37,17 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> allPeople;
     private AStar chunkStar;
     private Integer evacTime;
+    private Integer ASTAR;
+    private Integer ASTAR_FREQUENCY;
     
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
     
     public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary,
-                       ArrayList<Wall> walls, CyclicBarrier barrier, int steps, World w, Integer evacTime) {
+                       ArrayList<Wall> walls, CyclicBarrier barrier, int steps, World w, Integer evacTime, Integer astarToggle, Integer astarFreq) {
         System.out.println("LayoutChunk Created");
+        this.ASTAR = astarToggle;
+        this.ASTAR_FREQUENCY = astarFreq;
         this.evacTime = evacTime;
     	people = new ArrayList<Person>();
         overlapPeople = new ArrayList<Person>();
@@ -327,12 +331,12 @@ public class LayoutChunk implements Runnable {
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
                     }
 
-                	if ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
-                            p.expectedTimeStepAtNextGoal + 1 < p.locations.size() ||  stuckOnWall(p, i)){
+                	if (((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
+                            p.expectedTimeStepAtNextGoal + 1 < p.locations.size() ||  stuckOnWall(p, i)) && ASTAR == 1){
                 		blockages++;
                         p.blockedList.set(p.blockedList.size() - 1, true);
                         //Dont a star so often brah
-                        if(p.lastAStar + 5 < i) {
+                        if(p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
                             astars++;
                             p.lastAStar = i;
