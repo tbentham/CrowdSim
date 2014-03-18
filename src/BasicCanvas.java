@@ -115,7 +115,8 @@ public class BasicCanvas {
         //Each chunk needs a reference to its own queue, every queue should be kept in a publicly accessible hashmap.
         LayoutChunk[][] chunks2d = new LayoutChunk[2][2];
 
-        CyclicBarrier barrier = new CyclicBarrier(4, new ChunkSync());
+        ChunkSync chunkSyn = new ChunkSync();
+        CyclicBarrier barrier = new CyclicBarrier(4, chunkSyn);
         ArrayList<LayoutChunk> chunks = new ArrayList<LayoutChunk>();
         LayoutChunk topLeft = new LayoutChunk(0, 50, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
         LayoutChunk topRight = new LayoutChunk(50, 100, 100, 50, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
@@ -123,10 +124,14 @@ public class BasicCanvas {
         LayoutChunk bottomRight = new LayoutChunk(50, 100, 50, 0, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY);
 
 
+
         chunks.add(bottomLeft);
         chunks.add(topLeft);
         chunks.add(bottomRight);
         chunks.add(topRight);
+
+        chunkSyn.addChunks(chunks);
+
 
         chunks2d[0][0] = bottomLeft;
         bottomLeft.addChunks(chunks2d);
@@ -196,14 +201,8 @@ public class BasicCanvas {
             t.join();
         }
         System.out.println("All threads have finished.");
-
-        // double startTime = System.currentTimeMillis();
-
-//        for (int i = 0; i < TIME_STEPS; i++) {
-//            for (Person p : world.getPeople()) {
-//                p.advance(world, world.getPeople(), 0.25);
-//            }
-//        }
+        int evacTook = chunkSyn.getStopped();
+        System.out.println("Evacuation took:" + evacTook/10.0 + " seconds.");
 
         double endTime = System.currentTimeMillis();
 

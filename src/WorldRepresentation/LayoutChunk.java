@@ -39,6 +39,7 @@ public class LayoutChunk implements Runnable {
     private Integer evacTime;
     private Integer ASTAR;
     private Integer ASTAR_FREQUENCY;
+    public int i;
     
 //    private HashMap<Point2d, Queue<Person>> queues;
 //    private Queue<Person> newPeople;
@@ -251,8 +252,9 @@ public class LayoutChunk implements Runnable {
 
     public void run() {
         int astars = 0;
-        for (int i = 0; i < this.steps; i++) {
-        	
+
+        for (i = 0; i < this.steps; i++) {
+            System.out.println(i);
         	// System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
             overlapPeople = new ArrayList<Person>();
         	addPeople();
@@ -266,8 +268,9 @@ public class LayoutChunk implements Runnable {
         	} catch (BrokenBarrierException e) {
         		System.err.println("Overlap fuckage");
 			}
-        	
-        	addOverlapPeople();
+            finished = true;
+
+            addOverlapPeople();
         	
 
         	allPeople = new ArrayList<Person>();
@@ -356,6 +359,7 @@ public class LayoutChunk implements Runnable {
                     }
 
                     p.advance(gWalls, allPeople, 0.1, w);
+                    finished = false;
 
                 }
                 catch (Exception e) {
