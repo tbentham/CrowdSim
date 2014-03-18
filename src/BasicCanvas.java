@@ -66,7 +66,7 @@ public class BasicCanvas {
         double d = System.currentTimeMillis();
 
         ArrayList<Point2d> poi = new ArrayList<Point2d>();
-        ArrayList<Point2d> evacuationPoints = new ArrayList<>();
+        ArrayList<Point2d> evacuationPoints = new ArrayList<Point2d>();
 
         World world = new World(100);
         Point2d goal;

@@ -337,22 +337,25 @@ function getPeople(){
 }
 
 function drawDensityMap() {
-    canvasDensity = new Array();
-    for (var i = 0; i < density.length; i++) {
-	canvasDensity[i] = new Array();
-	for (var j = 0; j < density[i].length; j++) {      
-	var s = new createjs.Shape();
-	    canvasDensity[i].push(s);
-	    stage.addChild(s);
+    if ( !canvasDensity ) {
+	canvasDensity = new Array();
+	for (var i = 0; i < density.length; i++) {
+	    canvasDensity[i] = new Array();
+	    for (var j = 0; j < density[i].length; j++) {      
+	    var s = new createjs.Shape();
+		canvasDensity[i].push(s);
+		stage.addChild(s);
+	    }
 	}
     }
     
     for (var i = 0; i < density.length; i++) {
 	for (var j = 0; j < density[i].length; j++) {
 	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
-	  canvasDensity[i][j].graphics.endFill();
         }
     }
+    
+    stage.update();
 }
 
 function toggleDensityMap() {
@@ -362,19 +365,23 @@ function toggleDensityMap() {
 		canvasDensity[i][j].graphics.clear();
 	    }
 	}
+	stage.update();
         densityOn = false;
 	console.log("Map off");
     }
     else {
-	$.get("/bottlenecks.json", function(data){
-	    density = JSON.parse(data.toString().trim());
-	});
-	drawDensityMap();
+	if ( !canvasDensity ) {
+	    $.get("/bottlenecks.json", function(data){
+		density = JSON.parse(data.toString().trim());
+		drawDensityMap();
+	    });
+	}
+	else {
+	    drawDensityMap();
+	}
 	densityOn = true;
 	console.log("Map on");
-	console.log(density.length);
     }
-    stage.update();
 }
 
 function traceToggle(){
