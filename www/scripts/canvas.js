@@ -19,6 +19,7 @@ var click = false;
 var trace = false;
 var debug = false;
 var densityOn = false;
+var gridOn = false;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var floor = 0;
@@ -34,6 +35,7 @@ var canvasPeople;
 var canvasPeople_colours = new Array();
 var canvasTraces = new Array();
 var canvasDensity;
+var canvasGrid = new Array();
 
 function init() {
 
@@ -350,7 +352,7 @@ function drawDensityMap() {
 	for (var i = 0; i < density.length; i++) {
 	    canvasDensity[i] = new Array();
 	    for (var j = 0; j < density[i].length; j++) {      
-	    var s = new createjs.Shape();
+		var s = new createjs.Shape();
 		canvasDensity[i].push(s);
 		stage.addChild(s);
 	    }
@@ -392,13 +394,37 @@ function toggleDensityMap() {
     }
 }
 
+function toggleGrid() {
+    if ( gridOn ) {
+	for (var i = 0; i < 18; i++) {
+	    canvasGrid[i].graphics.clear();
+	}
+        gridOn = false;
+	console.log("Grid off");
+    }
+    else {
+	if ( canvasGrid.length == 0 ) {
+	    for (var i = 0; i < 18; i++) {
+		var s = new createjs.Shape();
+		canvasGrid.push(s);
+		stage.addChild(s);
+	    }
+	}
+	
+	for (var i = 1; i < 10; i++) {
+	    canvasGrid[i-1].graphics.beginStroke("rgba(0,0,255,0.5)").setStrokeStyle(3.0).moveTo(0,i*100).lineTo(1000,i*100).endStroke();
+	}
+	for (var i = 1; i < 10; i++) {
+	    canvasGrid[i+8].graphics.beginStroke("rgba(0,0,255,0.5)").setStrokeStyle(3.0).moveTo(i*100,0).lineTo(i*100,1000).endStroke();
+	}
+        gridOn = true;
+	console.log("Grid on");
+    }
+    stage.update();
+}
+
 function traceToggle(){
-    if(trace){
-        trace = false;
-    }
-    else{
-        trace = true;
-    }
+    trace = !trace;
 }
 
 function cursorPixelToggle(){
