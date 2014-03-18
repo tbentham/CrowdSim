@@ -12,12 +12,9 @@ var objectList = {
 
 function resizeCanvas() {
 	var canvas = document.getElementById("mainCanvas"); // canvas handle
-	var mainDiv = document.getElementById("main"); // main div handle
-	var panel = document.getElementById("panel"); //control and options panel
 
-	canvas.width = mainDiv.offsetWidth;
-	canvas.height = mainDiv.offsetHeight;
-	panel.height = mainDiv.offsetHeight;
+	canvas.width = 1000;
+	canvas.height = 1000;
 }
 
 function modeSelected(mode) {
@@ -56,9 +53,10 @@ $(window).ready(function() {
 	resizeCanvas();
 	createListItem("images/dragobjects/wall.png", "Wall", 0);
 	createListItem("images/dragobjects/door.png", "Door", 1);
+	createListItem("images/dragobjects/stairs.png", "Staircase", 4);
 	createListItem("images/dragobjects/interest.png", "Point of Interest", 2);
     createListItem("images/dragobjects/interest.png", "Evacuation Point", 3);
-
+   
 });
 
 // triggered when window is resized. Makes sure the canvas stays at the correct size.
