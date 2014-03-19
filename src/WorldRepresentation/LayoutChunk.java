@@ -49,6 +49,7 @@ public class LayoutChunk implements Runnable {
                        ArrayList<ArrayList<Wall>> walls, CyclicBarrier barrier, int steps, World w, Integer evacTime,
                        Integer astarToggle, Integer astarFreq, int numFloors) {
         System.out.println("LayoutChunk Created");
+
         this.numFloors = numFloors;
         this.ASTAR = astarToggle;
         this.ASTAR_FREQUENCY = astarFreq;
@@ -68,7 +69,7 @@ public class LayoutChunk implements Runnable {
         floorPlan = new int[w.getSideLength()][w.getSideLength()][numFloors];
         gWalls = walls;
         densityMap = new int[w.getSideLength()][w.getSideLength()][numFloors];
-        allDensityMaps = new int[steps][w.getSideLength()][w.getSideLength()][numFloors];
+        // allDensityMaps = new int[steps][w.getSideLength()][w.getSideLength()][numFloors];
         finished = false;
         this.w = w;
         this.barrier = barrier;
@@ -79,6 +80,8 @@ public class LayoutChunk implements Runnable {
         populateFloorPlan();
         createEdges();
         chunkStar = new AStar(w.getSideLength() * w.getSideLength(), nodes, edges, w.getSideLength());
+
+        long end = System.currentTimeMillis();
     }
 
     public void addWall(double x1, double y1, double x2, double y2, int floor) {
@@ -284,7 +287,7 @@ public class LayoutChunk implements Runnable {
             allPeople.addAll(overlapPeople);
             populateDensityMap();
 
-            allDensityMaps[i] = densityMap;
+//             allDensityMaps[i] = densityMap;
 
             int blockages = 0;
 
