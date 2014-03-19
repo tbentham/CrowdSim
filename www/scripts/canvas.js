@@ -333,11 +333,11 @@ function rotate(){
 function floorCalc(){
     floors = 0;
     for(i = 0; i < features.length; i++) {
-        if (features[i].z > floors ){
-            floors = feature[i].z;
+        if (features[i].from.z > floors ){
+            floors = features[i].from.z;
         }
     }
-    return floors;
+    return floors + 1;
 }
 
 //These functions are responsible for GET-ing and POST-ing.
@@ -349,12 +349,12 @@ function sendFeatures(){
     astarToggle =  $("[name=astarToggle]").val();
 
     //Workout how many floors there are.
-    // numFloors = floorCalc();
-    // console.log(numFloors);
+    var numFloors = floorCalc();
+    console.log(numFloors);
 
     astarFreq = $("[name=astarFreq]").val();
 
-    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + '}'});
+    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', numFloors:"' + numFloors +'}'});
 }
 
 function hand(data){ // Turn json into objects
