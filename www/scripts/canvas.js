@@ -19,6 +19,7 @@ var click = false;
 var trace = false;
 var debug = false;
 var densityOn = false;
+var currentLine;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var floor = 0;
@@ -210,20 +211,25 @@ function startLine(e){
     if(stage.mouseInBounds){
         click = true;
 
-        features.push(new Feature(featureID, 0));
-        canvasFeatures.push(new createjs.Shape());
-        endOfArray++; featureID++;
+        var line = new Feature(featureID, 0);
+        features.push(line);
+        endOfArray++;
+        featureID++;
+        var canvasLine = new createjs.Shape();
+        canvasFeatures.push(canvasLine);
+
 
         if(e.nativeEvent.shiftKey){
-            features[endOfArray].setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
-            features[endOfArray].setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            line.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            features[endOfArray].setFromCoords(e.stageX, e.stageY, floor);
-            features[endOfArray].setToCoords(e.stageX, e.stageY, floor);
+            line.setFromCoords(e.stageX, e.stageY, floor);
+            line.setToCoords(e.stageX, e.stageY, floor);
         }
 
-        stage.addChild(canvasFeatures[endOfArray]);
+        currentLine = line;
+        stage.addChild(canvasLine);
         stage.update();
     }
 }
@@ -235,7 +241,7 @@ function endLine(e){
         click = false;
 
         //Increases readability since they are accessed multiple times.
-        var line = features[endOfArray];
+        var line = currentLine;
         var canvasLine = canvasFeatures[endOfArray];
 
         //Drawing
@@ -253,6 +259,7 @@ function endLine(e){
         else{     
             canvasLine.graphics.clear();
             canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
+            currentLine = null;
             stage.update();
         }
     }
@@ -263,7 +270,8 @@ function drawLine(e){
     if(click && stage.mouseInBounds){
 
         //Increases readability since they are accessed multiple times.
-        var line = features[endOfArray];
+//        var line = features[endOfArray];
+        var line = currentLine;
         var canvasLine = canvasFeatures[endOfArray];
 
         if(e.nativeEvent.shiftKey){
@@ -275,6 +283,7 @@ function drawLine(e){
         
         canvasLine.graphics.clear();
         canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
+        stage.update();
         }
 
 }

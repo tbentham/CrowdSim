@@ -78,15 +78,15 @@ public class BasicCanvas {
         for (Cobject co : cobjs) {
             if (co.getType() == 0) {
 
-                world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0, co.getFloor());
+                world.addWall(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getTo().x / 10.0, co.getTo().y / 10.0, (int) co.getFrom().z);
             } else if (co.getType() == 2) {
 
                 System.out.println("I have a wl at " + co.getFrom().toString());
-                goal = new Point3d(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getFloor());
+                goal = new Point3d(co.getFrom().x / 10.0, co.getFrom().y / 10.0, (int) co.getFrom().z);
                 poi.add(goal);
             } else if (co.getType() == 3) {
 
-                evac = new Point3d(co.getFrom().x / 10.0, co.getFrom().y / 10.0, co.getFloor());
+                evac = new Point3d(co.getFrom().x / 10.0, co.getFrom().y / 10.0, (int) co.getFrom().z);
                 evacuationPoints.add(evac);
             } else if (co.getType() == 4) {
 
@@ -219,7 +219,7 @@ public class BasicCanvas {
         System.out.println("Printing persons starting location");
 
         for (Person p : people) {
-            System.out.println("Floor: " + p.floor + " " + p.locations.get(0));
+            System.out.println("Floor: " + p.floors.get(0) + " " + p.locations.get(0));
         }
 
 

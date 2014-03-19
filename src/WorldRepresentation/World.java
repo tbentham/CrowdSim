@@ -228,7 +228,7 @@ public class World {
                 }
             }
 
-            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) (goals.get(g).z * sideLength * sideLength) + (int) evacuationPoints.get(g).x * sideLength + (int) evacuationPoints.get(g).y, sideLength * sideLength * numFloors, this);
+            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) (evacuationPoints.get(g).z * sideLength * sideLength) + (int) evacuationPoints.get(g).x * sideLength + (int) evacuationPoints.get(g).y, sideLength * sideLength * numFloors, this);
             fdEvacList.add(fastDijkstra);
         }
         routesComputed = true;
