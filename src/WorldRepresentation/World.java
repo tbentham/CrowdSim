@@ -30,7 +30,7 @@ public class World {
     private ArrayList<Edge> edges;
     public Point3d evac;
 
-    private int[][][] densityMap;
+    private int[][][] staticDensityMap;
 
     private boolean isSetUp;
     private boolean routesComputed;
@@ -266,7 +266,7 @@ public class World {
     }
 
 
-    public int[][][] getDensityMap() throws RoutesNotComputedException {
+    public int[][][] getStaticDensityMap() throws RoutesNotComputedException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("getPath called before routes were computed");
         }
@@ -274,8 +274,8 @@ public class World {
             return new int[sideLength][sideLength][numFloors];
         }
 
-        if (densityMap == null) { /* Create density map */
-            densityMap = new int[sideLength][sideLength][numFloors];
+        if (staticDensityMap == null) { /* Create density map */
+        	staticDensityMap = new int[sideLength][sideLength][numFloors];
         }
         for (int z = 0; z < numFloors; z++) {
             for (int i = 0; i < sideLength; i++) {
@@ -301,17 +301,17 @@ public class World {
 
                     for (Node n : thisPath.getNodes()) {
                         Point2d p = new Point2d(n.toPoint2d());
-                        densityMap[(int) p.x][(int) p.y][z]++;
+                        staticDensityMap[(int) p.x][(int) p.y][z]++;
                     }
                 }
             }
         }
 
-        return densityMap;
+        return staticDensityMap;
     }
 
-    public int getDensity(int i, int j, int z) throws RoutesNotComputedException {
-        return (getDensityMap())[i][j][z];
+    public int getStaticDensity(int i, int j, int z) throws RoutesNotComputedException {
+        return (getStaticDensityMap())[i][j][z];
     }
 
     public int getSideLength() {

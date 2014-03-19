@@ -256,6 +256,21 @@ public class BasicCanvas {
             stuckStatus[i] = p.blockedList.toArray(new Boolean[p.blockedList.size()]);
         }
 
+        /* TOTAL DENSITY MAP */
+        int[][][][] totalDensityMaps = new int[TIME_STEPS][world.sideLength][world.sideLength][numFloors];
+        for ( LayoutChunk c : chunks ) {
+        	int[][][][] densityMaps = c.getAllDensityMaps();
+        	for (int i=0; i < TIME_STEPS; i++) {
+        		for (int j=0; j < world.getSideLength(); j++) {
+        			for (int k=0; k < world.getSideLength(); k++) {
+        				for (int l=0; l < numFloors; l++) {
+                    		if ( densityMaps[i][j][k][l] != 0 )
+                    			totalDensityMaps[i][j][k][l] = densityMaps[i][j][k][l];
+        				}
+                	}
+            	}
+        	}
+        }
 
         try {
             FileWriter writer = new FileWriter("www/console.txt");
@@ -268,7 +283,8 @@ public class BasicCanvas {
 
         toJson(stuckStatus, "www/stuck.json");
         toJson(locations, "www/people.json");
-        toJson(world.getDensityMap(), "www/bottlenecks.json");
+        toJson(totalDensityMaps, "www/densities.json");
+        toJson(world.getStaticDensityMap(), "www/bottlenecks.json");
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));
 

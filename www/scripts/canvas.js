@@ -321,7 +321,10 @@ function sendFeatures(){
     totalTime = $("[name=totalTime]").val();
     evacTime = $("[name=evacTime]").val();
     numPeople = $("[name=numPeople]").val();
-    astarToggle = $("[name=astarToggle]").val();
+    if ( $("[name=astarToggle]").checked )
+        astarToggle = 1;
+    else
+        astarToggle = 0;
     astarFreq = $("[name=astarFreq]").val();
 
     $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + '}'});
