@@ -20,6 +20,7 @@ var trace = false;
 var debug = false;
 var densityOn = false;
 var currentLine;
+var currentCanvasLine;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var floor = 0;
@@ -229,6 +230,7 @@ function startLine(e){
         }
 
         currentLine = line;
+        currentCanvasLine = canvasLine;
         stage.addChild(canvasLine);
         stage.update();
     }
@@ -242,7 +244,7 @@ function endLine(e){
 
         //Increases readability since they are accessed multiple times.
         var line = currentLine;
-        var canvasLine = canvasFeatures[endOfArray];
+        var canvasLine = currentCanvasLine;
 
         //Drawing
         if(e.nativeEvent.shiftKey){
@@ -260,6 +262,7 @@ function endLine(e){
             canvasLine.graphics.clear();
             canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
             currentLine = null;
+            currentCanvasLine = null;
             stage.update();
         }
     }
@@ -272,7 +275,7 @@ function drawLine(e){
         //Increases readability since they are accessed multiple times.
 //        var line = features[endOfArray];
         var line = currentLine;
-        var canvasLine = canvasFeatures[endOfArray];
+        var canvasLine = currentCanvasLine;
 
         if(e.nativeEvent.shiftKey){
             line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
@@ -582,11 +585,12 @@ function drawStaircase(e){
     if(stage.mouseInBounds){
 
         //Increases readability since they are accessed multiple times.
-        features.push(new Feature(featureID, 4)); canvasFeatures.push(new createjs.Shape());
+        circle = new Feature(featureID, 4);
+        features.push(circle);
+        canvasCircle = new createjs.Shape();
+        canvasFeatures.push(canvasCircle);
         endOfArray++; featureID++;
 
-        var canvasCircle = canvasFeatures[endOfArray];
-        var circle = features[endOfArray];
         var upstairCircle = new createjs.Shape();
 
 
@@ -594,7 +598,7 @@ function drawStaircase(e){
             floor_canvasFeatures.push(new Array());
         }
         else if ( floor_canvasFeatures.length == 0 ){
-            floor_canvasFeatures.push(new Array());
+            floor_canvasFeatures.push(canvasFeatures);
             floor_canvasFeatures.push(new Array());
 
         }
@@ -677,9 +681,12 @@ function redrawCanvas(){
         populate(time)
     }
 
-    for(i = 0; i < canvasPeople.length; i++) {
-        stage.addChild(canvasPeople[i])
-    } 
+    if ( canvasPeople ) {
+        for(i = 0; i < canvasPeople.length; i++) {
+            stage.addChild(canvasPeople[i])
+        }  
+    }  
+
     stage.update();
 }
 
