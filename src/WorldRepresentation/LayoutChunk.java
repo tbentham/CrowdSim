@@ -27,13 +27,13 @@ public class LayoutChunk implements Runnable {
     private int steps;
     private int[][][] floorPlan;
     private int[][][] densityMap;
+    private int[][][][] allDensityMaps;
     private World w;
     private ArrayList<Edge> edges;
     private Vertex[][][] nodes;
     LayoutChunk[][] chunks;
     public LinkedBlockingQueue<Person> q;
     public LinkedBlockingQueue<Person> qOverlap;
-    public int sideLength;
     private ArrayList<Person> allPeople;
     private AStar chunkStar;
     private Integer evacTime;
@@ -65,10 +65,10 @@ public class LayoutChunk implements Runnable {
         for (int z = 0; z < numFloors; z++) {
             lWalls.add(new ArrayList<Wall>());
         }
-        sideLength = w.getSideLength();
         floorPlan = new int[w.getSideLength()][w.getSideLength()][numFloors];
         gWalls = walls;
         densityMap = new int[w.getSideLength()][w.getSideLength()][numFloors];
+        allDensityMaps = new int[steps][w.getSideLength()][w.getSideLength()][numFloors];
         finished = false;
         this.w = w;
         this.barrier = barrier;
@@ -78,7 +78,7 @@ public class LayoutChunk implements Runnable {
 
         populateFloorPlan();
         createEdges();
-        chunkStar = new AStar(sideLength * sideLength, nodes, edges, sideLength);
+        chunkStar = new AStar(w.getSideLength() * w.getSideLength(), nodes, edges, w.getSideLength());
     }
 
     public void addWall(double x1, double y1, double x2, double y2, int floor) {
@@ -95,6 +95,10 @@ public class LayoutChunk implements Runnable {
 
     public ArrayList<Person> getPeople() {
         return people;
+    }
+    
+    public int[][][][] getAllDensityMaps() {
+    	return allDensityMaps;
     }
 
     public boolean isPointInside(double x, double y) {
@@ -229,7 +233,7 @@ public class LayoutChunk implements Runnable {
     }
 
     private void sendBottomOverlap() {
-        ArrayList<Person> b = peopleLeftEdge();
+        ArrayList<Person> b = peopleBottomEdge();
 
         int xIndex = (int) leftXBoundary / 50;
         int yIndex = (int) bottomYBoundary / 50;
@@ -267,19 +271,21 @@ public class LayoutChunk implements Runnable {
             try {
                 barrier.await();
             } catch (InterruptedException e) {
-                System.err.println("Overlap fuckage");
+                System.err.println("Barrier interrupted");
             } catch (BrokenBarrierException e) {
-                System.err.println("Overlap fuckage");
+                System.err.println("Broken barrier");
             }
             finished = true;
 
             addOverlapPeople();
 
-
             allPeople = new ArrayList<Person>();
             allPeople.addAll(people);
             allPeople.addAll(overlapPeople);
             populateDensityMap();
+            
+            allDensityMaps[i] = densityMap;
+            
             int blockages = 0;
 
             ArrayList<Person> toRemove = new ArrayList<Person>();
@@ -289,16 +295,14 @@ public class LayoutChunk implements Runnable {
                         int x = (int) Math.round(p.getLocation().x);
                         int y = (int) Math.round(p.getLocation().y);
 
-                        //Incase off map
+                        //In case off map
 
-                        if (x < 0) {
+                        if (x < 0)
                             x = 0;
-                        }
-                        if (y < 0) {
+                        if (y < 0)
                             y = 0;
-                        }
 
-                        ArrayList<aConnection> aconn = chunkStar.connections.get(x * sideLength + y);
+                        ArrayList<aConnection> aconn = chunkStar.connections.get(x * w.getSideLength() + y);
                         int rand1 = x;
                         int rand2 = y;
 
@@ -307,13 +311,15 @@ public class LayoutChunk implements Runnable {
                             rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
                             rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
 
-                            aconn = chunkStar.connections.get(rand1 * sideLength + rand2);
+                            aconn = chunkStar.connections.get(rand1 * w.getSideLength() + rand2);
                         }
 
                         x = rand1;
                         y = rand2;
+                        
                         Path thisPath = w.getPath(x, y, 0, true);
                         int pathLength = thisPath.getNodes().size();
+                        
                         if (w.fdEvacList.size() > 1) {
                             for (int q = 1; q < w.fdEvacList.size(); q++) {
                                 Path newPath = w.getPath(x, y, q, true);
@@ -365,7 +371,6 @@ public class LayoutChunk implements Runnable {
 
                 } catch (Exception e) {
                     e.printStackTrace();
-
                 }
             }
             if (i != this.steps - 1) {
@@ -374,9 +379,9 @@ public class LayoutChunk implements Runnable {
             try {
                 barrier.await();
             } catch (InterruptedException e) {
-                System.err.println("Barrier fuckage");
+                System.err.println("Barrier interrupted");
             } catch (BrokenBarrierException e) {
-                System.err.println("Barrier fuckage");
+                System.err.println("Broken barrier");
             }
 
             // System.out.println(people.size());
@@ -384,6 +389,8 @@ public class LayoutChunk implements Runnable {
     }
 
     private void aStar(Person p) throws Exception {
+    	int sideLength = w.getSideLength();
+    	
         int x = (int) Math.round(p.getLocation().x);
         int y = (int) Math.round(p.getLocation().y);
 
@@ -427,49 +434,42 @@ public class LayoutChunk implements Runnable {
     }
 
     private void populateDensityMap() {
-        int sideLength = w.getSideLength();
+    	int sideLength = w.getSideLength();
         densityMap = new int[sideLength][sideLength][numFloors];
+        
         for (Person p : people) {
             if (p.getLocation() != null) {
-                Point2d l = new Point2d((int) Math.round(p.getLocation().x), (int) Math.round(p.getLocation().y));
-                if (l.x < 0) {
+                Point2d l = new Point2d(Math.round(p.getLocation().x), Math.round(p.getLocation().y));
+                
+                if (l.x < 0)
                     l.x = 0;
-                }
-                if (l.x >= sideLength) {
+                if (l.x >= sideLength)
                     l.x = sideLength - 1;
-                }
-                if (l.y >= sideLength) {
+                
+                if (l.y >= sideLength)
                     l.y = sideLength - 1;
-                }
-                if (l.y < 0) {
+                if (l.y < 0)
                     l.y = 0;
-                }
 
                 densityMap[(int) l.x][(int) l.y][p.floor]++;
-                if (l.x > 0 && l.y > 0) {
-                    densityMap[(int) l.x - 1][(int) l.y - 1][p.floor]++;
-                }
-                if (l.y > 0) {
-                    densityMap[(int) l.x][(int) l.y - 1][p.floor]++;
-                }
-                if (l.y > 0 && l.x < sideLength - 1) {
-                    densityMap[(int) l.x + 1][(int) l.y - 1][p.floor]++;
-                }
                 if (l.x > 0) {
                     densityMap[(int) l.x - 1][(int) l.y][p.floor]++;
+                    if (l.y > 0)
+                    	densityMap[(int) l.x - 1][(int) l.y - 1][p.floor]++;
+                    if (l.y < sideLength - 1)
+                        densityMap[(int) l.x - 1][(int) l.y + 1][p.floor]++;
                 }
                 if (l.x < sideLength - 1) {
                     densityMap[(int) l.x + 1][(int) l.y][p.floor]++;
+                    if (l.y > 0)
+                        densityMap[(int) l.x + 1][(int) l.y - 1][p.floor]++;
+                    if (l.y < sideLength - 1)
+                        densityMap[(int) l.x + 1][(int) l.y + 1][p.floor]++;
                 }
-                if (l.x > 0 && l.y < sideLength - 1) {
-                    densityMap[(int) l.x - 1][(int) l.y + 1][p.floor]++;
-                }
-                if (l.y < sideLength - 1) {
+                if (l.y > 0)
+                    densityMap[(int) l.x][(int) l.y - 1][p.floor]++;
+                if (l.y < sideLength - 1)
                     densityMap[(int) l.x][(int) l.y + 1][p.floor]++;
-                }
-                if (l.y < sideLength - 1 && l.x < sideLength - 1) {
-                    densityMap[(int) l.x + 1][(int) l.y + 1][p.floor]++;
-                }
             }
         }
     }
@@ -553,7 +553,7 @@ public class LayoutChunk implements Runnable {
         for (int i = 1; i < length; i++) {
             int y = (int) Math.round(((nextGoal.getY() - l.getY()) - (nextGoal.getX() - l.getX()) / length * i) + l.getY());
             int x = (int) Math.round(l.getX() + 1);
-            if (x < 0 || y < 0 || x >= sideLength || y >= sideLength) {
+            if (x < 0 || y < 0 || x >= w.getSideLength() || y >= w.getSideLength()) {
                 return null;
             }
             if (densityMap[x][y][p.floor] > 9) {
