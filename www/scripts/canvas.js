@@ -620,11 +620,11 @@ function drawStaircase(e){
 
         //Drawing
         if(e.nativeEvent.shiftKey){
-            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
+            circle.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor + 1);
             circle.setFromCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            circle.setToCoords(e.stageX, e.stageY, floor);
+            circle.setToCoords(e.stageX, e.stageY, floor + 1);
             circle.setFromCoords(e.stageX, e.stageY, floor);
         }
 
