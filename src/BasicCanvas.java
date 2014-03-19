@@ -12,7 +12,6 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -91,7 +90,7 @@ public class BasicCanvas {
                 evacuationPoints.add(evac);
             } else if (co.getType() == 4) {
 
-                evacBool = true;
+                // evacBool = true;
             }
         }
 
@@ -107,8 +106,8 @@ public class BasicCanvas {
         for (int i = 0; i < PEOPLE; i++) {
             try {
                 int num = (int) Math.round(Math.random() * (poi.size() - 1));
-//                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
-                world.addNewPersonAt(0, 0, 1, num, evacBool);
+                // world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
+                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
 
             } catch (PersonOverlapException e) {
 
@@ -234,7 +233,7 @@ public class BasicCanvas {
         output.addAll(bottomRight.getPeople());
         // output.addAll(world.getPeople());
 
-        Point2d[][] locations = new Point2d[output.size()][TIME_STEPS + 1];
+        Point3d[][] locations = new Point3d[output.size()][TIME_STEPS + 1];
         // loop through people
         for (int i = 0; i < output.size(); i++) {
             Person p = output.get(i);
@@ -243,7 +242,7 @@ public class BasicCanvas {
                     if (p.locations.get(j) == null) {
                         break;
                     }
-                    locations[i][j] = p.locations.get(j);
+                    locations[i][j] = new Point3d(p.locations.get(j).x, p.locations.get(j).y, p.floors.get(j));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
