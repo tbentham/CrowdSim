@@ -103,7 +103,7 @@ public class World {
         populateNodeArray();
         createEdges();
         edges.add(new Edge(nodeArray[50][50][0], nodeArray[50][50][1], 2, 0));
-       // edges.add(new Edge(nodeArray[50][50][1], nodeArray[50][50][0], 2, 0));
+        // edges.add(new Edge(nodeArray[50][50][1], nodeArray[50][50][0], 2, 0));
         isSetUp = true;
         routesComputed = false;
     }
@@ -201,11 +201,12 @@ public class World {
             FastDijkstra fastDijkstra = new FastDijkstra();
             fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
             fastDijkstra.connections = new HashMap<Integer, ArrayList<Connection>>();
-
-            for (int i = 0; i < sideLength; i++) {
-                for (int j = 0; j < sideLength; j++) {
-                    FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((i * sideLength) + j));
-                    fastDijkstra.nodes.add(newNode);
+            for (int z = 0; z < numFloors; z++) {
+                for (int i = 0; i < sideLength; i++) {
+                    for (int j = 0; j < sideLength; j++) {
+                        FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((z * sideLength * sideLength) + (i * sideLength) + j));
+                        fastDijkstra.nodes.add(newNode);
+                    }
                 }
             }
 
@@ -218,10 +219,12 @@ public class World {
             fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
             fastDijkstra.connections = new HashMap<Integer, ArrayList<Connection>>();
 
-            for (int i = 0; i < sideLength; i++) {
-                for (int j = 0; j < sideLength; j++) {
-                    FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((i * sideLength) + j));
-                    fastDijkstra.nodes.add(newNode);
+            for (int z = 0; z < numFloors; z++) {
+                for (int i = 0; i < sideLength; i++) {
+                    for (int j = 0; j < sideLength; j++) {
+                        FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((z * sideLength * sideLength) + (i * sideLength) + j));
+                        fastDijkstra.nodes.add(newNode);
+                    }
                 }
             }
 
@@ -241,7 +244,7 @@ public class World {
             goalList = fdEvacList;
         }
 
-         FibonacciHeapNode fibonacciHeapNode = goalList.get(goalID).nodes.get((z * (sideLength * sideLength)) + (x * sideLength) + y);
+        FibonacciHeapNode fibonacciHeapNode = goalList.get(goalID).nodes.get((z * (sideLength * sideLength)) + (x * sideLength) + y);
 
         NodeRecord nr = (NodeRecord) fibonacciHeapNode.getData();
         ArrayList<Node> nodeList = new ArrayList<Node>();
@@ -275,7 +278,7 @@ public class World {
         }
 
         if (staticDensityMap == null) { /* Create density map */
-        	staticDensityMap = new int[sideLength][sideLength][numFloors];
+            staticDensityMap = new int[sideLength][sideLength][numFloors];
         }
         for (int z = 0; z < numFloors; z++) {
             for (int i = 0; i < sideLength; i++) {

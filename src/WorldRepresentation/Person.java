@@ -17,6 +17,7 @@ public class Person {
     public Point2d location;
     public ArrayList<Point2d> locations;
     public boolean astarCheck;
+    public ArrayList<Integer> floors;
 
     private double size;
     private double mass;
@@ -31,6 +32,8 @@ public class Person {
     private int goalIndex;
     public int floor;
 
+
+
     public ArrayList<Boolean> blockedList;
     
     private Model forceModel;
@@ -44,6 +47,8 @@ public class Person {
     public Person(double x1, double y1, int z, int goalID) {
         this.goalID = goalID;
         this.floor = z;
+        floors = new ArrayList<Integer>();
+        floors.add(z);
         lastAStar = 0;
         location = new Point2d(x1, y1);
         locations = new ArrayList<Point2d>();
@@ -153,6 +158,7 @@ public class Person {
         }
 
         locations.add(new Point2d(location.x, location.y));
+        floors.add(floor);
 
         Boolean stuckStatus = false;
 
