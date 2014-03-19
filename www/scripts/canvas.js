@@ -464,11 +464,15 @@ function drawInterest(e){
     if(stage.mouseInBounds){
 
         //Increases readability since they are accessed multiple times.
-            features.push(new Feature(featureID, 2)); canvasFeatures.push(new createjs.Shape());
+        // features.push(new Feature(featureID, 2)); canvasFeatures.push(new createjs.Shape());
+
+
+        var canvasCircle = new createjs.Shape(); 
+        canvasFeatures.push(canvasCircle);
+        var circle = new Feature(featureID, 2);
+        features.push(circle);
         endOfArray++; featureID++;
 
-        var canvasCircle = canvasFeatures[endOfArray];
-        var circle = features[endOfArray];
 
         //Drawing
         if(e.nativeEvent.shiftKey){
@@ -492,11 +496,11 @@ function drawEvac(e){
     if(stage.mouseInBounds){
 
         //Increases readability since they are accessed multiple times.
-        features.push(new Feature(featureID, 3)); canvasFeatures.push(new createjs.Shape());
+        var canvasCircle = new createjs.Shape(); 
+        canvasFeatures.push(canvasCircle);
+        var circle = new Feature(featureID, 3);
+        features.push(circle);
         endOfArray++; featureID++;
-
-        var canvasCircle = canvasFeatures[endOfArray];
-        var circle = features[endOfArray];
 
         //Drawing
         if(e.nativeEvent.shiftKey){
@@ -571,6 +575,18 @@ function drawStaircase(e){
 
         var canvasCircle = canvasFeatures[endOfArray];
         var circle = features[endOfArray];
+        var upstairCircle = new createjs.Shape();
+
+
+        if (floor_canvasFeatures.length >= floor + 1) {
+            floor_canvasFeatures.push(new Array());
+        }
+        else if ( floor_canvasFeatures.length == 0 ){
+            floor_canvasFeatures.push(new Array());
+            floor_canvasFeatures.push(new Array());
+
+        }
+        floor_canvasFeatures[floor+1].push(upstairCircle);
 
         //Drawing
         if(e.nativeEvent.shiftKey){
@@ -583,6 +599,10 @@ function drawStaircase(e){
         }
 
         canvasCircle.graphics.setStrokeStyle(3).beginStroke("green").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
+        upstairCircle.graphics.setStrokeStyle(3).beginStroke("black").drawCircle(circle.getFromCoords()["x"], circle.getFromCoords()["y"], 15).endStroke();
+
+        //push the upstairs to the upstairs canvas features
+
 
         stage.addChild(canvasCircle);
         stage.update();
@@ -593,7 +613,7 @@ function upstairs() {
 
     floor++;
 
-    if (floor_canvasFeatures.length < floor) {
+    if (floor_canvasFeatures.length <= floor) {
         floor_canvasFeatures.push(canvasFeatures);
         canvasFeatures = new Array();
         endOfArray = -1;
@@ -616,18 +636,25 @@ function downstairs() {
 
     if(floor > 0){
         floor--;
+        canvasFeatures = floor_canvasFeatures[floor];
+        endOfArray = canvasFeatures.length;
+
+        $("#floor")[0].textContent = "Floor " + floor.toString();
+        redrawCanvas();
     }
 
-    canvasFeatures = floor_canvasFeatures[floor];
-    endOfArray = canvasFeatures.length;
-
-    $("#floor")[0].textContent = "Floor " + floor.toString();
-    redrawCanvas();
 }
 
 function redrawCanvas(){
 
     stage.removeAllChildren();
+
+    if (canvasFeatures){
+        console.log("I should")
+    }
+    else{
+        console.log("I shouldnt")
+    }
 
     for (i = 0; i < canvasFeatures.length; i++) {
         stage.addChild(canvasFeatures[i]);
@@ -654,4 +681,10 @@ COMPLETELY REDESIGN how people are being drawn on the canvas. (to reduce lag)
 kill mode bug
 
 feedback from the server (only useful when server webserver component has been remodelled.)
+
+Upstair
+people floor drawing
+sending num floors
+
+speed up sim
 */
