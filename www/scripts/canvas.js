@@ -661,9 +661,13 @@ function redrawCanvas(){
     }
 
     if ( people.length > 0){
+
         populate(time)
     }
 
+    for(i = 0; i < canvasPeople.length; i++) {
+        stage.addChild(canvasPeople[i])
+    } 
     stage.update();
 }
 
