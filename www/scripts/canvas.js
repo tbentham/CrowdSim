@@ -330,16 +330,28 @@ function rotate(){
     console.log(angle.toString());
 }
 
+function floorCalc(){
+    floors = 0;
+    for(i = 0; i < features.length; i++) {
+        if (features[i].z > floors ){
+            floors = feature[i].z;
+        }
+    }
+    return floors;
+}
+
 //These functions are responsible for GET-ing and POST-ing.
 function sendFeatures(){
     //Use jquery to grab div
     totalTime = $("[name=totalTime]").val();
     evacTime = $("[name=evacTime]").val();
     numPeople = $("[name=numPeople]").val();
-    if ( $("[name=astarToggle]").checked )
-        astarToggle = 1;
-    else
-        astarToggle = 0;
+    astarToggle =  $("[name=astarToggle]").val();
+
+    //Workout how many floors there are.
+    // numFloors = floorCalc();
+    // console.log(numFloors);
+
     astarFreq = $("[name=astarFreq]").val();
 
     $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + '}'});
@@ -348,6 +360,8 @@ function sendFeatures(){
 function hand(data){ // Turn json into objects
     people = JSON.parse(data.toString());
 }
+
+
 
 function getPeople(){
     $.get("/people.json", function(data){
@@ -704,8 +718,6 @@ COMPLETELY REDESIGN how people are being drawn on the canvas. (to reduce lag)
 kill mode bug
 
 feedback from the server (only useful when server webserver component has been remodelled.)
-
-Upstair
 
 sending num floors
 
