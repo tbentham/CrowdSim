@@ -45,21 +45,13 @@ function createListItem(image, name, mode) {
 	$("#dragItems").append(finalhtml);
 }
 
+// update displayed text in an element
+function updateVal(newVal, valName)
+{
+	document.getElementById(valName).innerHTML=newVal;
+}
+
 // triggered when window is loaded, initial setup of canvas, list population etc.
-
-// Does this need to be populated using a script? Couldn't this content just be written in the client.html source?
-// By appending these Divs to the html page, the appended html can't be seen using "view-source". What is this black magic?!
 $(window).ready(function() {
-	resizeCanvas();
-	createListItem("images/dragobjects/wall.png", "Wall", 0);
-	createListItem("images/dragobjects/door.png", "Door", 1);
-	createListItem("images/dragobjects/stairs.png", "Staircase", 4);
-	createListItem("images/dragobjects/interest.png", "Point of Interest", 2);
-    createListItem("images/dragobjects/interest.png", "Evacuation Point", 3);
-   
-});
-
-// triggered when window is resized. Makes sure the canvas stays at the correct size.
-$(window).resize(function() {
-	resizeCanvas();
+    resizeCanvas();
 });
