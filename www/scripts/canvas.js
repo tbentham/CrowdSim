@@ -270,13 +270,12 @@ function drawLine(e){
             line.setToCoords(Math.round(e.stageX/50)*50, Math.round(e.stageY/50)*50, floor);
         }
         else{
-            line.setToCoords(e.stageX, e.stageY);
+            line.setToCoords(e.stageX, e.stageY, floor);
         }
         
         canvasLine.graphics.clear();
         canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
-        stage.update();
-    }
+        }
 
 }
 
@@ -691,7 +690,7 @@ kill mode bug
 feedback from the server (only useful when server webserver component has been remodelled.)
 
 Upstair
-people floor drawing
+
 sending num floors
 
 speed up sim
