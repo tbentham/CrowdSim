@@ -68,14 +68,23 @@ public class Person {
 
     private void goalUpdate() {
         while (goalIndex < goalList.size() - 1 &&
-        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0))
+        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0))   {
             goalIndex++;
+        }
+        if (floor != goalList.get(goalIndex).floor) {
+            floor = goalList.get(goalIndex).floor;
+        }
     }
 
     public Point2d advance(ArrayList<ArrayList<Wall>> walls, ArrayList<Person> people, double timeStep, World w) throws NaNException,
             PersonOverlapException, NoGoalException, RoutesNotComputedException{
 
-        if (goalIndex == goalList.size() || location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
+        if (location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
+            System.out.println(floor);
+            System.out.println("bp");
+        }
+
+        if (goalIndex == goalList.size() || (location.distance(goalList.getLast().toPoint2d()) < (size * 2.0) && floor == goalList.getLast().floor)) {
             if (evacBool) {
                 location = null;
                 return location;
@@ -94,7 +103,7 @@ public class Person {
                 if (tGoalID == -1) {
                     System.out.println("");
                 }
-                Path path = w.getPath((int)Math.round(location.x), (int)Math.round(location.y), tGoalID, evacBool);
+                Path path = w.getPath((int)Math.round(location.x), (int)Math.round(location.y), floor, tGoalID, evacBool);
                 this.goalID = tGoalID;
                 this.setGoalList(path.getSubGoals());
                 if(this.goalList.size() == 0) {

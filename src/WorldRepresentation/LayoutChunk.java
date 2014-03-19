@@ -312,11 +312,11 @@ public class LayoutChunk implements Runnable {
 
                         x = rand1;
                         y = rand2;
-                        Path thisPath = w.getPath(x, y, 0, true);
+                        Path thisPath = w.getPath(x, y, p.floor, 0, true);
                         int pathLength = thisPath.getNodes().size();
                         if (w.fdEvacList.size() > 1) {
                             for (int q = 1; q < w.fdEvacList.size(); q++) {
-                                Path newPath = w.getPath(x, y, q, true);
+                                Path newPath = w.getPath(x, y, p.floor, q, true);
                                 if (newPath.getNodes().size() < pathLength) {
                                     thisPath = newPath;
                                     pathLength = newPath.getNodes().size();
@@ -352,6 +352,12 @@ public class LayoutChunk implements Runnable {
                     if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0) {
                         int xIndex = (int) p.getLocation().x / 50;
                         int yIndex = (int) p.getLocation().y / 50;
+                        if (xIndex > 1) {
+                            xIndex = 1;
+                        }
+                        if (yIndex > 1) {
+                            yIndex = 1;
+                        }
                         if (!(xIndex < 0 || yIndex < 0)) {
                             toRemove.add(p);
                             chunks[xIndex][yIndex].putPerson(p);
@@ -489,7 +495,7 @@ public class LayoutChunk implements Runnable {
                         }
                     }
                     if (floorPlan[i][j][z] == 0) {
-                        nodes[i][j][z] = new Vertex(i, j);
+                        nodes[i][j][z] = new Vertex(i, j, z);
                     }
                 }
             }

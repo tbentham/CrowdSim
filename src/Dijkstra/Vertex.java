@@ -7,13 +7,19 @@ public class Vertex {
 
     private double x;
     private double y;
+    private int z;
 
 
-    public Vertex(double x, double y) {
+    public Vertex(double x, double y, int z) {
         this.x = x;
         this.y = y;
         this.id = x + "_" + y;
+        this.z = z;
 
+    }
+
+    public int getZ() {
+        return z;
     }
 
     public double getX() {

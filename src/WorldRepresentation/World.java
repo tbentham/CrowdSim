@@ -14,6 +14,7 @@ import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 
 import javax.vecmath.Point2d;
+import javax.vecmath.Point3d;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,7 +28,7 @@ public class World {
     private Vertex[][][] nodeArray;
     private ArrayList<Vertex> nodes;
     private ArrayList<Edge> edges;
-    public Point2d evac;
+    public Point3d evac;
 
     private int[][][] densityMap;
 
@@ -89,7 +90,7 @@ public class World {
                 throw new WallOverlapException("Cannot add person at " + x + " , " + y + " because wall exists there");
             }
         }
-        Path p1 = getPath(x, y, goalID, evac);
+        Path p1 = getPath(x, y, floor, goalID, evac);
         person.setGoalList(p1.getSubGoals());
         people.add(person);
         if (person.getGoalList().size() == 0) {
@@ -101,6 +102,8 @@ public class World {
         populateFloorPlan();
         populateNodeArray();
         createEdges();
+        edges.add(new Edge(nodeArray[50][50][0], nodeArray[50][50][1], 2, 0));
+       // edges.add(new Edge(nodeArray[50][50][1], nodeArray[50][50][0], 2, 0));
         isSetUp = true;
         routesComputed = false;
     }
@@ -146,7 +149,7 @@ public class World {
                 for (int j = 0; j < sideLength; j++) {
                     nodeArray[i][j][z] = null;
                     if (floorPlan[i][j][z] == 0) {
-                        nodeArray[i][j][z] = new Vertex(i, j);
+                        nodeArray[i][j][z] = new Vertex(i, j, z);
                         nodes.add(nodeArray[i][j][z]);
                     }
                 }
@@ -187,7 +190,7 @@ public class World {
         }
     }
 
-    public void computeDijsktraTowards(ArrayList<Point2d> goals, ArrayList<Point2d> evacuationPoints) throws WorldNotSetUpException {
+    public void computeDijsktraTowards(ArrayList<Point3d> goals, ArrayList<Point3d> evacuationPoints) throws WorldNotSetUpException {
         if (!isSetUp)
             throw new WorldNotSetUpException("computerDijsktraTowards called before setting up world");
 
@@ -206,7 +209,7 @@ public class World {
                 }
             }
 
-            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) goals.get(f).x * sideLength + (int) goals.get(f).y, sideLength * sideLength, this);
+            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) (goals.get(f).z * sideLength * sideLength) + (int) goals.get(f).x * sideLength + (int) goals.get(f).y, sideLength * sideLength * numFloors, this);
             fdPOIList.add(fastDijkstra);
         }
         for (int g = 0; g < evacuationPoints.size(); g++) {
@@ -222,14 +225,14 @@ public class World {
                 }
             }
 
-            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) evacuationPoints.get(g).x * sideLength + (int) evacuationPoints.get(g).y, sideLength * sideLength, this);
+            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) (goals.get(g).z * sideLength * sideLength) + (int) evacuationPoints.get(g).x * sideLength + (int) evacuationPoints.get(g).y, sideLength * sideLength * numFloors, this);
             fdEvacList.add(fastDijkstra);
         }
         routesComputed = true;
     }
 
 
-    public Path getPath(int x, int y, int goalID, boolean evac) throws RoutesNotComputedException {
+    public Path getPath(int x, int y, int z, int goalID, boolean evac) throws RoutesNotComputedException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("getPath called before routes were computed");
         }
@@ -238,7 +241,7 @@ public class World {
             goalList = fdEvacList;
         }
 
-        FibonacciHeapNode fibonacciHeapNode = goalList.get(goalID).nodes.get((x * sideLength) + y);
+         FibonacciHeapNode fibonacciHeapNode = goalList.get(goalID).nodes.get((z * (sideLength * sideLength)) + (x * sideLength) + y);
 
         NodeRecord nr = (NodeRecord) fibonacciHeapNode.getData();
         ArrayList<Node> nodeList = new ArrayList<Node>();
@@ -249,13 +252,13 @@ public class World {
             }
             Integer i = nr.predecessor;
             Integer prevZ = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node / (sideLength * sideLength);
-            Integer prevX = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node / sideLength;
+            Integer prevX = (((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node % (sideLength * sideLength)) / sideLength;
             Integer prevY = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node % sideLength;
             if (prevX == 0 && prevY == 0 && prevZ == 0) {
                 nodeList.add(new Node(0, 0, 0));
                 break;
             } else {
-                nodeList.add(new Node(prevX, prevY, prevX));
+                nodeList.add(new Node(prevX, prevY, prevZ));
                 nr = (NodeRecord) goalList.get(goalID).nodes.get(i).getData();
             }
         }
@@ -283,11 +286,12 @@ public class World {
     				/* Add whole path from (i,j) to density map */
 
                     // TODO: changed for compiling FIX ME
-                    Path thisPath = getPath(i, j, 0, true);
+                    Path thisPath = getPath(i, j, 0, 0, true);
                     int pathLength = thisPath.getNodes().size();
                     if (fdEvacList.size() > 1) {
                         for (int q = 1; q < fdEvacList.size(); q++) {
-                            Path newPath = getPath(i, j, q, true);
+                            // TODO: changed for compiling FIX ME
+                            Path newPath = getPath(i, j, 0, q, true);
                             if (newPath.getNodes().size() < pathLength) {
                                 thisPath = newPath;
                                 pathLength = newPath.getNodes().size();
@@ -346,7 +350,7 @@ public class World {
         return people;
     }
 
-    public void setEvac(Point2d evac) {
+    public void setEvac(Point3d evac) {
         this.evac = evac;
     }
 

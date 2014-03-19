@@ -23,10 +23,12 @@ public class FastDijkstra {
         nodes = new ArrayList<FibonacciHeapNode>();
         connections = new HashMap<Integer, ArrayList<Connection>>();
 
-        for (int i = 0; i < Math.sqrt(numNodes); i++) {
-            for (int j = 0; j < Math.sqrt(numNodes); j++) {
-                FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((i * (int) Math.sqrt(numNodes)) + j));
-                nodes.add(newNode);
+        for (int z = 0; z < numNodes / (w.sideLength * w.sideLength); z++) {
+            for (int i = 0; i < w.sideLength; i++) {
+                for (int j = 0; j < w.sideLength; j++) {
+                    FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord(z * (w.sideLength * w.sideLength) + (i * (int) w.sideLength) + j));
+                    nodes.add(newNode);
+                }
             }
         }
 
@@ -38,11 +40,15 @@ public class FastDijkstra {
         }
 
         for (Edge e : wEdge) {
-            Integer source = (int) Math.round((e.getSource().getX() * w.getSideLength()) + (e.getSource().getY()));
-            Integer destination = (int) Math.round((e.getDestination().getX() * w.getSideLength()) + (e.getDestination().getY()));
+
+            Integer source = (int) Math.round((e.getSource().getZ() * w.sideLength * w.sideLength) + (e.getSource().getX() * w.getSideLength()) + (e.getSource().getY()));
+            Integer destination = (int) Math.round((e.getDestination().getZ() * w.sideLength * w.sideLength) + (e.getDestination().getX() * w.getSideLength()) + (e.getDestination().getY()));
             Double weight = e.getWeight();
             Connection newConn = new Connection(weight, nodes.get(source), nodes.get(destination));
 
+            if (e.getSource().getX() == 50 && e.getSource().getY() == 50 && e.getSource().getZ() == 0) {
+                System.out.println("bp");
+            }
 
             ArrayList<Connection> connections2;
             if (connections.containsKey(source)) {
@@ -69,11 +75,9 @@ public class FastDijkstra {
                 keys[i] = 100000.0;
             }
         }
-        if (fibonacciHeap.size() < 10000) {
-            System.out.println(fibonacciHeap.size());
-        }
+
         int k;
-        for (k = 1; k < numNodes; k++) {
+        for (k = 0; k < numNodes; k++) {
             FibonacciHeapNode currentHeapNode = fibonacciHeap.removeMin();
             NodeRecord nr = (NodeRecord) currentHeapNode.getData();
             Integer i = nr.node;
@@ -88,9 +92,11 @@ public class FastDijkstra {
                 }
             }
         }
+
         if (keys[0] == 100000.0) {
             System.out.println("k = " + k);
         }
+
         return fibonacciHeap;
     }
 
