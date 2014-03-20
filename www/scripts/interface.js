@@ -30,21 +30,6 @@ function modeSelected(mode) {
 	};
 }
 
-// appends a list item div with the thumbnail from filepath image and description of the string value of name to the panel div.
-function createListItem(image, name, mode) {
-	var htmlgen = new Array();
-
-	htmlgen[0] = "<div class=\"dragobject\"><image src=\"";
-	htmlgen[1] = image;
-	htmlgen[2] = "\" onclick=\"drawMode(" + mode.toString() + ")\"/>";
-	htmlgen[3] = name;
-	htmlgen[4] = "</div>";
-
-	var finalhtml = htmlgen[0].concat(htmlgen[1].concat(htmlgen[2].concat(htmlgen[3].concat(htmlgen[4])))); //messy as fuck. I know. Bite me.
-
-	$("#dragItems").append(finalhtml);
-}
-
 // update displayed text in an element
 function updateVal(newVal, valName)
 {
