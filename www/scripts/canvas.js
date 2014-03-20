@@ -353,8 +353,6 @@ function sendFeatures(){
     var numFloors = floorCalc();
     console.log(numFloors);
 
-    astarFreq = $("[name=astarFreq]").val();
-
     $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', "numFloors":' + numFloors +'}'});
     console.log("Objects");
     console.log(jsonDump());
