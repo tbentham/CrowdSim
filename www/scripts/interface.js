@@ -36,7 +36,42 @@ function updateVal(newVal, valName)
 	document.getElementById(valName).innerHTML=newVal;
 }
 
+function togglePanel()
+{
+	var panelDiv = document.getElementById('panel');
+	var toggleDiv = document.getElementById('panelToggle');
+	var mainDiv = document.getElementById('main');
+	
+	if ( panelDiv.style.visibility == 'hidden' ) {
+		panelDiv.style.visibility = 'visible';
+		toggleDiv.innerHTML= '<div id="toggleinner">&gt;&gt;</div>';
+		toggleDiv.style.right = '250px';
+		mainDiv.style.right = '280px';
+	}
+	else {
+		panelDiv.style.visibility = 'hidden';
+		toggleDiv.innerHTML= '<div id="toggleinner">&lt;&lt;</div>';
+		toggleDiv.style.right = '0';
+		mainDiv.style.right = '30px';
+	}
+}
+
+function toggleOption(toggleId, elemId)
+{
+	var elemDiv = document.getElementById(elemId);
+	var toggleDiv = document.getElementById(toggleId);
+	
+	if ( elemDiv.style.visibility == 'collapse' ) {
+		elemDiv.style.visibility = 'inherit';
+		toggleDiv.innerHTML= '&#x25B2;';
+	}
+	else {
+		elemDiv.style.visibility = 'collapse';
+		toggleDiv.innerHTML= '&#x25BC;';
+	}
+}
+
 // triggered when window is loaded, initial setup of canvas, list population etc.
 $(window).ready(function() {
-    resizeCanvas();
+	resizeCanvas();
 });

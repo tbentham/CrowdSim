@@ -347,14 +347,13 @@ function sendFeatures(){
     evacTime = $("[name=evacTime]").val();
     numPeople = $("[name=numPeople]").val();
     astarToggle =  $("[name=astarToggle]").val();
+    astarFreq = $("[name=astarFreq]").val();
 
     //Workout how many floors there are.
     var numFloors = floorCalc();
     console.log(numFloors);
 
-    astarFreq = $("[name=astarFreq]").val();
-
-    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', numFloors:"' + numFloors +'}'});
+    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', "numFloors":' + numFloors +'}'});
 }
 
 function hand(data){ // Turn json into objects

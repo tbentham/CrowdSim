@@ -2,12 +2,16 @@ body {
 	font-family: calibri;
 }
 
+td {
+	padding: 0;
+}
+
 #main {
 	position: fixed;
 	top: 0;
 	bottom: 0;
 	left: 0;
-	right: 250px;
+	right: 280px;
 	overflow: scroll;
 	background-color: lightgray;
 }
@@ -20,6 +24,26 @@ body {
 	background-color: white;
 }
 
+#panelToggle {
+	position: absolute;
+	width: 30px;
+	top: 0;
+	bottom: 0;
+	right: 250px;
+	float: right;
+	padding: 4px;
+	text-align: center;
+	font-weight: bold;
+	border-left: 2px solid black;
+	border-right: 2px solid black;
+	background-color: lightblue;
+}
+
+#toggleinner {
+	position: absolute;
+	top: 50%;
+}
+
 #panel {
 	position: absolute;
 	width: 250px;
@@ -27,13 +51,13 @@ body {
 	bottom: 0;
 	right: 0;
 	float: right;
-	border-left: 2px solid black;
-	background-color: white;
+	background-color: ghostwhite;
 }
 
 #simulationButtons {
 	padding: 4px;
 	text-align: center;
+	border-bottom: 1px solid black;
 }
 
 #generalControls {
@@ -50,4 +74,12 @@ body {
 
 #dragItems {
 	padding: 8px;
+	border-bottom: 1px solid black;
+}
+
+.optionToggle {
+	padding: 8px;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	background-color: lightcyan;
 }

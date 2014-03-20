@@ -25,14 +25,24 @@
     	<canvas id="mainCanvas"></canvas>
     </div>
     
-    <div id="panel">
-    	<div id="simulationButtons">
+	<div id="panelToggle" onclick="togglePanel()">
+		<div id="toggleinner">&gt;&gt;</div>
+	</div>
+	
+    <table id="panel">
+    	<tr><td id="toggle1" class="optionToggle" onclick="toggleOption(this.id,'row1')">
+			&#x25B2;
+		</td></tr>
+    	<tr id="row1"><td id="simulationButtons">
     		<button type="button" class="btn btn-lg btn-success" onclick="simulate(1)">Start</button>
         	<button class="btn btn-sm btn-warning" onclick="simulate(3)">Pause</button>
             <button class="btn btn-sm btn-warning" onclick="simulate(2)">Continue</button>
-    	</div>
+		</td></tr>
 
-    	<div id="generalControls">
+    	<tr><td id="toggle2" class="optionToggle" onclick="toggleOption(this.id,'row2')">
+			&#x25B2;
+		</td></tr>
+    	<tr id="row2"><td id="generalControls">
     		<!-- Feel free to move this to somewhere you feel it belongs. -->
             <button class="btn btn-sm btn-primary" onclick="sendFeatures()">Send</button>
             <button class="btn btn-sm btn-primary" onclick="getPeople()">Recieve</button><br/>
@@ -41,30 +51,40 @@
             <button class="btn btn-sm btn-primary" onclick="toggleDensityMap()">Density Map</button><br/>
     		<button class="btn btn-sm btn-primary" onclick="drawMode(99)">Kill Mode</button>
             <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button>
+            
             <!-- A slider needs to be here, which is initialised by getPeople so the slider is the correct length. -->
-            <div class="slider slider-horizontal"></div>
-            <div id="timestep">0</div>
-            <div id="floor">Floor 0</div>
+            <div class="slider slider-horizontal"></div><br/>
+            <div id="timestep">0</div><br/>
+            <div id="floor">Floor 0</div><br/>
 
             <form name="times">
-                Total simulation time: <span id="totalTimeVal">20</span> steps<br/>
+                Total simulation time: <span id="totalTimeVal">200</span> steps<br/>
                 <input type="range" min="0" max="1000" value="200" step="10" name="totalTime" onchange="updateVal(this.value,'totalTimeVal')"><br/>
-                Time of evacuation: <span id="evacTimeVal">10</span> steps<br/>
+                
+                Time of evacuation: <span id="evacTimeVal">100</span> steps<br/>
                 <input type="range" min="0" max="1000" value="100" step="10" name="evacTime" onchange="updateVal(this.value,'evacTimeVal')"><br/>
+                
                 Number of people: <span id="numPeopleVal">100</span><br/>
                 <input type="range" min="0" max="2000" value="100" step="10" name="numPeople" onchange="updateVal(this.value,'numPeopleVal')"><br/>
+                
                 A*? <input type="text" name="astarToggle"><br/>
+                
                 A* frequency: <span id="astarFreqVal">5</span> steps<br/>
                 <input type="range" min="1" max="40" value="5" name="astarFreq" onchange="updateVal(this.value,'astarFreqVal')"><br/>
             </form>
+		</td></tr>
 
-    	</div>
-
-        <div id="specificControls">
+    	<tr><td id="toggle3" class="optionToggle" onclick="toggleOption(this.id,'row3')">
+			&#x25B2;
+		</td></tr>
+        <tr id="row3"><td id="specificControls">
         	<div id="doorControls"><button class="btn btn-sm btn-primary" onclick="rotate()">Rotate door 90&deg;</button></div>
-        </div>
+		</td></tr>
 
-        <div id="dragItems">
+    	<tr><td id="toggle4" class="optionToggle" onclick="toggleOption(this.id,'row4')">
+			&#x25B2;
+		</td></tr>
+        <tr id="row4"><td id="dragItems">
             <div class="dragobject">
             	<image src="images/dragobjects/wall.png" onclick="drawMode(0)"/>
             	Wall
@@ -85,7 +105,7 @@
             	<image src="images/dragobjects/evac.png" onclick="drawMode(3)"/>
             	Evacuation Point
             </div>
-	    </div>
-    </div>
+		</td></tr>
+    </table>
 </body>
 </html>
