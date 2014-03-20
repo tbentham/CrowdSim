@@ -355,6 +355,10 @@ function sendFeatures(){
     astarFreq = $("[name=astarFreq]").val();
 
     $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', numFloors:"' + numFloors +'}'});
+    console.log("Objects");
+    console.log(jsonDump());
+    console.log("Config");
+    console.log('{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', numFloors:"' + numFloors +'}');
 }
 
 function hand(data){ // Turn json into objects
