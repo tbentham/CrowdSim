@@ -99,7 +99,7 @@ public class AStar {
 
             for (aConnection connection : connections.get(nr.node)) {
 
-                NodeRecord toNodeRecord = aNodes.get(connection.to);
+                NodeRecord toNodeRecord = aNodes.get(connection.getTo());
 
                 double euTo = euclidDistance(sideLength, toNodeRecord.node, goalNode);
                 double euCurr = euclidDistance(sideLength, i, goalNode);
@@ -112,7 +112,7 @@ public class AStar {
 
                 //+ (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)
                 //Add remove curr density again
-                if ((thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
+                if ((thisKey + connection.getCost() + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
 
                     if (!priorityQueue.contains(toNodeRecord)) {
                         continue;
@@ -120,10 +120,10 @@ public class AStar {
 
                     priorityQueue.remove(toNodeRecord);
 
-                    toNodeRecord.value = (thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity));
+                    toNodeRecord.value = (thisKey + connection.getCost() + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity));
                     toNodeRecord.predecessor = nr.node;
                     priorityQueue.add(toNodeRecord);
-                    keys[toNodeRecord.node] = thisKey + connection.cost + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity);
+                    keys[toNodeRecord.node] = thisKey + connection.getCost() + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity);
 
                 }
             }
