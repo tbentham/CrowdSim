@@ -46,10 +46,6 @@ public class FastDijkstra {
             Double weight = e.getWeight();
             Connection newConn = new Connection(weight, nodes.get(source), nodes.get(destination));
 
-            if (e.getSource().getX() == 50 && e.getSource().getY() == 50 && e.getSource().getZ() == 0) {
-                System.out.println("bp");
-            }
-
             ArrayList<Connection> connections2;
             if (connections.containsKey(source)) {
                 connections2 = connections.get(source);

@@ -73,7 +73,7 @@ public class Person {
 
     private void goalUpdate() {
         while (goalIndex < goalList.size() - 1 &&
-        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0))   {
+        		location.distance(goalList.get(goalIndex).toPoint2d()) < (size * 2.0) && this.floor == goalList.get(goalIndex).floor)   {
             goalIndex++;
         }
         if (floor != goalList.get(goalIndex).floor) {
@@ -83,11 +83,6 @@ public class Person {
 
     public Point2d advance(ArrayList<ArrayList<Wall>> walls, ArrayList<Person> people, double timeStep, World w) throws NaNException,
             PersonOverlapException, NoGoalException, RoutesNotComputedException{
-
-        if (location.distance(goalList.getLast().toPoint2d()) < (size * 2.0)) {
-            System.out.println(floor);
-            System.out.println("bp");
-        }
 
         if (goalIndex == goalList.size() || (location.distance(goalList.getLast().toPoint2d()) < (size * 2.0) && floor == goalList.getLast().floor)) {
             if (evacBool) {
@@ -126,9 +121,8 @@ public class Person {
         	accTerm.add(desiredAcceleration());
 
             for (Person p : people) {
-                if (this != p && p.getLocation() != null) {
+                if (this != p && p.getLocation() != null && p.floor == this.floor) {
                 	accTerm.add(forceModel.socialForce(this, p));
-                	
                 }
             }
 

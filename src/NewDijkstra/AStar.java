@@ -43,7 +43,7 @@ public class AStar {
             Integer prevFloor = i / (sideLength * sideLength);
             Integer prevX = aNodes.get(i).node / sideLength;
             Integer prevY = aNodes.get(i).node % sideLength;
-            nodeList.add(new Node(prevX, prevY, goalFloor));
+            nodeList.add(new Node(prevX, prevY, prevFloor));
             nr = aNodes.get(i);
         }
         Collections.reverse(nodeList);
@@ -80,32 +80,11 @@ public class AStar {
         }
 
         int k;
-        int[][] considered = new int[sideLength][sideLength];
-
-
         for (k = 0; k < numNodes; k++) {
-            if (priorityQueue.isEmpty()) {
-                // System.out.println("K is" + k);
-                for (int i = 0; i < sideLength; i++) {
-                    for (int j = 0; j < sideLength; j++) {
-                        if (considered[j][i] == 0) {
-                            System.out.print('\267');
-                        } else {
-                            System.out.print(considered[j][i]);
-                        }
-                    }
-                    System.out.println("");
-                }
-            } else {
-                // System.out.println(treeBidiMap.size() + " k is " + k);
-            }
-
-
-            int preSize = priorityQueue.size();
             NodeRecord currentHeapNode = priorityQueue.poll();
 
             double thisKey = currentHeapNode.value;
-            considered[currentHeapNode.node / sideLength][currentHeapNode.node % sideLength] = 1;
+
 
             NodeRecord nr = currentHeapNode;
             Integer i = nr.node;
@@ -126,11 +105,10 @@ public class AStar {
                 double euCurr = euclidDistance(sideLength, i, goalNode);
 
                 int z = i / (sideLength * sideLength);
-                int x = (int) Math.round(i / sideLength);
+                int x = (int) Math.round((i % (sideLength * sideLength) / sideLength));
                 int y = (int) Math.round(i % sideLength);
-
                 int currDensity = density[x][y][z];
-                int nextDensity = density[toNodeRecord.node / sideLength][toNodeRecord.node % sideLength][z];
+                int nextDensity = density[toNodeRecord.node % (sideLength * sideLength) / sideLength][toNodeRecord.node % sideLength][z];
 
                 //+ (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)
                 //Add remove curr density again
@@ -151,16 +129,6 @@ public class AStar {
             }
         }
 //        System.out.println("I have looped" + k + " times");
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                if (considered[j][i] == 0) {
-                    System.out.print('\267');
-                } else {
-                    System.out.print(considered[j][i]);
-                }
-            }
-            System.out.println("");
-        }
         throw new Exception("No Path Found from " + startNode + " to " + goalNode);
     }
 
@@ -189,9 +157,11 @@ public class AStar {
 
     private void createNodes() {
         this.aNodes = new ArrayList<NodeRecord>();
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                aNodes.add(new NodeRecord(i * sideLength + j));
+        for (int z = 0; z < numNodes / (sideLength * sideLength); z++) {
+            for (int i = 0; i < sideLength; i++) {
+                for (int j = 0; j < sideLength; j++) {
+                    aNodes.add(new NodeRecord((z * sideLength * sideLength + +(i * sideLength) + j)));
+                }
             }
         }
     }
@@ -207,8 +177,8 @@ public class AStar {
         }
 
         for (Edge e : wEdge) {
-            Integer source = (int) Math.round((e.getSource().getX() * sideLength) + (e.getSource().getY()));
-            Integer destination = (int) Math.round((e.getDestination().getX() * sideLength) + (e.getDestination().getY()));
+            Integer source = (int) Math.round((e.getSource().getZ() * sideLength * sideLength) + (e.getSource().getX() * sideLength) + (e.getSource().getY()));
+            Integer destination = (int) Math.round((e.getDestination().getZ() * sideLength * sideLength) + (e.getDestination().getX() * sideLength) + (e.getDestination().getY()));
             Double weight = e.getWeight();
             aConnection newConn = new aConnection(weight, source, destination, e.getFloor());
 

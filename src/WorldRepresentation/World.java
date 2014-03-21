@@ -79,7 +79,7 @@ public class World {
             throw new RoutesNotComputedException("Cannot add people until world has routes computed");
         }
         for (Person p : people) {
-            if (p.getLocation().x == x && p.getLocation().y == y) {
+            if (p.getLocation().x == x && p.getLocation().y == y && p.floor == floor) {
                 throw new PersonOverlapException("Cannot create second person at " + x + ", " + y);
             }
         }
@@ -94,6 +94,7 @@ public class World {
         person.setGoalList(p1.getSubGoals());
         people.add(person);
         if (person.getGoalList().size() == 0) {
+
             System.out.println();
         }
     }
@@ -102,7 +103,6 @@ public class World {
         populateFloorPlan();
         populateNodeArray();
         createEdges();
-        edges.add(new Edge(nodeArray[50][50][0], nodeArray[50][50][1], 2, 0));
         // edges.add(new Edge(nodeArray[50][50][1], nodeArray[50][50][0], 2, 0));
         isSetUp = true;
         routesComputed = false;

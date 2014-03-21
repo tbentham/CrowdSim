@@ -31,7 +31,7 @@ public class LayoutChunk implements Runnable {
     private World w;
     private ArrayList<Edge> edges;
     private Vertex[][][] nodes;
-    LayoutChunk[][] chunks;
+    LayoutChunk[] chunks;
     public LinkedBlockingQueue<Person> q;
     public LinkedBlockingQueue<Person> qOverlap;
     private ArrayList<Person> allPeople;
@@ -79,7 +79,7 @@ public class LayoutChunk implements Runnable {
 
         populateFloorPlan();
         createEdges();
-        chunkStar = new AStar(w.getSideLength() * w.getSideLength(), nodes, edges, w.getSideLength());
+        chunkStar = new AStar(w.getSideLength() * w.getSideLength() * numFloors, nodes, edges, w.getSideLength());
 
         long end = System.currentTimeMillis();
     }
@@ -105,7 +105,7 @@ public class LayoutChunk implements Runnable {
     }
 
     public boolean isPointInside(double x, double y) {
-        return (y <= topYBoundary && y >= bottomYBoundary && x <= rightXBoundary && x >= leftXBoundary);
+        return (y >= topYBoundary && y <= bottomYBoundary && x <= rightXBoundary && x >= leftXBoundary);
     }
 
     public boolean intersectsTop(Wall w) {
@@ -141,7 +141,7 @@ public class LayoutChunk implements Runnable {
         return num;
     }
 
-    public void addChunks(LayoutChunk[][] chunks) {
+    public void addChunks(LayoutChunk[] chunks) {
         this.chunks = chunks;
     }
 
@@ -162,7 +162,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleLeftEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
-            if (p.getLocation() != null && p.getLocation().x - leftXBoundary < 10) {
+            if (p.getLocation() != null && p.getLocation().x - leftXBoundary < 2) {
                 ret.add(p);
             }
         }
@@ -172,7 +172,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleTopEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
-            if (p.getLocation() != null && topYBoundary - p.getLocation().y < 10) {
+            if (p.getLocation() != null && topYBoundary - p.getLocation().y < 2) {
                 ret.add(p);
             }
         }
@@ -182,7 +182,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleRightEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
-            if (p.getLocation() != null && rightXBoundary - p.getLocation().x < 10) {
+            if (p.getLocation() != null && rightXBoundary - p.getLocation().x < 2) {
                 ret.add(p);
             }
         }
@@ -192,59 +192,37 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Person> peopleBottomEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
-            if (p.getLocation() != null && p.getLocation().y - bottomYBoundary < 10) {
+            if (p.getLocation() != null && p.getLocation().y - bottomYBoundary < 2) {
                 ret.add(p);
             }
         }
         return ret;
     }
 
-    private void sendLeftOverlap() {
-        ArrayList<Person> l = peopleLeftEdge();
-
-        int xIndex = (int) leftXBoundary / 50;
-        int yIndex = (int) bottomYBoundary / 50;
-
-        if (xIndex == 0) {
-            return;
-        }
-        chunks[xIndex - 1][yIndex].qOverlap.addAll(l);
-    }
-
-    private void sendRightOverlap() {
-        ArrayList<Person> r = peopleRightEdge();
-
-        int xIndex = (int) leftXBoundary / 50;
-        int yIndex = (int) bottomYBoundary / 50;
-
-        if (xIndex == chunks.length - 1) {
-            return;
-        }
-        chunks[xIndex + 1][yIndex].qOverlap.addAll(r);
+    private int chunkSize() {
+        return (int) chunks[0].bottomYBoundary;
     }
 
     private void sendTopOverlap() {
         ArrayList<Person> t = peopleTopEdge();
 
-        int xIndex = (int) leftXBoundary / 50;
-        int yIndex = (int) bottomYBoundary / 50;
+        int yIndex = (int) topYBoundary / chunkSize();
 
-        if (yIndex == chunks.length - 1) {
+        if (yIndex == 0) {
             return;
         }
-        chunks[xIndex][yIndex + 1].qOverlap.addAll(t);
+        chunks[yIndex - 1].qOverlap.addAll(t);
     }
 
     private void sendBottomOverlap() {
         ArrayList<Person> b = peopleBottomEdge();
 
-        int xIndex = (int) leftXBoundary / 50;
-        int yIndex = (int) bottomYBoundary / 50;
+        int yIndex = (int) topYBoundary / chunkSize();
 
-        if (yIndex == 0) {
+        if (yIndex == chunks.length - 1) {
             return;
         }
-        chunks[xIndex][yIndex - 1].qOverlap.addAll(b);
+        chunks[yIndex + 1].qOverlap.addAll(b);
     }
 
     private void addOverlapPeople() {
@@ -254,8 +232,6 @@ public class LayoutChunk implements Runnable {
     }
 
     private void sendOverlaps() {
-        sendLeftOverlap();
-        sendRightOverlap();
         sendBottomOverlap();
         sendTopOverlap();
     }
@@ -268,15 +244,18 @@ public class LayoutChunk implements Runnable {
             // System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
             overlapPeople = new ArrayList<Person>();
             addPeople();
-            // System.out.println("U have " + overlapPeople.size() + " overlap to send");
+            // System.out.println("U have " + overlapPeople.size() +
+            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am about to send my overlaps on timestep " + i);
             sendOverlaps();
-
+            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I have sent my overlaps on timestep " + i);
             try {
                 barrier.await();
             } catch (InterruptedException e) {
                 System.err.println("Barrier interrupted");
+                System.exit(1);
             } catch (BrokenBarrierException e) {
                 System.err.println("Broken barrier");
+                System.exit(1);
             }
             finished = true;
 
@@ -348,6 +327,7 @@ public class LayoutChunk implements Runnable {
 
                     if (((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
                             p.expectedTimeStepAtNextGoal + 1 < p.locations.size() || stuckOnWall(p, i)) && ASTAR == 1) {
+
                         blockages++;
                         p.blockedList.set(p.blockedList.size() - 1, true);
                         //Dont a star so often brah
@@ -359,8 +339,8 @@ public class LayoutChunk implements Runnable {
                     }
 
                     if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0) {
-                        int xIndex = (int) p.getLocation().x / 50;
-                        int yIndex = (int) p.getLocation().y / 50;
+                        int xIndex = (int) p.getLocation().x / chunkSize();
+                        int yIndex = (int) p.getLocation().y / chunkSize();
                         if (xIndex > 1) {
                             xIndex = 1;
                         }
@@ -369,7 +349,7 @@ public class LayoutChunk implements Runnable {
                         }
                         if (!(xIndex < 0 || yIndex < 0)) {
                             toRemove.add(p);
-                            chunks[xIndex][yIndex].putPerson(p);
+                            chunks[yIndex].putPerson(p);
                         } else {
                             System.out.println("Left Canvas");
                         }
@@ -385,13 +365,17 @@ public class LayoutChunk implements Runnable {
             if (i != this.steps - 1) {
                 people.removeAll(toRemove);
             }
+            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am waiting at the bottom");
             try {
                 barrier.await();
             } catch (InterruptedException e) {
                 System.err.println("Barrier interrupted");
+                System.exit(1);
             } catch (BrokenBarrierException e) {
                 System.err.println("Broken barrier");
+                System.exit(1);
             }
+            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am finished waiting at the bottom");
 
             // System.out.println(people.size());
         }
@@ -426,7 +410,7 @@ public class LayoutChunk implements Runnable {
 
         x = rand1;
         y = rand2;
-        int startNode = x * sideLength + y;
+        int startNode = (p.floor * sideLength * sideLength) + x * sideLength + y;
         int goalNode = p.getGoalList().getLast().x * sideLength + p.getGoalList().getLast().y;
         int goalZ = goalNode / (sideLength * sideLength);
         int goalX = goalNode / sideLength;
@@ -436,8 +420,10 @@ public class LayoutChunk implements Runnable {
         if (chunkStar.connections.get(startNode) == null) {
             System.out.println("Tried to do AStar from " + x + ", " + y + " but couldn't find any connections");
         }
+        if (p.floor == 1)
+            System.out.println("");
+        Path path = chunkStar.getPath(startNode, goalX, goalY, goalZ, densityMap);
 
-        Path path = chunkStar.getPath(startNode, goalZ, goalX, goalY, densityMap);
         p.setGoalList(path.getSubGoals());
 
     }
@@ -540,13 +526,15 @@ public class LayoutChunk implements Runnable {
     }
 
     public void printDensity() {
-
         int sideLength = w.getSideLength();
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                System.out.print(densityMap[j][i]);
+        for (int z = 0; z < numFloors; z++) {
+            System.out.println("Printing floor " + z + " density");
+            for (int i = 0; i < sideLength; i++) {
+                for (int j = 0; j < sideLength; j++) {
+                    System.out.print(densityMap[j][i][z]);
+                }
+                System.out.println();
             }
-            System.out.println();
         }
     }
 
