@@ -1,10 +1,8 @@
 package NewDijkstra;
 
 import Dijkstra.Edge;
-import Dijkstra.Vertex;
 import WorldRepresentation.Path;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,19 +10,21 @@ import java.util.PriorityQueue;
 
 public class AStar {
 
-    public int numNodes;
-    public Vertex[][][] chunkNodes;
-    public ArrayList<Edge> edges;
-    public int sideLength;
-    public ArrayList<NodeRecord> aNodes;
-    public HashMap<Integer, ArrayList<aConnection>> connections;
-    public Double[] keys;
+    // Total nodes on the map
+    private int numNodes;
+    // Length of one side of map
+    private int sideLength;
+    // List of NodeRecords converted from Nodes
+    private ArrayList<NodeRecord> aNodes;
+    // HashMap storing all connections to and from each node
+    private HashMap<Integer, ArrayList<aConnection>> connections;
+    // Key value A* Star has associated with each node
+    private Double[] keys;
+    // Multiplier to up or downscale the density aspect of the heuristic
     private static final int DENSITY_COEFF = 2;
 
-    public AStar(int numNodes, Vertex[][][] chunkNodes, ArrayList<Edge> edges, int sideLength) {
+    public AStar(int numNodes, ArrayList<Edge> edges, int sideLength) {
         this.numNodes = numNodes;
-        this.chunkNodes = chunkNodes;
-        this.edges = edges;
         this.sideLength = sideLength;
         createConnections(edges);
     }
@@ -32,61 +32,26 @@ public class AStar {
     public Path getPath(Integer startNode, Integer goalX, Integer goalY, Integer goalFloor, int[][][] density) throws Exception {
         Integer goalNode = (goalFloor * sideLength * sideLength) + (goalX * sideLength) + goalY;
         NodeRecord nr = pathFind(startNode, goalNode, density);
-        // Create path from node
-        ArrayList<Node> nodeList = new ArrayList<Node>();
-        nodeList.add(new Node(goalX, goalY, goalFloor));
-        while (true) {
-            Integer i = nr.predecessor;
-            if (i == startNode || i == null) {
-                break;
-            }
-            Integer prevFloor = i / (sideLength * sideLength);
-            Integer prevX = aNodes.get(i).node / sideLength;
-            Integer prevY = aNodes.get(i).node % sideLength;
-            nodeList.add(new Node(prevX, prevY, prevFloor));
-            nr = aNodes.get(i);
-        }
-        Collections.reverse(nodeList);
-        //Generate subgoals.
-        return new Path(nodeList);
+        return pathFromNodeRecord(startNode, goalX, goalY, goalFloor, nr);
     }
 
+    // Performs A* Star search from startNode to endNode using euclidean distance and density as heuristic
     private NodeRecord pathFind(Integer startNode, Integer goalNode, int[][][] density) throws Exception {
 
         // aNodes is a list of all nodes for this search
         createNodes();
 
-        // TreeBidiMap<Double, NodeRecord> treeBidiMap = new TreeBidiMap<Double, NodeRecord>();
-        PriorityQueue<NodeRecord> priorityQueue = new PriorityQueue<NodeRecord>();
+        // Instantiate each key to be 10000 and the key for the start node as the euclidean distance to the goal
+        keys = instantiateKeys(startNode, goalNode);
 
-        keys = new Double[numNodes];
-        for (int i = 0; i < numNodes; i++) {
-            if (i == startNode) {
-                int x = (int) (i / sideLength);
-                int y = (int) (i % sideLength);
-                int goalX = (int) (goalNode / sideLength);
-                int goalY = (int) (goalNode % sideLength);
-                double euclid = Math.sqrt((y - goalY) * (y - goalY) + (x - goalX) * (x - goalX));
-                aNodes.get(i).value = euclid;
-                priorityQueue.add(aNodes.get(i));
-                // treeBidiMap.put(euclid, aNodes.get(i));
-                keys[i] = euclid;
-            } else {
-                //treeBidiMap.put(10000.0, aNodes.get(i));
-                aNodes.get(i).value = 10000.0;
-                priorityQueue.add(aNodes.get(i));
-                keys[i] = 10000.0;
-            }
-        }
+        // PriorityQueue is used to allow for efficiently retrieving the element with the smallest value
+        PriorityQueue<NodeRecord> priorityQueue = instantiateQueue();
 
         int k;
         for (k = 0; k < numNodes; k++) {
-            NodeRecord currentHeapNode = priorityQueue.poll();
+            NodeRecord nr = priorityQueue.poll();
 
-            double thisKey = currentHeapNode.value;
-
-
-            NodeRecord nr = currentHeapNode;
+            double thisKey = nr.value;
             Integer i = nr.node;
 
             if (i == goalNode.intValue()) {
@@ -105,8 +70,8 @@ public class AStar {
                 double euCurr = euclidDistance(sideLength, i, goalNode);
 
                 int z = i / (sideLength * sideLength);
-                int x = (int) Math.round((i % (sideLength * sideLength) / sideLength));
-                int y = (int) Math.round(i % sideLength);
+                int x = Math.round((i % (sideLength * sideLength) / sideLength));
+                int y = Math.round(i % sideLength);
                 int currDensity = density[x][y][z];
                 int nextDensity = density[toNodeRecord.node % (sideLength * sideLength) / sideLength][toNodeRecord.node % sideLength][z];
 
@@ -130,19 +95,6 @@ public class AStar {
         }
 //        System.out.println("I have looped" + k + " times");
         throw new Exception("No Path Found from " + startNode + " to " + goalNode);
-    }
-
-    void dumpDensityToFile(int[][] density) throws Exception {
-        PrintWriter writer = new PrintWriter("density.txt", "UTF-8");
-        for (int i = 0; i < sideLength; i++) {
-            for (int j = 0; j < sideLength; j++) {
-                writer.print(density[i][j]);
-                writer.print(" ");
-            }
-            writer.println("");
-        }
-        writer.close();
-
     }
 
     double euclidDistance(int sideLength, int from, int to) {
@@ -193,4 +145,56 @@ public class AStar {
             connections.put(source, connections2);
         }
     }
+
+    // Traverse back from the goal node to the start node, build a path, reverse and return
+    private Path pathFromNodeRecord(Integer startNode, Integer goalX, Integer goalY, Integer goalFloor, NodeRecord nr) {
+        ArrayList<Node> nodeList = new ArrayList<Node>();
+        nodeList.add(new Node(goalX, goalY, goalFloor));
+        while (true) {
+            Integer i = nr.predecessor;
+            if (i.equals(startNode)) {
+                break;
+            }
+            Integer prevFloor = i / (sideLength * sideLength);
+            Integer prevX = aNodes.get(i).node / sideLength;
+            Integer prevY = aNodes.get(i).node % sideLength;
+            nodeList.add(new Node(prevX, prevY, prevFloor));
+            nr = aNodes.get(i);
+        }
+        Collections.reverse(nodeList);
+        //Generate subgoals.
+        return new Path(nodeList);
+    }
+
+    private Double[] instantiateKeys(Integer startNode, Integer goalNode) {
+        Double[] keyArray = new Double[numNodes];
+        for (int i = 0; i < numNodes; i++) {
+            if (i == startNode) {
+                int x = (i / sideLength);
+                int y = (i % sideLength);
+                int goalX = (goalNode / sideLength);
+                int goalY = (goalNode % sideLength);
+                double euclid = Math.sqrt((y - goalY) * (y - goalY) + (x - goalX) * (x - goalX));
+                aNodes.get(i).value = euclid;
+                keyArray[i] = euclid;
+            } else {
+                aNodes.get(i).value = 10000.0;
+                keyArray[i] = 10000.0;
+            }
+        }
+        return keyArray;
+    }
+
+    private PriorityQueue<NodeRecord> instantiateQueue() {
+        PriorityQueue<NodeRecord> priorityQueue = new PriorityQueue<NodeRecord>();
+        for (int i = 0; i < numNodes; i++) {
+            priorityQueue.add(aNodes.get(i));
+        }
+        return priorityQueue;
+    }
+
+    public HashMap<Integer, ArrayList<aConnection>> getConnections() {
+        return connections;
+    }
+
 }

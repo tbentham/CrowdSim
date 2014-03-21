@@ -79,7 +79,7 @@ public class LayoutChunk implements Runnable {
 
         populateFloorPlan();
         createEdges();
-        chunkStar = new AStar(w.getSideLength() * w.getSideLength() * numFloors, nodes, edges, w.getSideLength());
+        chunkStar = new AStar(w.getSideLength() * w.getSideLength() * numFloors, edges, w.getSideLength());
 
         long end = System.currentTimeMillis();
     }
@@ -284,7 +284,7 @@ public class LayoutChunk implements Runnable {
                         if (y < 0)
                             y = 0;
 
-                        ArrayList<aConnection> aconn = chunkStar.connections.get(x * w.getSideLength() + y);
+                        ArrayList<aConnection> aconn = chunkStar.getConnections().get(x * w.getSideLength() + y);
                         int rand1 = x;
                         int rand2 = y;
 
@@ -293,7 +293,7 @@ public class LayoutChunk implements Runnable {
                             rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
                             rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
 
-                            aconn = chunkStar.connections.get(rand1 * w.getSideLength() + rand2);
+                            aconn = chunkStar.getConnections().get(rand1 * w.getSideLength() + rand2);
                         }
 
                         x = rand1;
@@ -396,7 +396,7 @@ public class LayoutChunk implements Runnable {
             y = 0;
         }
 
-        ArrayList<aConnection> aconn = chunkStar.connections.get(x * sideLength + y);
+        ArrayList<aConnection> aconn = chunkStar.getConnections().get(x * sideLength + y);
         int rand1 = x;
         int rand2 = y;
 
@@ -405,7 +405,7 @@ public class LayoutChunk implements Runnable {
             rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
             rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
 
-            aconn = chunkStar.connections.get(rand1 * sideLength + rand2);
+            aconn = chunkStar.getConnections().get(rand1 * sideLength + rand2);
         }
 
         x = rand1;
@@ -417,7 +417,7 @@ public class LayoutChunk implements Runnable {
         int goalY = goalNode % sideLength;
         p.astarCheck = true;
 
-        if (chunkStar.connections.get(startNode) == null) {
+        if (chunkStar.getConnections().get(startNode) == null) {
             System.out.println("Tried to do AStar from " + x + ", " + y + " but couldn't find any connections");
         }
         if (p.floor == 1)
