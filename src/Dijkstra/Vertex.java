@@ -1,14 +1,12 @@
 package Dijkstra;
 
-import javax.vecmath.Point2d;
-
+// Represents a vertex as in a vertex in a graph
 public class Vertex {
     private String id;
 
     private double x;
     private double y;
     private int z;
-
 
     public Vertex(double x, double y, int z) {
         this.x = x;
@@ -34,7 +32,7 @@ public class Vertex {
         return id;
     }
 
-
+    // Required when using as index in a HashMap or when stored in a PriorityQueue
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -43,6 +41,7 @@ public class Vertex {
         return result;
     }
 
+    // Required when using as index in a HashMap or when stored in a PriorityQueue
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -52,21 +51,9 @@ public class Vertex {
         if (getClass() != obj.getClass())
             return false;
         Vertex other = (Vertex) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
+        if (!id.equals(other.id))
             return false;
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "("+x+", "+y+")";
-    }
-
-    public Point2d toPoint2d() {
-        return (new Point2d(x, y));
     }
 
 } 
