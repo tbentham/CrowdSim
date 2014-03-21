@@ -1,6 +1,5 @@
 package Dijkstra;
 
-
 // Represents edges as in edges of a graph
 public class Edge {
     private final Vertex source;
