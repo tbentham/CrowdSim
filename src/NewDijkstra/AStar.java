@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
+// Stores all the information required to, and then performs, A* Star search
 public class AStar {
 
     // Total nodes on the map
@@ -29,7 +30,9 @@ public class AStar {
         createConnections(edges);
     }
 
-    public Path getPath(Integer startNode, Integer goalX, Integer goalY, Integer goalFloor, int[][][] density) throws Exception {
+    // Returns the path from the startNode to the goal by calling pathFind and constructing the path from the nodeRecord
+    public Path getPath(Integer startNode, Integer goalX, Integer goalY,
+                        Integer goalFloor, int[][][] density) throws Exception {
         Integer goalNode = (goalFloor * sideLength * sideLength) + (goalX * sideLength) + goalY;
         NodeRecord nr = pathFind(startNode, goalNode, density);
         return pathFromNodeRecord(startNode, goalX, goalY, goalFloor, nr);
@@ -47,57 +50,81 @@ public class AStar {
         // PriorityQueue is used to allow for efficiently retrieving the element with the smallest value
         PriorityQueue<NodeRecord> priorityQueue = instantiateQueue();
 
-        int k;
-        for (k = 0; k < numNodes; k++) {
-            NodeRecord nr = priorityQueue.poll();
+        for (int k = 0; k < numNodes; k++) {
 
-            double thisKey = nr.value;
-            Integer i = nr.node;
+            // Pulls the node with the smallest key value
+            NodeRecord currentNodeRecord = priorityQueue.poll();
 
-            if (i == goalNode.intValue()) {
-                return aNodes.get(i);
+            // Grabs the associated key value
+            double thisKey = currentNodeRecord.value;
 
+            // Grabs the associated node
+            Integer currentNode = currentNodeRecord.node;
+
+            // If we have searched to the goal node, search has completed so return
+            if (currentNode == goalNode.intValue()) {
+                return aNodes.get(currentNode);
             }
-            if (connections.get(nr.node) == null) {
-                continue;
-            }
 
-            for (aConnection connection : connections.get(nr.node)) {
+            // Calculate the euclidean distance from the goal to the current node
+            double euCurr = euclidDistance(sideLength, currentNode, goalNode);
 
+            // Convert the current node value to it's corresponding (x, y, z) coordinates
+            int z = currentNode / (sideLength * sideLength);
+            int x = Math.round((currentNode % (sideLength * sideLength) / sideLength));
+            int y = Math.round(currentNode % sideLength);
+
+            // Use the (x, y, z) coordinates to find the density at the current point
+            int currDensity = density[x][y][z];
+
+            // Loop through each node connected to the current node
+            for (aConnection connection : connections.get(currentNodeRecord.node)) {
+
+                // Grab the associated node record
                 NodeRecord toNodeRecord = aNodes.get(connection.getTo());
 
+                // Calculate the euclidean distance from the goal to the connected node
                 double euTo = euclidDistance(sideLength, toNodeRecord.node, goalNode);
-                double euCurr = euclidDistance(sideLength, i, goalNode);
 
-                int z = i / (sideLength * sideLength);
-                int x = Math.round((i % (sideLength * sideLength) / sideLength));
-                int y = Math.round(i % sideLength);
-                int currDensity = density[x][y][z];
-                int nextDensity = density[toNodeRecord.node % (sideLength * sideLength) / sideLength][toNodeRecord.node % sideLength][z];
+                // Convert the connected node into it's (x, y, z) coordinates
+                int toNodeRecordX = toNodeRecord.node % (sideLength * sideLength) / sideLength;
+                int toNodeRecordY = toNodeRecord.node % sideLength;
+                int toNodeRecordZ = toNodeRecord.node / (sideLength * sideLength);
 
-                //+ (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)
-                //Add remove curr density again
-                if ((thisKey + connection.getCost() + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity)) < keys[toNodeRecord.node]) {
+                // Grab the density at the connected node
+                int nextDensity = density[toNodeRecordX][toNodeRecordY][toNodeRecordZ];
 
+                // Calculate the new key for the connected node
+                double newKeyValue = thisKey + connection.getCost() + euTo - euCurr +
+                        (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity);
+
+                // Only update the key if it is a improvement
+                if (newKeyValue < keys[toNodeRecord.node]) {
+
+                    // Avoid adding duplicated NodeRecords
                     if (!priorityQueue.contains(toNodeRecord)) {
                         continue;
                     }
 
+                    // Remove connected node to be modified
                     priorityQueue.remove(toNodeRecord);
 
-                    toNodeRecord.value = (thisKey + connection.getCost() + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity));
-                    toNodeRecord.predecessor = nr.node;
+                    // Update key stored in NodeRecord and keys array for quick access
+                    toNodeRecord.value = newKeyValue;
+                    keys[toNodeRecord.node] = newKeyValue;
+                    // Set the path for the connected node to be the path using the current node
+                    toNodeRecord.predecessor = currentNodeRecord.node;
+                    // Put the updated node back into the queue
                     priorityQueue.add(toNodeRecord);
-                    keys[toNodeRecord.node] = thisKey + connection.getCost() + euTo - euCurr + (DENSITY_COEFF * nextDensity) - (DENSITY_COEFF * currDensity);
 
                 }
             }
         }
-//        System.out.println("I have looped" + k + " times");
         throw new Exception("No Path Found from " + startNode + " to " + goalNode);
     }
 
-    double euclidDistance(int sideLength, int from, int to) {
+    // Simply calculates the euclidean distance between two points
+    private double euclidDistance(int sideLength, int from, int to) {
         int fromX = from / sideLength;
         int fromY = from % sideLength;
         int toX = to / sideLength;
@@ -107,33 +134,36 @@ public class AStar {
         return Math.sqrt(eu);
     }
 
+    // Instantiate the aNodes list to be a list of all nodes on the map
     private void createNodes() {
         this.aNodes = new ArrayList<NodeRecord>();
         for (int z = 0; z < numNodes / (sideLength * sideLength); z++) {
             for (int i = 0; i < sideLength; i++) {
                 for (int j = 0; j < sideLength; j++) {
-                    aNodes.add(new NodeRecord((z * sideLength * sideLength + +(i * sideLength) + j)));
+                    aNodes.add(new NodeRecord((z * sideLength * sideLength) + (i * sideLength) + j));
                 }
             }
         }
     }
 
+    // Create list of connections between integer nodes from list of edges between coordinate points
     private void createConnections(ArrayList<Edge> edges) {
         this.connections = new HashMap<Integer, ArrayList<aConnection>>();
         ArrayList<Edge> wEdge = new ArrayList<Edge>();
         wEdge.addAll(edges);
 
-
+        // Add the reverse of every edge to the list, simulating bidirectional edges
         for (Edge e : edges) {
             wEdge.add(new Edge(e.getDestination(), e.getSource(), e.getWeight(), e.getFloor()));
         }
 
         for (Edge e : wEdge) {
-            Integer source = (int) Math.round((e.getSource().getZ() * sideLength * sideLength) + (e.getSource().getX() * sideLength) + (e.getSource().getY()));
-            Integer destination = (int) Math.round((e.getDestination().getZ() * sideLength * sideLength) + (e.getDestination().getX() * sideLength) + (e.getDestination().getY()));
+            Integer source = (int) Math.round((e.getSource().getZ() * sideLength * sideLength)
+                    + (e.getSource().getX() * sideLength) + (e.getSource().getY()));
+            Integer destination = (int) Math.round((e.getDestination().getZ() * sideLength * sideLength)
+                    + (e.getDestination().getX() * sideLength) + (e.getDestination().getY()));
             Double weight = e.getWeight();
             aConnection newConn = new aConnection(weight, source, destination, e.getFloor());
-
 
             ArrayList<aConnection> connections2;
             if (connections.containsKey(source)) {
@@ -166,6 +196,7 @@ public class AStar {
         return new Path(nodeList);
     }
 
+    // Instantiate each key to be 10000 and the key for the start node as the euclidean distance to the goal
     private Double[] instantiateKeys(Integer startNode, Integer goalNode) {
         Double[] keyArray = new Double[numNodes];
         for (int i = 0; i < numNodes; i++) {
@@ -185,6 +216,7 @@ public class AStar {
         return keyArray;
     }
 
+    // Put each NodeRecord into priorityQueue
     private PriorityQueue<NodeRecord> instantiateQueue() {
         PriorityQueue<NodeRecord> priorityQueue = new PriorityQueue<NodeRecord>();
         for (int i = 0; i < numNodes; i++) {
