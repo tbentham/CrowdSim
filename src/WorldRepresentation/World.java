@@ -6,17 +6,14 @@ import Exceptions.PersonOverlapException;
 import Exceptions.RoutesNotComputedException;
 import Exceptions.WallOverlapException;
 import Exceptions.WorldNotSetUpException;
-import NewDijkstra.Connection;
 import NewDijkstra.FastDijkstra;
 import NewDijkstra.Node;
 import NewDijkstra.NodeRecord;
-import org.jgrapht.util.FibonacciHeap;
 import org.jgrapht.util.FibonacciHeapNode;
 
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class World {
 
@@ -199,36 +196,32 @@ public class World {
         for (int f = 0; f < goals.size(); f++) {
 
             FastDijkstra fastDijkstra = new FastDijkstra();
-            fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
-            fastDijkstra.connections = new HashMap<Integer, ArrayList<Connection>>();
             for (int z = 0; z < numFloors; z++) {
                 for (int i = 0; i < sideLength; i++) {
                     for (int j = 0; j < sideLength; j++) {
                         FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((z * sideLength * sideLength) + (i * sideLength) + j));
-                        fastDijkstra.nodes.add(newNode);
+                        fastDijkstra.getNodes().add(newNode);
                     }
                 }
             }
 
-            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) (goals.get(f).z * sideLength * sideLength) + (int) goals.get(f).x * sideLength + (int) goals.get(f).y, sideLength * sideLength * numFloors, this);
+            fastDijkstra.pathFind((int) (goals.get(f).z * sideLength * sideLength) + (int) goals.get(f).x * sideLength + (int) goals.get(f).y, sideLength * sideLength * numFloors, this);
             fdPOIList.add(fastDijkstra);
         }
         for (int g = 0; g < evacuationPoints.size(); g++) {
 
             FastDijkstra fastDijkstra = new FastDijkstra();
-            fastDijkstra.nodes = new ArrayList<FibonacciHeapNode>();
-            fastDijkstra.connections = new HashMap<Integer, ArrayList<Connection>>();
 
             for (int z = 0; z < numFloors; z++) {
                 for (int i = 0; i < sideLength; i++) {
                     for (int j = 0; j < sideLength; j++) {
                         FibonacciHeapNode newNode = new FibonacciHeapNode(new NodeRecord((z * sideLength * sideLength) + (i * sideLength) + j));
-                        fastDijkstra.nodes.add(newNode);
+                        fastDijkstra.getNodes().add(newNode);
                     }
                 }
             }
 
-            FibonacciHeap fibonacciHeap = fastDijkstra.pathFind((int) (evacuationPoints.get(g).z * sideLength * sideLength) + (int) evacuationPoints.get(g).x * sideLength + (int) evacuationPoints.get(g).y, sideLength * sideLength * numFloors, this);
+            fastDijkstra.pathFind((int) (evacuationPoints.get(g).z * sideLength * sideLength) + (int) evacuationPoints.get(g).x * sideLength + (int) evacuationPoints.get(g).y, sideLength * sideLength * numFloors, this);
             fdEvacList.add(fastDijkstra);
         }
         routesComputed = true;
@@ -244,7 +237,7 @@ public class World {
             goalList = fdEvacList;
         }
 
-        FibonacciHeapNode fibonacciHeapNode = goalList.get(goalID).nodes.get((z * (sideLength * sideLength)) + (x * sideLength) + y);
+        FibonacciHeapNode fibonacciHeapNode = goalList.get(goalID).getNodes().get((z * (sideLength * sideLength)) + (x * sideLength) + y);
 
         NodeRecord nr = (NodeRecord) fibonacciHeapNode.getData();
         ArrayList<Node> nodeList = new ArrayList<Node>();
@@ -254,15 +247,15 @@ public class World {
                 break;
             }
             Integer i = nr.predecessor;
-            Integer prevZ = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node / (sideLength * sideLength);
-            Integer prevX = (((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node % (sideLength * sideLength)) / sideLength;
-            Integer prevY = ((NodeRecord) goalList.get(goalID).nodes.get(i).getData()).node % sideLength;
+            Integer prevZ = ((NodeRecord) goalList.get(goalID).getNodes().get(i).getData()).node / (sideLength * sideLength);
+            Integer prevX = (((NodeRecord) goalList.get(goalID).getNodes().get(i).getData()).node % (sideLength * sideLength)) / sideLength;
+            Integer prevY = ((NodeRecord) goalList.get(goalID).getNodes().get(i).getData()).node % sideLength;
             if (prevX == 0 && prevY == 0 && prevZ == 0) {
                 nodeList.add(new Node(0, 0, 0));
                 break;
             } else {
                 nodeList.add(new Node(prevX, prevY, prevZ));
-                nr = (NodeRecord) goalList.get(goalID).nodes.get(i).getData();
+                nr = (NodeRecord) goalList.get(goalID).getNodes().get(i).getData();
             }
         }
         return new Path(nodeList);
@@ -288,12 +281,10 @@ public class World {
 
     				/* Add whole path from (i,j) to density map */
 
-                    // TODO: changed for compiling FIX ME
                     Path thisPath = getPath(i, j, 0, 0, true);
                     int pathLength = thisPath.getNodes().size();
                     if (fdEvacList.size() > 1) {
                         for (int q = 1; q < fdEvacList.size(); q++) {
-                            // TODO: changed for compiling FIX ME
                             Path newPath = getPath(i, j, 0, q, true);
                             if (newPath.getNodes().size() < pathLength) {
                                 thisPath = newPath;
