@@ -114,5 +114,9 @@ public class FastDijkstra {
     public ArrayList<FibonacciHeapNode> getNodes() {
         return nodes;
     }
+
+    public HashMap<Integer, ArrayList<Connection>> getConnections() {
+        return connections;
+    }
 }
 
