@@ -51,7 +51,7 @@ public class aStarTest {
 
     @Test
     public void aStarReturnsValidConnectedPath() throws Exception {
-        Path path = aStar.getPath(startNode, 0, 0, 0, densityMap);
+        Path path = aStar.getPath(startNode, 0, 0, 0, densityMap, null);
         ArrayList<aConnection> connections = aStar.getConnections().get(startNode);
         boolean found = false;
         for (aConnection ac : connections) {

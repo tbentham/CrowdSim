@@ -1,8 +1,10 @@
 package NewDijkstra;
 
 import Dijkstra.Edge;
+import WorldRepresentation.FloorConnection;
 import WorldRepresentation.Path;
 
+import javax.vecmath.Point2d;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ public class AStar {
     // Multiplier to up or downscale the density aspect of the heuristic
     private static final int DENSITY_COEFF = 2;
 
+    private FloorConnection floorConnection;
+
     public AStar(int numNodes, ArrayList<Edge> edges, int sideLength) {
         this.numNodes = numNodes;
         this.sideLength = sideLength;
@@ -32,7 +36,8 @@ public class AStar {
 
     // Returns the path from the startNode to the goal by calling pathFind and constructing the path from the nodeRecord
     public Path getPath(Integer startNode, Integer goalX, Integer goalY,
-                        Integer goalFloor, int[][][] density) throws Exception {
+                        Integer goalFloor, int[][][] density, FloorConnection floorConnection) throws Exception {
+        this.floorConnection = floorConnection;
         Integer goalNode = (goalFloor * sideLength * sideLength) + (goalX * sideLength) + goalY;
         NodeRecord nr = pathFind(startNode, goalNode, density);
         return pathFromNodeRecord(startNode, goalX, goalY, goalFloor, nr);
@@ -74,6 +79,11 @@ public class AStar {
             int x = Math.round((currentNode % (sideLength * sideLength) / sideLength));
             int y = Math.round(currentNode % sideLength);
 
+            if (z != goalNode / (sideLength * sideLength)) {
+                euCurr = euclidDistance(sideLength, currentNode, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y);
+                euCurr += euclidDistance(sideLength, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y, goalNode);
+            }
+
             // Use the (x, y, z) coordinates to find the density at the current point
             int currDensity = density[x][y][z];
 
@@ -90,6 +100,11 @@ public class AStar {
                 int toNodeRecordX = toNodeRecord.node % (sideLength * sideLength) / sideLength;
                 int toNodeRecordY = toNodeRecord.node % sideLength;
                 int toNodeRecordZ = toNodeRecord.node / (sideLength * sideLength);
+
+                if (toNodeRecordZ != (goalNode / (sideLength * sideLength))) {
+                    euTo = euclidDistance(sideLength, toNodeRecord.node, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y);
+                    euTo += euclidDistance(sideLength, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y, goalNode);
+                }
 
                 // Grab the density at the connected node
                 int nextDensity = density[toNodeRecordX][toNodeRecordY][toNodeRecordZ];
@@ -125,9 +140,9 @@ public class AStar {
 
     // Simply calculates the euclidean distance between two points
     private double euclidDistance(int sideLength, int from, int to) {
-        int fromX = from / sideLength;
+        int fromX = (from % (sideLength * sideLength)) / sideLength;
         int fromY = from % sideLength;
-        int toX = to / sideLength;
+        int toX = (to % (sideLength * sideLength)) / sideLength;
         int toY = to % sideLength;
 
         double eu = (fromX - toX) * (fromX - toX) + (fromY - toY) * (fromY - toY);
@@ -186,8 +201,11 @@ public class AStar {
                 break;
             }
             Integer prevFloor = i / (sideLength * sideLength);
-            Integer prevX = aNodes.get(i).node / sideLength;
+            Integer prevX = (aNodes.get(i).node % (sideLength * sideLength)) / sideLength;
             Integer prevY = aNodes.get(i).node % sideLength;
+            if (prevX > 100) {
+                System.out.println("");
+            }
             nodeList.add(new Node(prevX, prevY, prevFloor));
             nr = aNodes.get(i);
         }
@@ -201,13 +219,15 @@ public class AStar {
         Double[] keyArray = new Double[numNodes];
         for (int i = 0; i < numNodes; i++) {
             if (i == startNode) {
-                int x = (i / sideLength);
+                int x = (i % (sideLength * sideLength)) / sideLength;
                 int y = (i % sideLength);
                 int goalX = (goalNode / sideLength);
                 int goalY = (goalNode % sideLength);
-                double euclid = Math.sqrt((y - goalY) * (y - goalY) + (x - goalX) * (x - goalX));
-                aNodes.get(i).value = euclid;
-                keyArray[i] = euclid;
+                double euclidToStairs = floorConnection.location.distance(new Point2d(x, y));
+                double euclidFromStairs = floorConnection.location.distance(new Point2d(goalX, goalY));
+                // double euclid = Math.sqrt((y - goalY) * (y - goalY) + (x - goalX) * (x - goalX));
+                aNodes.get(i).value = euclidFromStairs + euclidToStairs;
+                keyArray[i] = euclidFromStairs + euclidToStairs;
             } else {
                 aNodes.get(i).value = 10000.0;
                 keyArray[i] = 10000.0;

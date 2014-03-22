@@ -274,6 +274,7 @@ public class LayoutChunk implements Runnable {
             for (Person p : people) {
                 try {
                     if (i == evacTime) {
+                        int z = p.floor;
                         int x = (int) Math.round(p.getLocation().x);
                         int y = (int) Math.round(p.getLocation().y);
 
@@ -284,7 +285,7 @@ public class LayoutChunk implements Runnable {
                         if (y < 0)
                             y = 0;
 
-                        ArrayList<aConnection> aconn = chunkStar.getConnections().get(x * w.getSideLength() + y);
+                        ArrayList<aConnection> aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + x * w.getSideLength() + y);
                         int rand1 = x;
                         int rand2 = y;
 
@@ -293,7 +294,7 @@ public class LayoutChunk implements Runnable {
                             rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
                             rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
 
-                            aconn = chunkStar.getConnections().get(rand1 * w.getSideLength() + rand2);
+                            aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + rand1 * w.getSideLength() + rand2);
                         }
 
                         x = rand1;
@@ -325,7 +326,7 @@ public class LayoutChunk implements Runnable {
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
                     }
 
-                    if (((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
+                    if (i != evacTime && ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
                             p.expectedTimeStepAtNextGoal + 1 < p.locations.size() || stuckOnWall(p, i)) && ASTAR == 1) {
 
                         blockages++;
@@ -411,7 +412,7 @@ public class LayoutChunk implements Runnable {
         x = rand1;
         y = rand2;
         int startNode = (p.floor * sideLength * sideLength) + x * sideLength + y;
-        int goalNode = p.getGoalList().getLast().x * sideLength + p.getGoalList().getLast().y;
+        int goalNode = p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
         int goalZ = goalNode / (sideLength * sideLength);
         int goalX = goalNode / sideLength;
         int goalY = goalNode % sideLength;
@@ -422,7 +423,7 @@ public class LayoutChunk implements Runnable {
         }
         if (p.floor == 1)
             System.out.println("");
-        Path path = chunkStar.getPath(startNode, goalX, goalY, goalZ, densityMap);
+        Path path = chunkStar.getPath(startNode, goalX, goalY, goalZ, densityMap, w.floorConnections.get(0));
 
         p.setGoalList(path.getSubGoals());
 
@@ -523,6 +524,9 @@ public class LayoutChunk implements Runnable {
                 }
             }
         }
+        FloorConnection fc = w.floorConnections.get(0);
+        edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
+                nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
     }
 
     public void printDensity() {

@@ -40,6 +40,8 @@ public class World {
 
     public int numFloors;
 
+    public ArrayList<FloorConnection> floorConnections;
+
     public World(int sideLength, int numFloors) {
 
         fdPOIList = new ArrayList<FastDijkstra>();
@@ -62,6 +64,8 @@ public class World {
         routesComputed = false;
 
         people = new ArrayList<Person>();
+
+        floorConnections = new ArrayList<FloorConnection>();
     }
 
     public void addWall(double x1, double y1, double x2, double y2, int floor) {
@@ -346,6 +350,10 @@ public class World {
 
     public void setEvac(Point3d evac) {
         this.evac = evac;
+    }
+
+    public void addFloorConnection(FloorConnection floorConnection) {
+        floorConnections.add(floorConnection);
     }
 
 }

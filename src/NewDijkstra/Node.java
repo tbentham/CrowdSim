@@ -4,9 +4,9 @@ import javax.vecmath.Point2d;
 
 public class Node {
 
-    public Integer x;
-    public Integer y;
-    public Integer floor;
+    private Integer x;
+    private Integer y;
+    private Integer floor;
 
     public Node(Integer x, Integer y, Integer floor) {
         this.x = x;
@@ -16,11 +16,6 @@ public class Node {
 
     public Point2d toPoint2d() {
         return new Point2d(x, y);
-    }
-
-    @Override
-    public String toString() {
-        return (x + ", " + y);
     }
 
     public Integer getX() {

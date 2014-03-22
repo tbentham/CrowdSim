@@ -32,8 +32,8 @@ public class Path {
             double lastDiffX;  // last difference in x-coord value
             double lastDiffY;  // last difference in y-coord value
 
-            double curDiffX = lastVertex.x - curVertex.x;
-            double curDiffY = lastVertex.y - curVertex.y;
+            double curDiffX = lastVertex.getX() - curVertex.getX();
+            double curDiffY = lastVertex.getY() - curVertex.getY();
 
             for (int i = 2; i < vertices.size(); i++) {
                 // current differences are now last differences
@@ -44,8 +44,8 @@ public class Path {
                 curVertex = vertices.get(i);
 
                 // calculate current differences
-                curDiffX = lastVertex.x - curVertex.x;
-                curDiffY = lastVertex.y - curVertex.y;
+                curDiffX = lastVertex.getX() - curVertex.getX();
+                curDiffY = lastVertex.getY() - curVertex.getY();
 
                 //System.out.print("Iteration: "+i+". Considering: "+curVertex.toString()+"\t\tLast Difference: ("+lastDiffX+", "+lastDiffY+").\tCurrent Difference: ("+curDiffX+", "+curDiffY+").\t");
 
@@ -67,7 +67,7 @@ public class Path {
 
     public void printPath() {
         for (int i = 0; i < vertices.size(); i++) {
-           System.out.println(vertices.get(i));
+            System.out.println(vertices.get(i));
         }
     }
 }

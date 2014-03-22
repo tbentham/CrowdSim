@@ -47,7 +47,7 @@ public class BasicCanvas {
         Integer PEOPLE = 100;
         Integer ASTAR = 1;
         Integer ASTAR_FREQUENCY = 5;
-        Integer numFloors = 1;
+        Integer numFloors = 2;
 
         Cobject[] cobjs;
         Server server = new Server();
@@ -80,8 +80,7 @@ public class BasicCanvas {
             PEOPLE = ((Double) jettyHandle.getConfig().get("numPeople")).intValue();
             ASTAR = ((Double) jettyHandle.getConfig().get("astarToggle")).intValue();
             ASTAR_FREQUENCY = ((Double) jettyHandle.getConfig().get("astarFreq")).intValue();
-        }
-        else {
+        } else {
             // Convert object file input into string and store in objects
             final String EoL = System.getProperty("line.separator");
             List<String> lines = Files.readAllLines(Paths.get(objectsFileName),
@@ -162,6 +161,10 @@ public class BasicCanvas {
                     world.getNodeArray()[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
         }
 
+        for (FloorConnection floorConnection : stairs) {
+            world.addFloorConnection(floorConnection);
+        }
+
         world.computeDijsktraTowards(poi, evacuationPoints);
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
@@ -171,7 +174,7 @@ public class BasicCanvas {
             try {
                 int num = (int) Math.round(Math.random() * (poi.size() - 1));
                 // world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
-                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 0, num, evacBool);
+                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
 
             } catch (PersonOverlapException e) {
 
