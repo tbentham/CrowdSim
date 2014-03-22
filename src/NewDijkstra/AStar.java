@@ -228,5 +228,4 @@ public class AStar {
     public HashMap<Integer, ArrayList<aConnection>> getConnections() {
         return connections;
     }
-
 }

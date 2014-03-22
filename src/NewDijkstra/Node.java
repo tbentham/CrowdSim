@@ -23,4 +23,17 @@ public class Node {
         return (x + ", " + y);
     }
 
+    public Integer getX() {
+        return x;
+    }
+
+    public Integer getY() {
+        return y;
+    }
+
+    public Integer getZ() {
+        return floor;
+    }
+
+
 }
