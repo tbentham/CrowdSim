@@ -16,7 +16,6 @@ var endOfArray = -1;  //For "tail" access
 
 var featureID = 0;
 var click = false;
-var traceOn = false;
 var debugOn = false;
 var staticDensityOn = false;
 var dynamicDensityOn = false;
@@ -36,7 +35,6 @@ var staticDensity = new Array();
 var dynamicDensity = new Array();
 var canvasPeople;
 var canvasPeople_colours = new Array();
-var canvasTraces = new Array();
 var canvasDensity;
 
 function init() {
@@ -84,9 +82,6 @@ function populate(time, clear){
 	    for(var i = 0; i < canvasPeople.length; i++){
 		canvasPeople[i].graphics.clear();
 	    }
-	    for(var i = 0; i < canvasTraces.length; i++){
-		canvasTraces[i].graphics.clear();
-	    }
 	}
 
 	for(var i = 0; i < canvasPeople.length; i++){ 
@@ -104,19 +99,6 @@ function populate(time, clear){
 		}
 	    }
 	}
-
-	//TODO: remove all relics of trace mode
-	if(traceOn){
-	for(var i = 0; i < people.length; i++){
-	    for(var j = 0; j < time + 1; j++){
-		if (j > 0){
-		    s = new createjs.Shape(); canvasTraces.push(s);
-		    s.graphics.beginStroke(canvasPeople_colours[i]).setStrokeStyle(1.0).moveTo(people[i][j-1].x, people[i][j-1].y).lineTo(people[i][j].x, people[i][j].y).endStroke();
-		    stage.addChild(s); 
-		    }
-		}
-	  }
-      }
     }
 
     //Update the timestep number
@@ -476,15 +458,6 @@ function toggleDynamicDensity() {
     }
 }
 
-function traceToggle(){
-    if(traceOn){
-        traceOn = false;
-    }
-    else{
-        traceOn = true;
-    }
-}
-
 function cursorPixelToggle(){
     if(debug){
         stage.removeEventListener("stagemousemove", cursorPixels);
@@ -514,16 +487,8 @@ function simulate(option){
 
         time = 0;
 
-        if(interval){ // Has already been started, therefore needs to be started from the beginning with no traces and new arrays
+        if(interval){ // Has already been started, therefore needs to be started from the beginning
             window.clearInterval(interval);
-            //This now causes a lag spike - All of this people drawing stuff needs to be reworked.
-            if(canvasTraces){
-                for(var i = 0; i < canvasTraces.length; i++){
-                    stage.removeChild(canvasTraces[i]);
-                }
-                stage.update();
-            }
-            canvasTraces = new Array();
         }
         interval = window.setInterval(function(){populate(time);time++}, 100);
     }
