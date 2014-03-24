@@ -330,16 +330,6 @@ public class LayoutChunk implements Runnable {
                         blockages++;
                         p.blockedList.set(p.blockedList.size() - 1, true);
 
-                        if (i >= evacTime) {
-                            System.out.println("");
-                        }
-//
-//                        if (i > evacTime) {
-//                            if (p.getGoalList().get(p.getGoalList().size() - 1).getX() != 54) {
-//                                System.out.println("broke");
-//                            }
-//                        }
-
                         //Dont a star so often brah
                         if (p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
