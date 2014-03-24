@@ -1,4 +1,3 @@
-import Dijkstra.Edge;
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
 import WorldRepresentation.*;
@@ -153,17 +152,10 @@ public class BasicCanvas {
             System.err.println("No fuckin' evacuation points mate?");
         }
 
+        world.addFloorConnections(stairs);
         world.setUp();
         world.printFloorPlan();
         world.setEvac(evac);
-        for (FloorConnection fc : stairs) {
-            world.getEdges().add(new Edge(world.getNodeArray()[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
-                    world.getNodeArray()[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
-        }
-
-        for (FloorConnection floorConnection : stairs) {
-            world.addFloorConnection(floorConnection);
-        }
 
         world.computeDijsktraTowards(poi, evacuationPoints);
 
@@ -174,7 +166,7 @@ public class BasicCanvas {
             try {
                 int num = (int) Math.round(Math.random() * (poi.size() - 1));
                 // world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
-                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
+                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), (int) (Math.random() * numFloors), num, evacBool);
 
             } catch (PersonOverlapException e) {
 
@@ -195,10 +187,10 @@ public class BasicCanvas {
 
         for (int i = 0; i < NUM_THREADS; i++) {
             if (i != NUM_THREADS - 1) {
-                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, (i + 1) * delta, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, (i + 1) * delta, barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
                 chunks.add(nextChunk);
             } else {
-                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, 100, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, 100, barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
                 chunks.add(nextChunk);
             }
         }
