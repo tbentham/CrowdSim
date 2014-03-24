@@ -42,9 +42,6 @@ public class LayoutChunk implements Runnable {
     public int i;
     public int numFloors;
 
-//    private HashMap<Point2d, Queue<Person>> queues;
-//    private Queue<Person> newPeople;
-
     public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary,
                        CyclicBarrier barrier, int steps, World w, Integer evacTime,
                        Integer astarToggle, Integer astarFreq, int numFloors) {
@@ -84,20 +81,12 @@ public class LayoutChunk implements Runnable {
         lWalls.get(floor).add(new Wall(x1, y1, x2, y2));
     }
 
-    public ArrayList<ArrayList<Wall>> getWalls() {
-        return lWalls;
-    }
-
     public void addPerson(Person p) {
         people.add(p);
     }
 
     public ArrayList<Person> getPeople() {
         return people;
-    }
-
-    public int[][][][] getAllDensityMaps() {
-        return allDensityMaps;
     }
 
     public boolean isPointInside(double x, double y) {
@@ -155,30 +144,10 @@ public class LayoutChunk implements Runnable {
         }
     }
 
-    private ArrayList<Person> peopleLeftEdge() {
-        ArrayList<Person> ret = new ArrayList<Person>();
-        for (Person p : people) {
-            if (p.getLocation() != null && p.getLocation().x - leftXBoundary < 2) {
-                ret.add(p);
-            }
-        }
-        return ret;
-    }
-
     private ArrayList<Person> peopleTopEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
             if (p.getLocation() != null && topYBoundary - p.getLocation().y < 2) {
-                ret.add(p);
-            }
-        }
-        return ret;
-    }
-
-    private ArrayList<Person> peopleRightEdge() {
-        ArrayList<Person> ret = new ArrayList<Person>();
-        for (Person p : people) {
-            if (p.getLocation() != null && rightXBoundary - p.getLocation().x < 2) {
                 ret.add(p);
             }
         }
@@ -233,14 +202,11 @@ public class LayoutChunk implements Runnable {
     }
 
     public void run() {
-        int astars = 0;
 
         for (i = 0; i < this.steps; i++) {
             System.out.println(i);
-            // System.out.println("My queue has: " + q.size() + " And I have: " + people.size());
             overlapPeople = new ArrayList<Person>();
             addPeople();
-            // System.out.println("U have " + overlapPeople.size() +
             System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am about to send my overlaps on timestep " + i);
             sendOverlaps();
             System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I have sent my overlaps on timestep " + i);
@@ -263,8 +229,6 @@ public class LayoutChunk implements Runnable {
             populateDensityMap();
 
 //             allDensityMaps[i] = densityMap;
-
-            int blockages = 0;
 
             ArrayList<Person> toRemove = new ArrayList<Person>();
             for (Person p : people) {
@@ -323,13 +287,11 @@ public class LayoutChunk implements Runnable {
                     if (i != evacTime && ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
                             p.expectedTimeStepAtNextGoal + 1 < p.locations.size() || stuckOnWall(p, i)) && ASTAR == 1) {
 
-                        blockages++;
                         p.blockedList.set(p.blockedList.size() - 1, true);
 
                         //Dont a star so often brah
                         if (p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
-                            astars++;
                             p.lastAStar = i;
                         }
                     }
@@ -520,19 +482,6 @@ public class LayoutChunk implements Runnable {
         for (FloorConnection fc : w.floorConnections) {
             edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
                     nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
-        }
-    }
-
-    public void printDensity() {
-        int sideLength = w.getSideLength();
-        for (int z = 0; z < numFloors; z++) {
-            System.out.println("Printing floor " + z + " density");
-            for (int i = 0; i < sideLength; i++) {
-                for (int j = 0; j < sideLength; j++) {
-                    System.out.print(densityMap[j][i][z]);
-                }
-                System.out.println();
-            }
         }
     }
 
