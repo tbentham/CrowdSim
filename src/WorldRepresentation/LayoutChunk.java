@@ -46,10 +46,8 @@ public class LayoutChunk implements Runnable {
 //    private Queue<Person> newPeople;
 
     public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary,
-                       ArrayList<ArrayList<Wall>> walls, CyclicBarrier barrier, int steps, World w, Integer evacTime,
+                       CyclicBarrier barrier, int steps, World w, Integer evacTime,
                        Integer astarToggle, Integer astarFreq, int numFloors) {
-        System.out.println("LayoutChunk Created");
-
         this.numFloors = numFloors;
         this.ASTAR = astarToggle;
         this.ASTAR_FREQUENCY = astarFreq;
@@ -67,7 +65,7 @@ public class LayoutChunk implements Runnable {
             lWalls.add(new ArrayList<Wall>());
         }
         floorPlan = new int[w.getSideLength()][w.getSideLength()][numFloors];
-        gWalls = walls;
+        gWalls = w.getWalls();
         densityMap = new int[w.getSideLength()][w.getSideLength()][numFloors];
         // allDensityMaps = new int[steps][w.getSideLength()][w.getSideLength()][numFloors];
         finished = false;
@@ -80,8 +78,6 @@ public class LayoutChunk implements Runnable {
         populateFloorPlan();
         createEdges();
         chunkStar = new AStar(w.getSideLength() * w.getSideLength() * numFloors, edges, w.getSideLength());
-
-        long end = System.currentTimeMillis();
     }
 
     public void addWall(double x1, double y1, double x2, double y2, int floor) {

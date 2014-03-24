@@ -187,10 +187,10 @@ public class BasicCanvas {
 
         for (int i = 0; i < NUM_THREADS; i++) {
             if (i != NUM_THREADS - 1) {
-                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, (i + 1) * delta, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, (i + 1) * delta, barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
                 chunks.add(nextChunk);
             } else {
-                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, 100, world.getWalls(), barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
+                LayoutChunk nextChunk = new LayoutChunk(0, 100, i * delta, 100, barrier, TIME_STEPS, world, EVAC_TIME, ASTAR, ASTAR_FREQUENCY, numFloors);
                 chunks.add(nextChunk);
             }
         }
