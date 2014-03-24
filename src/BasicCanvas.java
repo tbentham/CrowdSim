@@ -124,7 +124,7 @@ public class BasicCanvas {
         Point3d goal;
         Point3d evac = new Point3d(0, 0, 0);
         boolean evacBool = false;
-        ArrayList<FloorConnection> stairs = new ArrayList<>();
+        ArrayList<FloorConnection> stairs = new ArrayList<FloorConnection>();
 
         for (Cobject co : cobjs) {
             if (co.getType() == 0) {
@@ -323,22 +323,25 @@ public class BasicCanvas {
             Person p = output.get(i);
             stuckStatus[i] = p.blockedList.toArray(new Boolean[p.blockedList.size()]);
         }
-//
-//        /* TOTAL DENSITY MAP */
-//        int[][][][] totalDensityMaps = new int[TIME_STEPS][world.sideLength][world.sideLength][numFloors];
-//        for ( LayoutChunk c : chunks ) {
-//        	int[][][][] densityMaps = c.getAllDensityMaps();
-//        	for (int i=0; i < TIME_STEPS; i++) {
-//        		for (int j=0; j < world.getSideLength(); j++) {
-//        			for (int k=0; k < world.getSideLength(); k++) {
-//        				for (int l=0; l < numFloors; l++) {
-//                    		if ( densityMaps[i][j][k][l] != 0 )
-//                    			totalDensityMaps[i][j][k][l] = densityMaps[i][j][k][l];
-//        				}
-//                	}
-//            	}
-//        	}
-//        }
+
+        /* TOTAL DENSITY MAP */
+        ArrayList<int[][][]> totalDensityMaps = new ArrayList<int[][][]>();
+    	for (int i=0; i < TIME_STEPS; i++) {
+    		totalDensityMaps.add(new int[world.sideLength][world.sideLength][numFloors]);
+    	}
+        for ( LayoutChunk c : chunks ) {
+        	ArrayList<int[][][]> densityMaps = c.getAllDensityMaps();
+        	for (int i=0; i < TIME_STEPS; i++) {
+        		for (int j=0; j < world.getSideLength(); j++) {
+        			for (int k=0; k < world.getSideLength(); k++) {
+        				for (int l=0; l < numFloors; l++) {
+                    		if ( densityMaps.get(i)[j][k][l] != 0 )
+                    			totalDensityMaps.get(i)[j][k][l] = densityMaps.get(i)[j][k][l];
+        				}
+                	}
+            	}
+        	}
+        }
 
         try {
             FileWriter writer = new FileWriter("www/console.txt");
@@ -351,7 +354,7 @@ public class BasicCanvas {
 
         toJson(stuckStatus, "www/stuck.json");
         toJson(locations, "www/people.json");
-        // toJson(totalDensityMaps, "www/densities.json");
+        toJson(totalDensityMaps, "www/densities.json");
         toJson(world.getStaticDensityMap(), "www/bottlenecks.json");
         System.out.println("I'm done");
         System.out.println("Total time taken: " + (System.currentTimeMillis() - d));

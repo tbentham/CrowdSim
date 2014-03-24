@@ -27,7 +27,7 @@ public class LayoutChunk implements Runnable {
     private int steps;
     private int[][][] floorPlan;
     private int[][][] densityMap;
-    private int[][][][] allDensityMaps;
+    private ArrayList<int[][][]> allDensityMaps;
     private World w;
     private ArrayList<Edge> edges;
     private Vertex[][][] nodes;
@@ -69,7 +69,7 @@ public class LayoutChunk implements Runnable {
         floorPlan = new int[w.getSideLength()][w.getSideLength()][numFloors];
         gWalls = walls;
         densityMap = new int[w.getSideLength()][w.getSideLength()][numFloors];
-        // allDensityMaps = new int[steps][w.getSideLength()][w.getSideLength()][numFloors];
+        allDensityMaps = new ArrayList<int[][][]>();
         finished = false;
         this.w = w;
         this.barrier = barrier;
@@ -100,7 +100,7 @@ public class LayoutChunk implements Runnable {
         return people;
     }
 
-    public int[][][][] getAllDensityMaps() {
+    public ArrayList<int[][][]> getAllDensityMaps() {
         return allDensityMaps;
     }
 
@@ -266,7 +266,7 @@ public class LayoutChunk implements Runnable {
             allPeople.addAll(overlapPeople);
             populateDensityMap();
 
-//             allDensityMaps[i] = densityMap;
+            allDensityMaps.add(densityMap);
 
             int blockages = 0;
 
@@ -524,9 +524,11 @@ public class LayoutChunk implements Runnable {
                 }
             }
         }
-        FloorConnection fc = w.floorConnections.get(0);
-        edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
+        if ( w.floorConnections.size() > 0 ) {
+        	FloorConnection fc = w.floorConnections.get(0);
+        	edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
                 nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
+        }
     }
 
     public void printDensity() {

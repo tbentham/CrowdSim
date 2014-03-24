@@ -94,9 +94,11 @@ public class Person {
                 //pick a new random goal
                 int tGoalID = (int) Math.round(Math.random() * (w.fdPOIList.size() - 1));
 
-                //Randomize new goal until it works
-                while (tGoalID == this.goalID) {
-                    tGoalID = (int) Math.round(Math.random() * (w.fdPOIList.size() - 1));
+                if (w.fdPOIList.size() != 1) {
+                    //Randomize new goal until it works
+                	while (tGoalID == this.goalID) {
+                		tGoalID = (int) Math.round(Math.random() * (w.fdPOIList.size() - 1));
+                	}
                 }
                 if (tGoalID == -1) {
                     System.out.println("");
