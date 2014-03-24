@@ -36,8 +36,10 @@ public class AStar {
 
     // Returns the path from the startNode to the goal by calling pathFind and constructing the path from the nodeRecord
     public Path getPath(Integer startNode, Integer goalX, Integer goalY,
-                        Integer goalFloor, int[][][] density, FloorConnection floorConnection) throws Exception {
-        this.floorConnection = floorConnection;
+                        Integer goalFloor, int[][][] density, ArrayList<FloorConnection> floorConnections) throws Exception {
+        if (floorConnections.size() > 0) {
+            this.floorConnection = closestFloorConnection(floorConnections, startNode);
+        }
         Integer goalNode = (goalFloor * sideLength * sideLength) + (goalX * sideLength) + goalY;
         NodeRecord nr = pathFind(startNode, goalNode, density);
         return pathFromNodeRecord(startNode, goalX, goalY, goalFloor, nr);
@@ -79,13 +81,18 @@ public class AStar {
             int x = Math.round((currentNode % (sideLength * sideLength) / sideLength));
             int y = Math.round(currentNode % sideLength);
 
-            if (z != goalNode / (sideLength * sideLength)) {
+            if (floorConnection != null && z != goalNode / (sideLength * sideLength)) {
                 euCurr = euclidDistance(sideLength, currentNode, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y);
                 euCurr += euclidDistance(sideLength, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y, goalNode);
             }
 
             // Use the (x, y, z) coordinates to find the density at the current point
             int currDensity = density[x][y][z];
+
+            if (connections.get(currentNodeRecord.node) == null) {
+                priorityQueue.remove(currentNodeRecord);
+                continue;
+            }
 
             // Loop through each node connected to the current node
             for (aConnection connection : connections.get(currentNodeRecord.node)) {
@@ -101,7 +108,7 @@ public class AStar {
                 int toNodeRecordY = toNodeRecord.node % sideLength;
                 int toNodeRecordZ = toNodeRecord.node / (sideLength * sideLength);
 
-                if (toNodeRecordZ != (goalNode / (sideLength * sideLength))) {
+                if (floorConnection != null && toNodeRecordZ != (goalNode / (sideLength * sideLength))) {
                     euTo = euclidDistance(sideLength, toNodeRecord.node, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y);
                     euTo += euclidDistance(sideLength, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y, goalNode);
                 }
@@ -197,6 +204,9 @@ public class AStar {
         nodeList.add(new Node(goalX, goalY, goalFloor));
         while (true) {
             Integer i = nr.predecessor;
+            if (i == null) {
+                break;
+            }
             if (i.equals(startNode)) {
                 break;
             }
@@ -204,7 +214,7 @@ public class AStar {
             Integer prevX = (aNodes.get(i).node % (sideLength * sideLength)) / sideLength;
             Integer prevY = aNodes.get(i).node % sideLength;
             if (prevX > 100) {
-                System.out.println("");
+                System.exit(1);
             }
             nodeList.add(new Node(prevX, prevY, prevFloor));
             nr = aNodes.get(i);
@@ -221,19 +231,37 @@ public class AStar {
             if (i == startNode) {
                 int x = (i % (sideLength * sideLength)) / sideLength;
                 int y = (i % sideLength);
-                int goalX = (goalNode / sideLength);
+                int goalX = (goalNode % (sideLength * sideLength) / sideLength);
                 int goalY = (goalNode % sideLength);
-                double euclidToStairs = floorConnection.location.distance(new Point2d(x, y));
-                double euclidFromStairs = floorConnection.location.distance(new Point2d(goalX, goalY));
-                // double euclid = Math.sqrt((y - goalY) * (y - goalY) + (x - goalX) * (x - goalX));
-                aNodes.get(i).value = euclidFromStairs + euclidToStairs;
-                keyArray[i] = euclidFromStairs + euclidToStairs;
+                double euclid = Math.sqrt((y - goalY) * (y - goalY) + (x - goalX) * (x - goalX));
+                if (floorConnection != null) {
+                    double euclidToStairs = floorConnection.location.distance(new Point2d(x, y));
+                    double euclidFromStairs = floorConnection.location.distance(new Point2d(goalX, goalY));
+                    euclid = euclidFromStairs + euclidToStairs;
+                }
+                aNodes.get(i).value = euclid;
+                keyArray[i] = euclid;
             } else {
                 aNodes.get(i).value = 10000.0;
                 keyArray[i] = 10000.0;
             }
         }
         return keyArray;
+    }
+
+    private FloorConnection closestFloorConnection(ArrayList<FloorConnection> floorConnections, Integer startNode) {
+        Integer startX = (startNode % (sideLength * sideLength)) / sideLength;
+        Integer startY = startNode % sideLength;
+        Double min = floorConnections.get(0).location.distance(new Point2d(startX, startY));
+        Integer id = 0;
+        for (int i = 1; i < floorConnections.size(); i++) {
+            Double dist = floorConnections.get(i).location.distance(new Point2d(startX, startY));
+            if (dist < min) {
+                min = dist;
+                id = i;
+            }
+        }
+        return floorConnections.get(id);
     }
 
     // Put each NodeRecord into priorityQueue

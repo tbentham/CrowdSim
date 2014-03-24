@@ -174,7 +174,7 @@ public class BasicCanvas {
             try {
                 int num = (int) Math.round(Math.random() * (poi.size() - 1));
                 // world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
-                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
+                world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), (int) (Math.random() * numFloors), num, evacBool);
 
             } catch (PersonOverlapException e) {
 

@@ -274,7 +274,6 @@ public class LayoutChunk implements Runnable {
             for (Person p : people) {
                 try {
                     if (i == evacTime) {
-                        int z = p.floor;
                         int x = (int) Math.round(p.getLocation().x);
                         int y = (int) Math.round(p.getLocation().y);
 
@@ -315,7 +314,6 @@ public class LayoutChunk implements Runnable {
 
                         p.setGoalList(thisPath.getSubGoals());
                         p.evacBool = true;
-
                     }
 
                     if (p.getLocation() == null) {
@@ -331,6 +329,17 @@ public class LayoutChunk implements Runnable {
 
                         blockages++;
                         p.blockedList.set(p.blockedList.size() - 1, true);
+
+                        if (i >= evacTime) {
+                            System.out.println("");
+                        }
+//
+//                        if (i > evacTime) {
+//                            if (p.getGoalList().get(p.getGoalList().size() - 1).getX() != 54) {
+//                                System.out.println("broke");
+//                            }
+//                        }
+
                         //Dont a star so often brah
                         if (p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
@@ -414,16 +423,14 @@ public class LayoutChunk implements Runnable {
         int startNode = (p.floor * sideLength * sideLength) + x * sideLength + y;
         int goalNode = p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
         int goalZ = goalNode / (sideLength * sideLength);
-        int goalX = goalNode / sideLength;
+        int goalX = (goalNode % (sideLength * sideLength)) / sideLength;
         int goalY = goalNode % sideLength;
         p.astarCheck = true;
 
         if (chunkStar.getConnections().get(startNode) == null) {
             System.out.println("Tried to do AStar from " + x + ", " + y + " but couldn't find any connections");
         }
-        if (p.floor == 1)
-            System.out.println("");
-        Path path = chunkStar.getPath(startNode, goalX, goalY, goalZ, densityMap, w.floorConnections.get(0));
+        Path path = chunkStar.getPath(startNode, goalX, goalY, goalZ, densityMap, w.floorConnections);
 
         p.setGoalList(path.getSubGoals());
 
@@ -524,9 +531,10 @@ public class LayoutChunk implements Runnable {
                 }
             }
         }
-        FloorConnection fc = w.floorConnections.get(0);
-        edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
-                nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
+        for (FloorConnection fc : w.floorConnections) {
+            edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
+                    nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
+        }
     }
 
     public void printDensity() {
