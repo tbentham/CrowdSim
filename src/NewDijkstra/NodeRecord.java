@@ -28,11 +28,4 @@ public class NodeRecord implements Comparable<NodeRecord> {
         return this.node.equals(other.node);
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 53 * hash + (this.node != null ? this.node.hashCode() : 0);
-        return hash;
-    }
-
 }
