@@ -37,6 +37,7 @@ public class AStar {
     // Returns the path from the startNode to the goal by calling pathFind and constructing the path from the nodeRecord
     public Path getPath(Integer startNode, Integer goalX, Integer goalY,
                         Integer goalFloor, int[][][] density, ArrayList<FloorConnection> floorConnections) throws Exception {
+        // Finds the closest floor connection that can be used
         if (floorConnections.size() > 0) {
             this.floorConnection = closestFloorConnection(floorConnections, startNode);
         }
@@ -81,6 +82,8 @@ public class AStar {
             int x = Math.round((currentNode % (sideLength * sideLength) / sideLength));
             int y = Math.round(currentNode % sideLength);
 
+            // Calculates the Euclidean distance from the current position to the stairs
+            // and then from the stairs to the goal
             if (floorConnection != null && z != goalNode / (sideLength * sideLength)) {
                 euCurr = euclidDistance(sideLength, currentNode, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y);
                 euCurr += euclidDistance(sideLength, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y, goalNode);
@@ -108,6 +111,8 @@ public class AStar {
                 int toNodeRecordY = toNodeRecord.node % sideLength;
                 int toNodeRecordZ = toNodeRecord.node / (sideLength * sideLength);
 
+                // Calculates the Euclidean distance from the current position to the stairs
+                // and then from the stairs to the goal
                 if (floorConnection != null && toNodeRecordZ != (goalNode / (sideLength * sideLength))) {
                     euTo = euclidDistance(sideLength, toNodeRecord.node, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y);
                     euTo += euclidDistance(sideLength, (int) floorConnection.location.x * sideLength + (int) floorConnection.location.y, goalNode);
@@ -213,9 +218,6 @@ public class AStar {
             Integer prevFloor = i / (sideLength * sideLength);
             Integer prevX = (aNodes.get(i).node % (sideLength * sideLength)) / sideLength;
             Integer prevY = aNodes.get(i).node % sideLength;
-            if (prevX > 100) {
-                System.exit(1);
-            }
             nodeList.add(new Node(prevX, prevY, prevFloor));
             nr = aNodes.get(i);
         }

@@ -1,4 +1,3 @@
-import Dijkstra.Edge;
 import Exceptions.PersonOverlapException;
 import Exceptions.WallOverlapException;
 import WorldRepresentation.*;
@@ -153,17 +152,10 @@ public class BasicCanvas {
             System.err.println("No fuckin' evacuation points mate?");
         }
 
+        world.addFloorConnections(stairs);
         world.setUp();
         world.printFloorPlan();
         world.setEvac(evac);
-        for (FloorConnection fc : stairs) {
-            world.getEdges().add(new Edge(world.getNodeArray()[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
-                    world.getNodeArray()[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
-        }
-
-        for (FloorConnection floorConnection : stairs) {
-            world.addFloorConnection(floorConnection);
-        }
 
         world.computeDijsktraTowards(poi, evacuationPoints);
 

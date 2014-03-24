@@ -104,7 +104,6 @@ public class World {
         populateFloorPlan();
         populateNodeArray();
         createEdges();
-        // edges.add(new Edge(nodeArray[50][50][1], nodeArray[50][50][0], 2, 0));
         isSetUp = true;
         routesComputed = false;
     }
@@ -189,6 +188,7 @@ public class World {
                 }
             }
         }
+        setUpFloorConnections();
     }
 
     public void computeDijsktraTowards(ArrayList<Point3d> goals, ArrayList<Point3d> evacuationPoints) throws WorldNotSetUpException {
@@ -354,6 +354,17 @@ public class World {
 
     public void addFloorConnection(FloorConnection floorConnection) {
         floorConnections.add(floorConnection);
+    }
+
+    public void addFloorConnections(ArrayList<FloorConnection> floorConnections) {
+        this.floorConnections.addAll(floorConnections);
+    }
+
+    public void setUpFloorConnections() {
+        for (FloorConnection fc : floorConnections) {
+            edges.add(new Edge(nodeArray[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
+                    nodeArray[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
+        }
     }
 
 }
