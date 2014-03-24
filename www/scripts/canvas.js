@@ -16,9 +16,9 @@ var endOfArray = -1;  //For "tail" access
 
 var featureID = 0;
 var click = false;
-var trace = false;
-var debug = false;
-var densityOn = false;
+var traceOn = false;
+var debugOn = false;
+var staticDensityOn = false;
 var currentLine;
 var currentCanvasLine;
 var angle = 0;
@@ -31,7 +31,7 @@ var cursorItemPixel; // This needs another tidy session
 var floor_canvasFeatures = new Array();
 var people = new Array();
 var blockages = new Array();
-var density = new Array();
+var staticDensity = new Array();
 var canvasPeople;
 var canvasPeople_colours = new Array();
 var canvasTraces = new Array();
@@ -87,7 +87,7 @@ function populate(time, clear){
     }
 
     //TODO: remove all relics of trace mode
-    if(trace){
+    if(traceOn){
     for(var i = 0; i < people.length; i++){
         for(var j = 0; j < time + 1; j++){
             if (j > 0){
@@ -381,60 +381,53 @@ function getPeople(){
     })
 }
 
-function drawDensityMap() {
-    if ( !canvasDensity ) {
-	canvasDensity = new Array();
-	for (var i = 0; i < density.length; i++) {
-	    canvasDensity[i] = new Array();
-	    for (var j = 0; j < density[i].length; j++) {      
-	    var s = new createjs.Shape();
-		canvasDensity[i].push(s);
-		stage.addChild(s);
-	    }
+function drawStaticDensityMap() {
+    canvasDensity = new Array();
+    for (var i = 0; i < staticDensity.length; i++) {
+	canvasDensity[i] = new Array();
+	for (var j = 0; j < staticDensity[i].length; j++) {      
+	var s = new createjs.Shape();
+	    canvasDensity[i].push(s);
+	    stage.addChild(s);
 	}
     }
     
-    for (var i = 0; i < density.length; i++) {
-	for (var j = 0; j < density[i].length; j++) {
-	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
+    for (var i = 0; i < staticDensity.length; i++) {
+	for (var j = 0; j < staticDensity[i].length; j++) {
+	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(staticDensity[i][j][floor]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
         }
     }
     
     stage.update();
 }
 
-function toggleDensityMap() {
-    if ( densityOn ) {
+function toggleStaticDensityMap() {
+    if ( staticDensityOn ) {
 	for (var i = 0; i < canvasDensity.length; i++) {
 	    for (var j = 0; j < canvasDensity[i].length; j++) {
 		canvasDensity[i][j].graphics.clear();
 	    }
 	}
 	stage.update();
-        densityOn = false;
+        staticDensityOn = false;
 	console.log("Map off");
     }
     else {
-	if ( !canvasDensity ) {
-	    $.get("/bottlenecks.json", function(data){
-		density = JSON.parse(data.toString().trim());
-		drawDensityMap();
-	    });
-	}
-	else {
-	    drawDensityMap();
-	}
-	densityOn = true;
+	$.get("/bottlenecks.json", function(data){
+	    staticDensity = JSON.parse(data.toString().trim());
+	    drawStaticDensityMap();
+	});
+	staticDensityOn = true;
 	console.log("Map on");
     }
 }
 
 function traceToggle(){
-    if(trace){
-        trace = false;
+    if(traceOn){
+        traceOn = false;
     }
     else{
-        trace = true;
+        traceOn = true;
     }
 }
 
@@ -702,7 +695,12 @@ function redrawCanvas(){
         for(i = 0; i < canvasPeople.length; i++) {
             stage.addChild(canvasPeople[i])
         }  
-    }  
+    }
+    
+    if ( staticDensityOn ) {
+	staticDensityOn = false;
+	toggleStaticDensityMap();
+    }
 
     stage.update();
 }
