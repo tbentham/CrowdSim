@@ -1,6 +1,7 @@
 
 package NewDijkstra;
 
+import WorldRepresentation.FloorConnection;
 import WorldRepresentation.Path;
 import WorldRepresentation.World;
 import org.junit.After;
@@ -13,7 +14,6 @@ import static junit.framework.Assert.assertTrue;
 
 public class aStarTest {
 
-    private Integer goalNode;
     private Integer startNode;
     private int sideLength;
     private World w;
@@ -22,7 +22,6 @@ public class aStarTest {
 
     @Before
     public void setUp() throws Exception {
-        goalNode = 0;
         startNode = 2688;
         sideLength = 100;
         w = new World(100, 1);
@@ -41,7 +40,7 @@ public class aStarTest {
 
         w.setUp();
 
-        aStar = new AStar(sideLength * sideLength, (ArrayList) w.getEdges(), sideLength);
+        aStar = new AStar(sideLength * sideLength, w.getEdges(), sideLength);
     }
 
     @After
@@ -51,7 +50,7 @@ public class aStarTest {
 
     @Test
     public void aStarReturnsValidConnectedPath() throws Exception {
-        Path path = aStar.getPath(startNode, 0, 0, 0, densityMap, null);
+        Path path = aStar.getPath(startNode, 0, 0, 0, densityMap, new ArrayList<FloorConnection>());
         ArrayList<aConnection> connections = aStar.getConnections().get(startNode);
         boolean found = false;
         for (aConnection ac : connections) {
