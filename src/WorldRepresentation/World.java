@@ -94,10 +94,6 @@ public class World {
         Path p1 = getPath(x, y, floor, goalID, evac);
         person.setGoalList(p1.getSubGoals());
         people.add(person);
-        if (person.getGoalList().size() == 0) {
-
-            System.out.println();
-        }
     }
 
     public void setUp() {

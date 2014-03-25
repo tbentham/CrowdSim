@@ -79,6 +79,7 @@ public class BasicCanvas {
             PEOPLE = ((Double) jettyHandle.getConfig().get("numPeople")).intValue();
             ASTAR = ((Double) jettyHandle.getConfig().get("astarToggle")).intValue();
             ASTAR_FREQUENCY = ((Double) jettyHandle.getConfig().get("astarFreq")).intValue();
+            numFloors = ((Double) jettyHandle.getConfig().get("numFloors")).intValue();
         } else {
             // Convert object file input into string and store in objects
             final String EoL = System.getProperty("line.separator");
@@ -111,7 +112,7 @@ public class BasicCanvas {
             PEOPLE = conf.get("numPeople").intValue();
             ASTAR = conf.get("astarToggle").intValue();
             ASTAR_FREQUENCY = conf.get("astarFreq").intValue();
-
+            numFloors = conf.get("numFloors").intValue();
         }
 
         double d = System.currentTimeMillis();
@@ -318,21 +319,21 @@ public class BasicCanvas {
 
         /* TOTAL DENSITY MAP */
         ArrayList<int[][][]> totalDensityMaps = new ArrayList<int[][][]>();
-    	for (int i=0; i < TIME_STEPS; i++) {
-    		totalDensityMaps.add(new int[world.sideLength][world.sideLength][numFloors]);
-    	}
-        for ( LayoutChunk c : chunks ) {
-        	ArrayList<int[][][]> densityMaps = c.getAllDensityMaps();
-        	for (int i=0; i < TIME_STEPS; i++) {
-        		for (int j=0; j < world.getSideLength(); j++) {
-        			for (int k=0; k < world.getSideLength(); k++) {
-        				for (int l=0; l < numFloors; l++) {
-                    		if ( densityMaps.get(i)[j][k][l] != 0 )
-                    			totalDensityMaps.get(i)[j][k][l] = densityMaps.get(i)[j][k][l];
-        				}
-                	}
-            	}
-        	}
+        for (int i = 0; i < TIME_STEPS; i++) {
+            totalDensityMaps.add(new int[world.sideLength][world.sideLength][numFloors]);
+        }
+        for (LayoutChunk c : chunks) {
+            ArrayList<int[][][]> densityMaps = c.getAllDensityMaps();
+            for (int i = 0; i < TIME_STEPS; i++) {
+                for (int j = 0; j < world.getSideLength(); j++) {
+                    for (int k = 0; k < world.getSideLength(); k++) {
+                        for (int l = 0; l < numFloors; l++) {
+                            if (densityMaps.get(i)[j][k][l] != 0)
+                                totalDensityMaps.get(i)[j][k][l] = densityMaps.get(i)[j][k][l];
+                        }
+                    }
+                }
+            }
         }
 
         try {
