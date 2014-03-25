@@ -21,8 +21,6 @@ public class AStar {
     private ArrayList<NodeRecord> aNodes;
     // HashMap storing all connections to and from each node
     private HashMap<Integer, ArrayList<aConnection>> connections;
-    // Key value A* Star has associated with each node
-    private Double[] keys;
     // Multiplier to up or downscale the density aspect of the heuristic
     private static final int DENSITY_COEFF = 2;
 
@@ -53,7 +51,7 @@ public class AStar {
         createNodes();
 
         // Instantiate each key to be 10000 and the key for the start node as the euclidean distance to the goal
-        keys = instantiateKeys(startNode, goalNode);
+        Double[] keys = instantiateKeys(startNode, goalNode);
 
         // PriorityQueue is used to allow for efficiently retrieving the element with the smallest value
         PriorityQueue<NodeRecord> priorityQueue = instantiateQueue();

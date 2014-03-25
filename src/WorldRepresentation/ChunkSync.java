@@ -2,25 +2,25 @@ package WorldRepresentation;
 
 import java.util.ArrayList;
 
-public class ChunkSync implements Runnable{
-	
-	int num;
+public class ChunkSync implements Runnable {
+
+    int num;
     private ArrayList<LayoutChunk> chunks;
     private int stopped;
-	
-	public ChunkSync(){
-		this.num = 0;
-	}
-	
-	public void run(){
-		//Do inter-chunk communication here.
-		System.out.println("I have hit the barrier:" + num);
-		num++;
 
-        for(LayoutChunk c: chunks) {
+    public ChunkSync() {
+        this.num = 0;
+    }
 
-            if (c.finished == false) {
-                 return;
+    public void run() {
+        //Do inter-chunk communication here.
+        System.out.println("I have hit the barrier:" + num);
+        num++;
+
+        for (LayoutChunk c : chunks) {
+
+            if (!c.finished) {
+                return;
             }
         }
 
@@ -31,13 +31,13 @@ public class ChunkSync implements Runnable{
         }
 
 
-	}
+    }
 
-    public void addChunks(ArrayList<LayoutChunk> chunks){
-         this.chunks = chunks;
+    public void addChunks(ArrayList<LayoutChunk> chunks) {
+        this.chunks = chunks;
     }
 
     public int getStopped() {
-           return this.stopped;
+        return this.stopped;
     }
 }

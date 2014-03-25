@@ -154,27 +154,13 @@ public class Person {
         locations.add(new Point2d(location.x, location.y));
         floors.add(floor);
 
-        Boolean stuckStatus = false;
-
         currentGoal = goalIndex;
         goalUpdate();
         if (goalIndex != currentGoal) {
-//            System.out.println("I expected to reach my first goal at: " + expectedTimeStepAtNextGoal + ", bitches");
-//            System.out.println("I've reached a goal bitches, I am: " + this.toString());
-//            System.out.println("Current timestep is " + locations.size());
             distanceToNextGoal = location.distance(goalList.get(goalIndex).toPoint2d());
 
             expectedTimeStepAtNextGoal = (distanceToNextGoal / (desiredSpeed * 0.1)) + 5 + (locations.size());
-        } else {
-            //System.out.println(this.toString() + " didn't reach goal, expect to reach next goal at " + expectedTimeStepAtNextGoal + ", it is " + distanceToNextGoal + " away, current timestep: " + locations.size());
-            if (expectedTimeStepAtNextGoal + 1 < locations.size()) {
-                //System.out.println(this.toString() + "expected: " + expectedTimeStepAtNextGoal + " current timestep: " + locations.size());
-                //System.out.println(this.toString() + ": I'm stuck pls halp :(");
-                stuckStatus = true;
-            }
         }
-
-        //Turn this back to stuck status
 
         blockedList.add(false);
         return location;
@@ -247,7 +233,6 @@ public class Person {
         goalIndex = 0;
         distanceToNextGoal = location.distance(getNextGoal());
         expectedTimeStepAtNextGoal = (distanceToNextGoal / (desiredSpeed * 0.1)) + 5;
-//        System.out.println("");
     }
 
     public LinkedList<Node> getGoalList() {

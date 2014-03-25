@@ -169,9 +169,9 @@ public class BasicCanvas {
                 // world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
                 world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), (int) (Math.random() * numFloors), num, evacBool);
 
-            } catch (PersonOverlapException e) {
+            } catch (PersonOverlapException ignored) {
 
-            } catch (WallOverlapException e) {
+            } catch (WallOverlapException ignored) {
             }
         }
 
@@ -241,7 +241,7 @@ public class BasicCanvas {
         ArrayList<Thread> threads = new ArrayList<Thread>();
 
         for (LayoutChunk lc : chunks) {
-            Runnable thisTask = (Runnable) lc;
+            Runnable thisTask = lc;
             Thread worker = new Thread(thisTask);
             threads.add(worker);
         }

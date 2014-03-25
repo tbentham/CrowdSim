@@ -35,7 +35,6 @@ public class LayoutChunk implements Runnable {
     LayoutChunk[] chunks;
     public ArrayBlockingQueue<Person> qOverlap;
     public ArrayList<Person> q;
-    private ArrayList<Person> allPeople;
     private AStar chunkStar;
     private Integer evacTime;
     private Integer ASTAR;
@@ -205,7 +204,7 @@ public class LayoutChunk implements Runnable {
     }
 
     private ArrayList<Person> getAllPeople() {
-        allPeople = new ArrayList<Person>();
+        ArrayList<Person> allPeople = new ArrayList<Person>();
         allPeople.addAll(people);
         allPeople.addAll(overlapPeople);
         return allPeople;
