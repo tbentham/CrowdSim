@@ -15,8 +15,9 @@ public class LayoutChunkTest {
     private LayoutChunk layoutChunk;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         World world = new World(100, 1);
+        world.getPeople().add(mock(Person.class));
         layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
     }
 
