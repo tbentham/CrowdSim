@@ -47,27 +47,16 @@ public class Path {
                 curDiffX = lastVertex.getX() - curVertex.getX();
                 curDiffY = lastVertex.getY() - curVertex.getY();
 
-                //System.out.print("Iteration: "+i+". Considering: "+curVertex.toString()+"\t\tLast Difference: ("+lastDiffX+", "+lastDiffY+").\tCurrent Difference: ("+curDiffX+", "+curDiffY+").\t");
-
                 // if either has changed, add a subgoal
                 if (curDiffX != lastDiffX || curDiffY != lastDiffY) {
                     subgoals.add(lastVertex);
-                    //System.out.print("Added: "+lastVertex.toString());
                 }
-
-                //System.out.println();
             }
         }
         if (vertices.size() >= 1) {
             subgoals.add(vertices.get(vertices.size() - 1));
         } else {
             System.err.println("No vertices in list to generate sub-goals from.");
-        }
-    }
-
-    public void printPath() {
-        for (int i = 0; i < vertices.size(); i++) {
-            System.out.println(vertices.get(i));
         }
     }
 }

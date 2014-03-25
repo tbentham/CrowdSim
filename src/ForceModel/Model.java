@@ -25,6 +25,10 @@ public class Model {
         if (Double.isNaN(bPerson.getLocation().x)) {
             throw new NaNException("socialForce called with bPerson at NaN location");
         }
+        // Avoid calculation for larger distances
+        if (aPerson.getLocation().distance(bPerson.getLocation()) > 10) {
+            return new Vector2d(0, 0);
+        }
 
         // get relative location of a from b
         Vector2d v1 = new Vector2d(aPerson.getLocation());

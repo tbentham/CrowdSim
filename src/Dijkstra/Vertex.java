@@ -51,9 +51,7 @@ public class Vertex {
         if (getClass() != obj.getClass())
             return false;
         Vertex other = (Vertex) obj;
-        if (!id.equals(other.id))
-            return false;
-        return true;
+        return id.equals(other.id);
     }
 
 } 

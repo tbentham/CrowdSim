@@ -12,7 +12,6 @@ import java.util.HashMap;
 public class FastDijkstra {
 
     private HashMap<Integer, ArrayList<Connection>> connections;
-    private Double[] keys;
     private ArrayList<FibonacciHeapNode> nodes;
 
     public FastDijkstra() {
@@ -70,7 +69,7 @@ public class FastDijkstra {
         FibonacciHeap fibonacciHeap = new FibonacciHeap();
 
         // Instantiate each key to be some large value and the key at the start node to be 0
-        keys = new Double[numNodes];
+        Double[] keys = new Double[numNodes];
         for (int i = 0; i < numNodes; i++) {
             if (i == startNode) {
                 fibonacciHeap.insert(nodes.get(i), 0);

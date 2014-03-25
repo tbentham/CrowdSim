@@ -34,8 +34,6 @@ public class World {
     public ArrayList<FastDijkstra> fdPOIList;
     public ArrayList<FastDijkstra> fdEvacList;
 
-    public ArrayList<Point2d> poi;
-
     private ArrayList<Person> people;
 
     public int numFloors;
@@ -94,10 +92,6 @@ public class World {
         Path p1 = getPath(x, y, floor, goalID, evac);
         person.setGoalList(p1.getSubGoals());
         people.add(person);
-        if (person.getGoalList().size() == 0) {
-
-            System.out.println();
-        }
     }
 
     public void setUp() {
@@ -194,8 +188,6 @@ public class World {
     public void computeDijsktraTowards(ArrayList<Point3d> goals, ArrayList<Point3d> evacuationPoints) throws WorldNotSetUpException {
         if (!isSetUp)
             throw new WorldNotSetUpException("computerDijsktraTowards called before setting up world");
-
-        this.poi = poi;
 
         for (int f = 0; f < goals.size(); f++) {
 
