@@ -2,15 +2,16 @@ package WorldRepresentation;
 
 import Dijkstra.Edge;
 import Dijkstra.Vertex;
+import Exceptions.RoutesNotComputedException;
 import NewDijkstra.AStar;
 import NewDijkstra.aConnection;
 
 import javax.vecmath.Point2d;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class LayoutChunk implements Runnable {
 
@@ -32,8 +33,8 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Edge> edges;
     private Vertex[][][] nodes;
     LayoutChunk[] chunks;
-    public LinkedBlockingQueue<Person> q;
-    public LinkedBlockingQueue<Person> qOverlap;
+    public ArrayBlockingQueue<Person> qOverlap;
+    public ArrayList<Person> q;
     private ArrayList<Person> allPeople;
     private AStar chunkStar;
     private Integer evacTime;
@@ -69,8 +70,8 @@ public class LayoutChunk implements Runnable {
         this.w = w;
         this.barrier = barrier;
         this.steps = steps;
-        q = new LinkedBlockingQueue<Person>();
-        qOverlap = new LinkedBlockingQueue<Person>();
+        qOverlap = new ArrayBlockingQueue<Person>(w.getPeople().size());
+        q = new ArrayList<Person>();
 
         populateFloorPlan();
         createEdges();
@@ -135,17 +136,12 @@ public class LayoutChunk implements Runnable {
     }
 
     public void putPerson(Person p) {
-        try {
-            this.q.put(p);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.q.add(p);
     }
 
     private void addPeople() {
-        while (!q.isEmpty()) {
-            this.people.add(q.poll());
-        }
+        this.people.addAll(q);
+        q.clear();
     }
 
     private ArrayList<Person> peopleTopEdge() {
@@ -204,79 +200,135 @@ public class LayoutChunk implements Runnable {
         sendTopOverlap();
     }
 
-    public void run() {
+    private void addDensityMap(int[][][] densityMap) {
+        allDensityMaps.add(densityMap);
+    }
 
+    private ArrayList<Person> getAllPeople() {
+        allPeople = new ArrayList<Person>();
+        allPeople.addAll(people);
+        allPeople.addAll(overlapPeople);
+        return allPeople;
+    }
+
+    private int[] validXYLocation(Person p) {
+        int x = (int) Math.round(p.getLocation().x);
+        int y = (int) Math.round(p.getLocation().y);
+
+        if (x < 0)
+            x = 0;
+        if (y < 0)
+            y = 0;
+
+        ArrayList<aConnection> aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + x * w.getSideLength() + y);
+        int rand1 = x;
+        int rand2 = y;
+
+        while (aconn == null) {
+            rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
+            rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
+
+            aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + rand1 * w.getSideLength() + rand2);
+        }
+
+        return new int[]{rand1, rand2};
+    }
+
+    private void updatePersonWithEvacPath(Person p) throws RoutesNotComputedException {
+        int[] xy = validXYLocation(p);
+        int x = xy[0];
+        int y = xy[1];
+
+        Path thisPath = w.getPath(x, y, p.floor, 0, true);
+        int pathLength = thisPath.getNodes().size();
+
+        if (w.fdEvacList.size() > 1) {
+            for (int q = 1; q < w.fdEvacList.size(); q++) {
+                Path newPath = w.getPath(x, y, p.floor, q, true);
+                if (newPath.getNodes().size() < pathLength) {
+                    thisPath = newPath;
+                    pathLength = newPath.getNodes().size();
+                }
+            }
+        }
+
+        p.setGoalList(thisPath.getSubGoals());
+        p.evacBool = true;
+    }
+
+    private boolean isStuck(Person p, Integer i) {
+        if (ASTAR != 1)
+            return false;
+        if (Math.abs(evacTime - i) < 3)
+            return false;
+        // Stuck due to seeing blockage
+        if (visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3)
+            return true;
+        // Stuck due to taking too long to reach goal
+        if (p.expectedTimeStepAtNextGoal + 1 < p.locations.size())
+            return true;
+        return stuckOnWall(p, i);
+    }
+
+    private void waitBarrier() {
+        try {
+            barrier.await();
+        } catch (InterruptedException e) {
+            System.err.println("Barrier interrupted");
+            System.exit(1);
+        } catch (BrokenBarrierException e) {
+            System.err.println("Broken barrier");
+            System.exit(1);
+        }
+    }
+
+    private int threadID() {
+        return (int) bottomYBoundary / chunkSize();
+    }
+
+    private void putPersonInCorrespondingChunksList(Person p, ArrayList<Person> toRemove) {
+        if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0) {
+            int xIndex = (int) p.getLocation().x / chunkSize();
+            int yIndex = (int) p.getLocation().y / chunkSize();
+            if (xIndex > 1) {
+                xIndex = 1;
+            }
+            if (yIndex > 1) {
+                yIndex = 1;
+            }
+            if (!(xIndex < 0 || yIndex < 0)) {
+                toRemove.add(p);
+                chunks[yIndex].putPerson(p);
+            } else {
+                System.out.println("Left Canvas");
+            }
+        }
+    }
+
+    public void run() {
         for (i = 0; i < this.steps; i++) {
             System.out.println(i);
-            overlapPeople = new ArrayList<Person>();
+
             addPeople();
-            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am about to send my overlaps on timestep " + i);
             sendOverlaps();
-            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I have sent my overlaps on timestep " + i);
-            try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                System.err.println("Barrier interrupted");
-                System.exit(1);
-            } catch (BrokenBarrierException e) {
-                System.err.println("Broken barrier");
-                System.exit(1);
-            }
+
+            waitBarrier();
+
             finished = true;
 
             addOverlapPeople();
 
-            allPeople = new ArrayList<Person>();
-            allPeople.addAll(people);
-            allPeople.addAll(overlapPeople);
+            ArrayList<Person> allPeople = getAllPeople();
+
             populateDensityMap();
 
-            allDensityMaps.add(densityMap);
+            addDensityMap(densityMap);
 
             ArrayList<Person> toRemove = new ArrayList<Person>();
             for (Person p : people) {
                 try {
                     if (i == evacTime) {
-                        int x = (int) Math.round(p.getLocation().x);
-                        int y = (int) Math.round(p.getLocation().y);
-
-                        //In case off map
-
-                        if (x < 0)
-                            x = 0;
-                        if (y < 0)
-                            y = 0;
-
-                        ArrayList<aConnection> aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + x * w.getSideLength() + y);
-                        int rand1 = x;
-                        int rand2 = y;
-
-                        // Akon fixes people disappearing.
-                        while (aconn == null) {
-                            rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
-                            rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
-
-                            aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + rand1 * w.getSideLength() + rand2);
-                        }
-
-                        x = rand1;
-                        y = rand2;
-
-                        Path thisPath = w.getPath(x, y, p.floor, 0, true);
-                        int pathLength = thisPath.getNodes().size();
-
-                        if (w.fdEvacList.size() > 1) {
-                            for (int q = 1; q < w.fdEvacList.size(); q++) {
-                                Path newPath = w.getPath(x, y, p.floor, q, true);
-                                if (newPath.getNodes().size() < pathLength) {
-                                    thisPath = newPath;
-                                    pathLength = newPath.getNodes().size();
-                                }
-                            }
-                        }
-
-                        p.setGoalList(thisPath.getSubGoals());
-                        p.evacBool = true;
+                        updatePersonWithEvacPath(p);
                     }
 
                     if (p.getLocation() == null) {
@@ -287,34 +339,17 @@ public class LayoutChunk implements Runnable {
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
                     }
 
-                    if (i != evacTime && ((visibleBlockage(p) != null && p.getLocation().distance(p.getNextGoal()) > 3) ||
-                            p.expectedTimeStepAtNextGoal + 1 < p.locations.size() || stuckOnWall(p, i)) && ASTAR == 1) {
+                    if (isStuck(p, i)) {
 
                         p.blockedList.set(p.blockedList.size() - 1, true);
 
-                        //Dont a star so often brah
                         if (p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
                             p.lastAStar = i;
                         }
                     }
 
-                    if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0) {
-                        int xIndex = (int) p.getLocation().x / chunkSize();
-                        int yIndex = (int) p.getLocation().y / chunkSize();
-                        if (xIndex > 1) {
-                            xIndex = 1;
-                        }
-                        if (yIndex > 1) {
-                            yIndex = 1;
-                        }
-                        if (!(xIndex < 0 || yIndex < 0)) {
-                            toRemove.add(p);
-                            chunks[yIndex].putPerson(p);
-                        } else {
-                            System.out.println("Left Canvas");
-                        }
-                    }
+                    putPersonInCorrespondingChunksList(p, toRemove);
 
                     p.advance(gWalls, allPeople, 0.1, w);
                     finished = false;
@@ -325,18 +360,13 @@ public class LayoutChunk implements Runnable {
             }
             if (i != this.steps - 1) {
                 people.removeAll(toRemove);
+                System.out.println("People size: " + people.size());
             }
-            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am waiting at the bottom");
-            try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                System.err.println("Barrier interrupted");
-                System.exit(1);
-            } catch (BrokenBarrierException e) {
-                System.err.println("Broken barrier");
-                System.exit(1);
-            }
-            System.out.println("I am thread " + (int) bottomYBoundary / chunkSize() + " and I am finished waiting at the bottom");
+            long start = System.currentTimeMillis();
+            System.out.println("I am thread " + threadID() + " and I am waiting at the bottom");
+            waitBarrier();
+            long end = System.currentTimeMillis();
+            System.out.println("I am thread " + threadID() + " and I waited at the bottom for " + (end - start) + "ms");
 
             // System.out.println(people.size());
         }
@@ -384,6 +414,9 @@ public class LayoutChunk implements Runnable {
         Path path = chunkStar.getPath(startNode, goalX, goalY, goalZ, densityMap, w.floorConnections);
 
         p.setGoalList(path.getSubGoals());
+        p.distanceToNextGoal = p.location.distance(p.getGoalList().get(p.getGoalIndex()).toPoint2d());
+
+        p.expectedTimeStepAtNextGoal = (p.distanceToNextGoal / (p.getDesiredSpeed() * 0.1)) + 5 + (p.locations.size());
 
     }
 

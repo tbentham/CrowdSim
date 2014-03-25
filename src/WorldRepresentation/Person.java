@@ -96,9 +96,9 @@ public class Person {
 
                 if (w.fdPOIList.size() != 1) {
                     //Randomize new goal until it works
-                	while (tGoalID == this.goalID) {
-                		tGoalID = (int) Math.round(Math.random() * (w.fdPOIList.size() - 1));
-                	}
+                    while (tGoalID == this.goalID) {
+                        tGoalID = (int) Math.round(Math.random() * (w.fdPOIList.size() - 1));
+                    }
                 }
                 if (tGoalID == -1) {
                     System.out.println("");
@@ -185,6 +185,9 @@ public class Person {
         return advance(world.getWalls(), people, timeStep, world);
     }
 
+    public int getGoalIndex() {
+        return goalIndex;
+    }
 
     public Vector2d desiredAcceleration() {
         // get next goal on path
