@@ -19,12 +19,13 @@ var click = false;
 var debugOn = false;
 var staticDensityOn = false;
 var dynamicDensityOn = false;
+var playOn = false;
 var currentLine;
 var currentCanvasLine;
 var angle = 0;
 var time = -1; // For the "step" button - eventually for use with a slider
 var floor = 0;
-var interval;
+var playInterval;
 var cursorItem;
 var cursorItemPixel; // This needs another tidy session
 
@@ -46,28 +47,30 @@ function init() {
 
 function populate(time, clear) {
 
-    if (time >= people[0].length)
+    if ( people.length == 0 || time >= people[0].length )
 	return false;
     
     if ( dynamicDensityOn ) {
+	if ( time % 5 != 0 )
+	    return false;  // only display density map at every 5th step
+
 	if ( canvasDensity && stage.contains(canvasDensity[0][0]) )
 	    for (var i = 0; i < canvasDensity.length; i++)
 		for (var j = 0; j < canvasDensity[i].length; j++)
 		    canvasDensity[i][j].graphics.clear();
-	if ( dynamicDensity.length == 0 )
-	    $.get("/densities.json", function(data) {
-		dynamicDensity = JSON.parse(data.toString().trim());
-		drawDensityMap(dynamicDensity[time]);
-	    });
-	else
-	    drawDensityMap(dynamicDensity[time]);
+
+	drawDensityMap(dynamicDensity[time]);
     }
     else {
+	if ( staticDensityOn )
+	    toggleStaticDensity();
+
 	if (!canvasPeople) {
 	    canvasPeople = new Array();
 
 	    for (var i = 0; i < people.length; i++) {
-		s = new createjs.Shape(); canvasPeople.push(s);
+		s = new createjs.Shape();
+		canvasPeople.push(s);
 		canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
 		stage.addChild(s);
 	    }
@@ -93,9 +96,6 @@ function populate(time, clear) {
 	}
     }
 
-    //Update the timestep number
-    num =  (time * 0.1);
-    $("#timestep")[0].textContent = num.toFixed(2);
     stage.update();
 }
     
@@ -111,7 +111,7 @@ function drawMode(mode) {
     else if (mode == DOOR_MODE) {
 	stage.removeAllEventListeners();
 	stage.addEventListener("stagemousedown", drawDoor);
-	    stage.addEventListener("stagemousemove", mouseDoor);
+	stage.addEventListener("stagemousemove", mouseDoor);
     }
     else if (mode == KILL_MODE) {
 	stage.removeAllEventListeners();
@@ -153,8 +153,12 @@ function mouseDoor(e) {
 
     //Find the coordinates of a door after it has been rotated, remember to add StageX and Y to translate from the origin to the mouse pointer.
     //TODO: consider a translation method, this way we can keep all the graphics transformations in one tidy place.
-    var from = spin(new Coordinate(-25, 0), angle); from[0] = from[0] + e.stageX; from[1] = from[1] + e.stageY;
-    var to = spin(new Coordinate(25, 0), angle); to[0] = to[0] + e.stageX; to[1] = to[1] + e.stageY;
+    var from = spin(new Coordinate(-25, 0), angle);
+    from[0] = from[0] + e.stageX;
+    from[1] = from[1] + e.stageY;
+    var to = spin(new Coordinate(25, 0), angle);
+    to[0] = to[0] + e.stageX;
+    to[1] = to[1] + e.stageY;
 
     if (e.nativeEvent.shiftKey)
 	  cursorItem.graphics.beginStroke("rgba(125,170,195,1)").setStrokeStyle(3.0).moveTo(Math.round(from[0]/50)*50, Math.round(from[1]/50)*50).lineTo(Math.round(to[0]/50)*50, Math.round(to[1]/50)*50).endStroke();
@@ -173,17 +177,26 @@ function drawDoor(e) {
 
     // This is just a rectangle, consider using premade Rectangle objects that may handle rotations and will fess up their vertices on demand.
     //TODO: consider a translation method, this way I can keep all the graphics transformations in one tidy place.
-    var hinge = spin(new Coordinate(-25, 0), angle); hinge[0] = hinge[0] + e.stageX; hinge[1] = hinge[1] + e.stageY;
-    var close = spin(new Coordinate(25, 0), angle); close[0] = close[0] + e.stageX; close[1] = close[1] + e.stageY;
-    var open = spin(new Coordinate(-25, 50), angle); open[0] = open[0] + e.stageX; open[1] = open[1] + e.stageY;
-    var arcthrough = spin(new Coordinate(25, 50), angle); arcthrough[0] = arcthrough[0] + e.stageX; arcthrough[1] = arcthrough[1] + e.stageY;
+    var hinge = spin(new Coordinate(-25, 0), angle);
+    hinge[0] = hinge[0] + e.stageX;
+    hinge[1] = hinge[1] + e.stageY;
+    var close = spin(new Coordinate(25, 0), angle);
+    close[0] = close[0] + e.stageX;
+    close[1] = close[1] + e.stageY;
+    var open = spin(new Coordinate(-25, 50), angle);
+    open[0] = open[0] + e.stageX;
+    open[1] = open[1] + e.stageY;
+    var arcthrough = spin(new Coordinate(25, 50), angle);
+    arcthrough[0] = arcthrough[0] + e.stageX;
+    arcthrough[1] = arcthrough[1] + e.stageY;
 
     if (e.nativeEvent.shiftKey)
 	door.graphics.beginStroke("rgba(125,170,195,1)").moveTo(Math.round(hinge[0]/50)*50, Math.round(hinge[1]/50)*50).lineTo(Math.round(open[0]/50)*50, Math.round(open[1]/50)*50).arcTo(Math.round(arcthrough[0]/50)*50, Math.round(arcthrough[1]/50)*50, Math.round(close[0]/50)*50, Math.round(close[1]/50)*50, 50).endStroke();
     else
 	door.graphics.beginStroke("rgba(125,170,195,1)").moveTo(hinge[0], hinge[1]).lineTo(open[0], open[1]).arcTo(arcthrough[0], arcthrough[1], close[0], close[1], 50).endStroke();
   
-    d = new Feature(featureID, 1); featureID++;
+    d = new Feature(featureID, 1);
+    featureID++;
     d.setFromCoords(hinge[0], hinge[1], floor); 
     d.setToCoords(close[0], close[1], floor);
 
@@ -239,8 +252,11 @@ function endLine(e) {
 	    line.setToCoords(e.stageX, e.stageY, floor);
 
 	//Only draw non point walls, and remove walls which are points.
-	if (line.getFromCoords().x == line.getToCoords().x && line.getFromCoords().y == line.getToCoords().y )
-	    features.pop(); canvasFeatures.pop(); endOfArray--;
+	if (line.getFromCoords().x == line.getToCoords().x && line.getFromCoords().y == line.getToCoords().y ) {
+	    features.pop();
+	    canvasFeatures.pop();
+	    endOfArray--;
+	}
 	else {
 	    canvasLine.graphics.clear();
 	    canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
@@ -268,7 +284,7 @@ function drawLine(e) {
 	canvasLine.graphics.clear();
 	canvasLine.graphics.beginStroke("black").setStrokeStyle(3.0).moveTo(line.getFromCoords()["x"], line.getFromCoords()["y"]).lineTo(line.getToCoords()["x"], line.getToCoords()["y"]).endStroke();
 	stage.update();
-	}
+    }
 
 }
 
@@ -350,102 +366,133 @@ function hand(data) {
 
 
 
-function getPeople() {
+function receive() {
 
     $.get("/people.json", function(data) {
 	people = JSON.parse(data.toString().trim());
-	$(".slider").slider({max: people[0].length, min: 0});
-	$(".slider").slider({slide: function( event, ui ) { populate(ui.value)}});
+	$(".slider").slider({min: 0, max: people[0].length-1});
+	$(".slider").slider({slide: function( event, ui ) {
+	    if ( playOn )
+		togglePlay();
+	    time = ui.value;
+	    $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
+	    if ( !staticDensityOn )
+		populate(time);
+	}});
+	time = 0;
+	$("#timestep")[0].textContent = '0.00s';
 	populate(0);
+    });
+    $.get("/densities.json", function(data) {
+	dynamicDensity = JSON.parse(data.toString().trim());
+    });
+    $.get("/bottlenecks.json", function(data) {
+	staticDensity = JSON.parse(data.toString().trim());
     });
     $.get("/stuck.json", function(data) {
 	blockages = JSON.parse(data.toString().trim());
     });
     $.get("/console.txt", function(data) {
 	alert(data.toString().trim());
-    })
+    });
 }
 
 function drawDensityMap(density) {
 
-    canvasDensity = new Array();
-    for (var i = 0; i < density.length; i++) {
-	canvasDensity[i] = new Array();
-	for (var j = 0; j < density[i].length; j++) {      
-	    var s = new createjs.Shape();
-	    canvasDensity[i].push(s);
-	    stage.addChild(s);
+    if ( !canvasDensity || !stage.contains(canvasDensity[0][0]) ) {
+	canvasDensity = new Array();
+	for (var i = 0; i < density.length; i++) {
+	    canvasDensity[i] = new Array();
+	    for (var j = 0; j < density[i].length; j++) {      
+		var s = new createjs.Shape();
+		canvasDensity[i].push(s);
+		stage.addChild(s);
+	    }
 	}
     }
     
-    for (var i = 0; i < canvasDensity.length; i++) {
-	for (var j = 0; j < canvasDensity[i].length; j++) {
+    for (var i = 0; i < canvasDensity.length; i++)
+	for (var j = 0; j < canvasDensity[i].length; j++)
 	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j][floor]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
-	}
-    }
     
     stage.update();
 }
 
 function toggleStaticDensity() {
 
-    if ( dynamicDensityOn )
+    if ( staticDensity.length == 0 )
 	return false;
 
     if ( staticDensityOn ) {
+	staticDensityOn = false;
+
 	for (var i = 0; i < canvasDensity.length; i++)
 	    for (var j = 0; j < canvasDensity[i].length; j++)
 		canvasDensity[i][j].graphics.clear();
-	stage.update();
-	staticDensityOn = false;
+	populate(time);
+
 	console.log("Static density off");
     }
     else {
-	if ( staticDensity.length == 0 )
-	    $.get("/bottlenecks.json", function(data) {
-		staticDensity = JSON.parse(data.toString().trim());
-		drawDensityMap(staticDensity);
-	    });
-	else
-	    drawDensityMap(staticDensity);
 	staticDensityOn = true;
+
+	if ( playOn )
+	    togglePlay;
+
+	if ( dynamicDensityOn )
+	    toggleDynamicDensity();
+
+	if ( canvasPeople && stage.contains(canvasPeople[0]) )
+	    for (var i = 0; i < canvasPeople.length; i++)
+		canvasPeople[i].graphics.clear();
+
+	drawDensityMap(staticDensity);
+
 	console.log("Static density on");
     }
 }
 
 function toggleDynamicDensity() {
 
+    if ( dynamicDensity.length == 0 )
+	return false;
+
     if ( dynamicDensityOn ) {
+	dynamicDensityOn = false;
+
 	if ( canvasDensity && stage.contains(canvasDensity[0][0]) )
 	    for (var i = 0; i < canvasDensity.length; i++)
 		for (var j = 0; j < canvasDensity[i].length; j++)
 		    canvasDensity[i][j].graphics.clear();
-	stage.update();
-	dynamicDensityOn = false;
+	populate(time);
+
 	console.log("Dynamic density off");
     }
     else {
+	dynamicDensityOn = true;
+
+	if ( staticDensityOn )
+	    toggleStaticDensity();
+
 	if ( canvasPeople && stage.contains(canvasPeople[0]) )
 	    for (var i = 0; i < canvasPeople.length; i++)
 		canvasPeople[i].graphics.clear();
-	if ( staticDensityOn )
-	    toggleStaticDensity();
-	stage.update();
-	dynamicDensityOn = true;
+	populate(time - time % 5);
+
 	console.log("Dynamic density on");
     }
 }
 
 function cursorPixelToggle() {
 
-    if (debug) {
+    if (debugOn) {
 	stage.removeEventListener("stagemousemove", cursorPixels);
 	stage.removeChild(cursorItemPixel);
 	stage.update();
-	debug = false;
+	debugOn = false;
     }
     else {
-	debug = stage.addEventListener("stagemousemove", cursorPixels);
+	debugOn = stage.addEventListener("stagemousemove", cursorPixels);
 	cursorItemPixel = new createjs.Text("0, 0", "15px Arial", "#000");
 	cursorItemPixel.x = 0;
 	stage.addChild(cursorItemPixel);
@@ -454,28 +501,65 @@ function cursorPixelToggle() {
 
 function cursorPixels(e) {
 
-    cursorItemPixel.x = e.stageX + 25; cursorItemPixel.y = e.stageY + 25;
+    cursorItemPixel.x = e.stageX + 25;
+    cursorItemPixel.y = e.stageY + 25;
     cursorItemPixel.text = e.stageX + ", " + e.stageY;
     stage.update();
 }
 
-function simulate(option) {
+function togglePlay() {
 
-    //Start from beginning.
-    if (option == 1) {
-	time = 0;
-	if ( interval )
-	    window.clearInterval(interval);
-	interval = window.setInterval(function() {populate(time);time++}, 100);
+    if ( people.length == 0 )
+	return false;
+
+    if ( playOn ) {
+	window.clearInterval(playInterval);
+	playOn = false;
+	console.log("Play off");
     }
-    //Continue from where we currently are.
-    else if (option ==2) {
-	window.clearInterval(interval);
-	interval = window.setInterval(function() {populate(time);time++}, 100);
+    else {
+	playOn = true;
+	playInterval = window.setInterval(function() {
+	    if ( time >= people[0].length ) {
+		togglePlay();
+		return false;
+	    }
+	    $(".slider").slider({value: time});
+	    $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
+	    populate(time);
+	    time++;
+	}, 100);
+	console.log("Play on");
     }
-    //Pause/Stop.
-    else
-	window.clearInterval(interval);
+}
+
+function toStart() {
+
+    if ( people.length == 0 )
+	return false;
+
+    if ( playOn )
+	togglePlay();
+	
+    time = 0;
+    $(".slider").slider({value: time});
+    $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
+    if ( !staticDensityOn )
+	populate(time);
+}
+
+function toFinish() {
+
+    if ( people.length == 0 )
+	return false;
+
+    if ( playOn )
+	togglePlay();
+	
+    time = people[0].length - 1;
+    $(".slider").slider({value: time});
+    $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
+    populate(time);
 }
 
 function drawInterest(e) {
@@ -490,7 +574,8 @@ function drawInterest(e) {
 	canvasFeatures.push(canvasCircle);
 	var circle = new Feature(featureID, 2);
 	features.push(circle);
-	endOfArray++; featureID++;
+	endOfArray++;
+	featureID++;
 
 
 	//Drawing
@@ -519,7 +604,8 @@ function drawEvac(e) {
 	canvasFeatures.push(canvasCircle);
 	var circle = new Feature(featureID, 3);
 	features.push(circle);
-	endOfArray++; featureID++;
+	endOfArray++;
+	featureID++;
 
 	//Drawing
 	if (e.nativeEvent.shiftKey) {
@@ -555,7 +641,7 @@ function mouseInterest(e) {
 
 function mouseEvac(e) {
 
-    if(cursorItem)
+    if (cursorItem)
 	cursorItem.graphics.clear();
     cursorItem = new createjs.Shape();
 
@@ -590,7 +676,8 @@ function drawStaircase(e) {
 	features.push(circle);
 	canvasCircle = new createjs.Shape();
 	canvasFeatures.push(canvasCircle);
-	endOfArray++; featureID++;
+	endOfArray++;
+	featureID++;
 
 	var upstairCircle = new createjs.Shape();
 
@@ -627,7 +714,7 @@ function upstairs() {
 
     floor++;
 
-    if (floor_canvasFeatures.length <= floor) {
+    if ( floor >= floor_canvasFeatures.length ) {
 	floor_canvasFeatures.push(canvasFeatures);
 	canvasFeatures = new Array();
 	endOfArray = -1;
@@ -643,10 +730,10 @@ function upstairs() {
 function downstairs() {
 
     //If at top level and about to go down for the first time (just drawn)
-    if ( floor == floor_canvasFeatures.length)
+    if ( floor == floor_canvasFeatures.length )
 	floor_canvasFeatures.push(canvasFeatures);
 
-    if (floor > 0) {
+    if ( floor > 0 ) {
 	floor--;
 	canvasFeatures = floor_canvasFeatures[floor];
 	endOfArray = canvasFeatures.length;
@@ -661,25 +748,24 @@ function redrawCanvas() {
 
     stage.removeAllChildren();
 
-    if (canvasFeatures)
-	console.log("I should")
+    if ( canvasFeatures )
+	console.log("I should");
     else
-	console.log("I shouldnt")
+	console.log("I shouldnt");
 
     for (i = 0; i < canvasFeatures.length; i++)
 	stage.addChild(canvasFeatures[i]);
 
-    if ( people.length > 0)
-	populate(time)
-
     if ( canvasPeople )
 	for(i = 0; i < canvasPeople.length; i++)
-	    stage.addChild(canvasPeople[i])
+	    stage.addChild(canvasPeople[i]);
     
     if ( staticDensityOn ) {
 	staticDensityOn = false;
 	toggleStaticDensity();
     }
+    else
+	populate(time);
 
     stage.update();
 }

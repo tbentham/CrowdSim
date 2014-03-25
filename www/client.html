@@ -34,9 +34,15 @@
 			&#x25B2;
 		</td></tr>
     	<tr id="row1"><td id="simulationButtons">
-    		<button type="button" class="btn btn-lg btn-success" onclick="simulate(1)">Start</button>
-        	<button class="btn btn-sm btn-warning" onclick="simulate(3)">Pause</button>
-            <button class="btn btn-sm btn-warning" onclick="simulate(2)">Continue</button>
+            <button class="btn btn-sm btn-warning" onclick="toStart()">Start</button>
+    		<button type="button" class="btn btn-lg btn-success" onclick="togglePlay()">Play/Pause</button>
+            <button class="btn btn-sm btn-warning" onclick="toFinish()">Finish</button><br/>
+            
+            <div class="slider slider-horizontal"></div><br/>
+            <div id="timestep"></div>
+            <div id="floor">Floor 0</div>
+            <button class="btn btn-sm btn-primary" onclick="upstairs();stage.update();">Up</button>
+            <button class="btn btn-sm btn-primary" onclick="downstairs();stage.update();">Down</button><br/>
 		</td></tr>
 
     	<tr><td id="toggle2" class="optionToggle" onclick="toggleOption(this.id,'row2')">
@@ -45,25 +51,18 @@
     	<tr id="row2"><td id="generalControls">
     		<!-- Feel free to move this to somewhere you feel it belongs. -->
             <button class="btn btn-sm btn-primary" onclick="sendFeatures()">Send</button>
-            <button class="btn btn-sm btn-primary" onclick="getPeople()">Recieve</button><br/>
-            <button class="btn btn-sm btn-primary" onclick="upstairs();stage.update();">Up</button>
-            <button class="btn btn-sm btn-primary" onclick="downstairs();stage.update();">Down</button><br/>
+            <button class="btn btn-sm btn-primary" onclick="receive()">Recieve</button><br/>
             <button class="btn btn-sm btn-primary" onclick="toggleStaticDensity()">Static Density</button>
             <button class="btn btn-sm btn-primary" onclick="toggleDynamicDensity()">Dynamic Density</button><br/>
     		<button class="btn btn-sm btn-primary" onclick="drawMode(99)">Kill Mode</button>
-            <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button>
-            
-            <!-- A slider needs to be here, which is initialised by getPeople so the slider is the correct length. -->
-            <div class="slider slider-horizontal"></div><br/>
-            <div id="timestep">0</div><br/>
-            <div id="floor">Floor 0</div><br/>
+            <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button><br/><br/>
 
             <form name="times">
-                Total simulation time: <span id="totalTimeVal">200</span> steps<br/>
-                <input type="range" min="0" max="1000" value="200" step="10" name="totalTime" onchange="updateVal(this.value,'totalTimeVal')"><br/>
+                Total simulation time: <span id="totalTimeVal">20</span>s<br/>
+                <input type="range" min="0" max="1000" value="200" step="10" name="totalTime" onchange="updateVal(this.value*0.1,'totalTimeVal')"><br/>
                 
-                Time of evacuation: <span id="evacTimeVal">100</span> steps<br/>
-                <input type="range" min="0" max="1000" value="100" step="10" name="evacTime" onchange="updateVal(this.value,'evacTimeVal')"><br/>
+                Time of evacuation: <span id="evacTimeVal">10</span>s<br/>
+                <input type="range" min="0" max="1000" value="100" step="10" name="evacTime" onchange="updateVal(this.value*0.1,'evacTimeVal')"><br/>
                 
                 Number of people: <span id="numPeopleVal">100</span><br/>
                 <input type="range" min="0" max="2000" value="100" step="10" name="numPeople" onchange="updateVal(this.value,'numPeopleVal')"><br/>
