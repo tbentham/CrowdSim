@@ -373,34 +373,10 @@ public class LayoutChunk implements Runnable {
     }
 
     private void aStar(Person p) throws Exception {
+        int[] xy = validXYLocation(p);
+        int x = xy[0];
+        int y = xy[1];
         int sideLength = w.getSideLength();
-
-        int x = (int) Math.round(p.getLocation().x);
-        int y = (int) Math.round(p.getLocation().y);
-
-        //Incase off map
-
-        if (x < 0) {
-            x = 0;
-        }
-        if (y < 0) {
-            y = 0;
-        }
-
-        ArrayList<aConnection> aconn = chunkStar.getConnections().get(x * sideLength + y);
-        int rand1 = x;
-        int rand2 = y;
-
-        // Akon fixes people disappearing.
-        while (aconn == null) {
-            rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
-            rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
-
-            aconn = chunkStar.getConnections().get(rand1 * sideLength + rand2);
-        }
-
-        x = rand1;
-        y = rand2;
         int startNode = (p.floor * sideLength * sideLength) + x * sideLength + y;
         int goalNode = p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
         int goalZ = goalNode / (sideLength * sideLength);
