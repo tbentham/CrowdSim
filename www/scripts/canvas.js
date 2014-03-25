@@ -16,9 +16,9 @@ var endOfArray = -1;  //For "tail" access
 
 var featureID = 0;
 var click = false;
-var trace = false;
-var debug = false;
-var densityOn = false;
+var debugOn = false;
+var staticDensityOn = false;
+var dynamicDensityOn = false;
 var currentLine;
 var currentCanvasLine;
 var angle = 0;
@@ -31,10 +31,10 @@ var cursorItemPixel; // This needs another tidy session
 var floor_canvasFeatures = new Array();
 var people = new Array();
 var blockages = new Array();
-var density = new Array();
+var staticDensity = new Array();
+var dynamicDensity = new Array();
 var canvasPeople;
 var canvasPeople_colours = new Array();
-var canvasTraces = new Array();
 var canvasDensity;
 
 function init() {
@@ -49,54 +49,56 @@ function populate(time, clear){
     if(time >= people[0].length){
         return false;
     }
-
-    if(!canvasPeople){
-        canvasPeople = new Array();
-
-        for(var i = 0; i < people.length; i++)
-        {
-            s = new createjs.Shape(); canvasPeople.push(s);
-            canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
-            stage.addChild(s);
-        }
+    
+    if ( dynamicDensityOn ) {
+	if ( canvasDensity && stage.contains(canvasDensity[0][0]) ) {
+	    for (var i = 0; i < canvasDensity.length; i++) {
+		for (var j = 0; j < canvasDensity[i].length; j++) {
+		    canvasDensity[i][j].graphics.clear();
+		}
+	    }
+	}
+	if ( dynamicDensity.length == 0 ) {
+	    $.get("/densities.json", function(data){
+		dynamicDensity = JSON.parse(data.toString().trim());
+		drawDensityMap(dynamicDensity[time]);
+	    });
+	}
+	else
+	    drawDensityMap(dynamicDensity[time]);
     }
-    else{
-        for(var i = 0; i < canvasPeople.length; i++){
-            canvasPeople[i].graphics.clear();
-        }
-        for(var i = 0; i < canvasTraces.length; i++){
-            canvasTraces[i].graphics.clear();
-        }
-    }
+    else {
+	if(!canvasPeople){
+	    canvasPeople = new Array();
 
-    for(var i = 0; i < canvasPeople.length; i++){ 
-    	if (people[i][time] != null) {
-            // 
-            if (people[i][time].z == floor){
+	    for(var i = 0; i < people.length; i++)
+	    {
+		s = new createjs.Shape(); canvasPeople.push(s);
+		canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
+		stage.addChild(s);
+	    }
+	}
+	else{
+	    for(var i = 0; i < canvasPeople.length; i++){
+		canvasPeople[i].graphics.clear();
+	    }
+	}
 
-    	    	if(blockages[i][time] == true){
-                    //Consider removing, now that people are multi coloured again.
-    		        canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
-    	    	}
-    	    	else{
-    		        canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
-    		        // canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
-    	    	}
-            }
-    	}
-    }
+	for(var i = 0; i < canvasPeople.length; i++){ 
+	    if (people[i][time] != null) {
+		if (people[i][time].z == floor){
 
-    //TODO: remove all relics of trace mode
-    if(trace){
-    for(var i = 0; i < people.length; i++){
-        for(var j = 0; j < time + 1; j++){
-            if (j > 0){
-                s = new createjs.Shape(); canvasTraces.push(s);
-                s.graphics.beginStroke(canvasPeople_colours[i]).setStrokeStyle(1.0).moveTo(people[i][j-1].x, people[i][j-1].y).lineTo(people[i][j].x, people[i][j].y).endStroke();
-                stage.addChild(s); 
-                }
-            }
-        }
+		    if(blockages[i][time] == true){
+			//Consider removing, now that people are multi coloured again.
+			canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+		    }
+		    else{
+			canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+			// canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+		    }
+		}
+	    }
+	}
     }
 
     //Update the timestep number
@@ -381,60 +383,78 @@ function getPeople(){
     })
 }
 
-function drawDensityMap() {
-    if ( !canvasDensity ) {
-	canvasDensity = new Array();
-	for (var i = 0; i < density.length; i++) {
-	    canvasDensity[i] = new Array();
-	    for (var j = 0; j < density[i].length; j++) {      
+function drawDensityMap(density) {
+    canvasDensity = new Array();
+   for (var i = 0; i < density.length; i++) {
+	canvasDensity[i] = new Array();
+	for (var j = 0; j < density[i].length; j++) {      
 	    var s = new createjs.Shape();
-		canvasDensity[i].push(s);
-		stage.addChild(s);
-	    }
+	    canvasDensity[i].push(s);
+	    stage.addChild(s);
 	}
     }
     
-    for (var i = 0; i < density.length; i++) {
-	for (var j = 0; j < density[i].length; j++) {
-	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
+    for (var i = 0; i < canvasDensity.length; i++) {
+	for (var j = 0; j < canvasDensity[i].length; j++) {
+	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j][floor]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
         }
     }
     
     stage.update();
 }
 
-function toggleDensityMap() {
-    if ( densityOn ) {
+function toggleStaticDensity() {
+    if ( dynamicDensityOn )
+	return false;
+    if ( staticDensityOn ) {
 	for (var i = 0; i < canvasDensity.length; i++) {
 	    for (var j = 0; j < canvasDensity[i].length; j++) {
 		canvasDensity[i][j].graphics.clear();
 	    }
 	}
 	stage.update();
-        densityOn = false;
-	console.log("Map off");
+        staticDensityOn = false;
+	console.log("Static density off");
     }
     else {
-	if ( !canvasDensity ) {
+	if ( staticDensity.length == 0 )
 	    $.get("/bottlenecks.json", function(data){
-		density = JSON.parse(data.toString().trim());
-		drawDensityMap();
+		staticDensity = JSON.parse(data.toString().trim());
+		drawDensityMap(staticDensity);
 	    });
-	}
 	else {
-	    drawDensityMap();
+	    drawDensityMap(staticDensity);
 	}
-	densityOn = true;
-	console.log("Map on");
+	staticDensityOn = true;
+	console.log("Static density on");
     }
 }
 
-function traceToggle(){
-    if(trace){
-        trace = false;
+function toggleDynamicDensity() {
+    if ( dynamicDensityOn ) {
+	if ( canvasDensity && stage.contains(canvasDensity[0][0]) ) {
+	    for (var i = 0; i < canvasDensity.length; i++) {
+		for (var j = 0; j < canvasDensity[i].length; j++) {
+		    canvasDensity[i][j].graphics.clear();
+		}
+	    }
+	}
+	stage.update();
+	dynamicDensityOn = false;
+	console.log("Dynamic density off");
     }
-    else{
-        trace = true;
+    else {
+	if ( canvasPeople && stage.contains(canvasPeople[0]) ) {
+	    for(var i = 0; i < canvasPeople.length; i++){
+		canvasPeople[i].graphics.clear();
+	    }
+	}
+	if ( staticDensityOn ) {
+	    toggleStaticDensity();
+	}
+	stage.update();
+	dynamicDensityOn = true;
+	console.log("Dynamic density on");
     }
 }
 
@@ -467,16 +487,8 @@ function simulate(option){
 
         time = 0;
 
-        if(interval){ // Has already been started, therefore needs to be started from the beginning with no traces and new arrays
+        if(interval){ // Has already been started, therefore needs to be started from the beginning
             window.clearInterval(interval);
-            //This now causes a lag spike - All of this people drawing stuff needs to be reworked.
-            if(canvasTraces){
-                for(var i = 0; i < canvasTraces.length; i++){
-                    stage.removeChild(canvasTraces[i]);
-                }
-                stage.update();
-            }
-            canvasTraces = new Array();
         }
         interval = window.setInterval(function(){populate(time);time++}, 100);
     }
@@ -702,7 +714,12 @@ function redrawCanvas(){
         for(i = 0; i < canvasPeople.length; i++) {
             stage.addChild(canvasPeople[i])
         }  
-    }  
+    }
+    
+    if ( staticDensityOn ) {
+	staticDensityOn = false;
+	toggleStaticDensity();
+    }
 
     stage.update();
 }

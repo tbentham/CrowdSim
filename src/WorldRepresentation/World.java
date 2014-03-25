@@ -281,11 +281,11 @@ public class World {
 
     				/* Add whole path from (i,j) to density map */
 
-                    Path thisPath = getPath(i, j, 0, 0, true);
+                    Path thisPath = getPath(i, j, z, 0, true);
                     int pathLength = thisPath.getNodes().size();
                     if (fdEvacList.size() > 1) {
                         for (int q = 1; q < fdEvacList.size(); q++) {
-                            Path newPath = getPath(i, j, 0, q, true);
+                            Path newPath = getPath(i, j, z, q, true);
                             if (newPath.getNodes().size() < pathLength) {
                                 thisPath = newPath;
                                 pathLength = newPath.getNodes().size();
