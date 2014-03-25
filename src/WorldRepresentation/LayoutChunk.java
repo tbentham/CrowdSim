@@ -195,9 +195,8 @@ public class LayoutChunk implements Runnable {
     }
 
     private void addOverlapPeople() {
-        while (!qOverlap.isEmpty()) {
-            overlapPeople.add(qOverlap.poll());
-        }
+        overlapPeople.addAll(qOverlap);
+        qOverlap.clear();
     }
 
     private void sendOverlaps() {
