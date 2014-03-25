@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CyclicBarrier;
 
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 public class LayoutChunkTest {
@@ -35,6 +36,31 @@ public class LayoutChunkTest {
     @Test
     public void addWallTest() {
         layoutChunk.addWall(0, 0, 1, 1, 0);
+    }
+
+    @Test
+    public void getAllDensityMapsTest() {
+        layoutChunk.getAllDensityMaps();
+    }
+
+    @Test
+    public void isPointInsideReturnsTrueWithValidPoint() {
+        assertTrue(layoutChunk.isPointInside(50, 50));
+    }
+
+    @Test
+    public void isPointInsideReturnsFalseWithInvalidPoint() {
+        assertFalse(layoutChunk.isPointInside(101, 101));
+    }
+
+    @Test
+    public void intersectsTopReturnsTrueWithIntersectingWall() {
+        assertTrue(layoutChunk.intersectsTop(new Wall(5, 5, -5, -5)));
+    }
+
+    @Test
+    public void intersectsTopReturnsFalseWithNonIntersectingWall() {
+        assertFalse(layoutChunk.intersectsTop(new Wall(5, 5, 10, 10)));
     }
 
 }
