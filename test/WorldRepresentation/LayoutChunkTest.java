@@ -63,4 +63,47 @@ public class LayoutChunkTest {
         assertFalse(layoutChunk.intersectsTop(new Wall(5, 5, 10, 10)));
     }
 
+    @Test
+    public void intersectsBottomReturnsTrueWithIntersectingCall() {
+        assertTrue(layoutChunk.intersectsBottom(new Wall(95, 95, 105, 105)));
+    }
+
+    @Test
+    public void intersectsBottomReturnsFalseWithNonIntersectingCall() {
+        assertFalse(layoutChunk.intersectsBottom(new Wall(95, 95, 85, 85)));
+    }
+
+    @Test
+    public void numberOfIntersectsReturnsTwoWithLineAcrossChunk() {
+        assertTrue(layoutChunk.numberOfIntersects(new Wall(-10, -10, 110, 110)) == 2);
+    }
+
+    @Test
+    public void addChunksTest() {
+        layoutChunk.addChunks(new LayoutChunk[1]);
+    }
+
+    @Test
+    public void putPersonTest() {
+        layoutChunk.putPerson(mock(Person.class));
+    }
+
+    @Test
+    public void addPeopleTest() {
+        layoutChunk.addPeople();
+        assertTrue(layoutChunk.q.isEmpty());
+    }
+
+    @Test
+    public void peopleTopEdgeTest() {
+        ArrayList<Person> topEdgeArray = layoutChunk.peopleTopEdge();
+        assertTrue(topEdgeArray.isEmpty());
+    }
+
+    @Test
+    public void chunkSizeTest() {
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk};
+        assertTrue(layoutChunk.chunkSize() == 100);
+    }
+
 }

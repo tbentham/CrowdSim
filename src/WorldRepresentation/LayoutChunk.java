@@ -105,26 +105,12 @@ public class LayoutChunk implements Runnable {
         return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(rightXBoundary, bottomYBoundary)));
     }
 
-    public boolean intersectsLeft(Wall w) {
-        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(leftXBoundary, topYBoundary)));
-    }
-
-    public boolean intersectsRight(Wall w) {
-        return (w.intersects(new Point2d(rightXBoundary, bottomYBoundary), new Point2d(rightXBoundary, topYBoundary)));
-    }
-
     public int numberOfIntersects(Wall w) {
         int num = 0;
         if (intersectsBottom(w)) {
             num++;
         }
         if (intersectsTop(w)) {
-            num++;
-        }
-        if (intersectsRight(w)) {
-            num++;
-        }
-        if (intersectsLeft(w)) {
             num++;
         }
         return num;
@@ -138,12 +124,12 @@ public class LayoutChunk implements Runnable {
         this.q.add(p);
     }
 
-    private void addPeople() {
+    public void addPeople() {
         this.people.addAll(q);
         q.clear();
     }
 
-    private ArrayList<Person> peopleTopEdge() {
+    public ArrayList<Person> peopleTopEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
             if (p.getLocation() != null && topYBoundary - p.getLocation().y < 2) {
@@ -153,7 +139,7 @@ public class LayoutChunk implements Runnable {
         return ret;
     }
 
-    private ArrayList<Person> peopleBottomEdge() {
+    public ArrayList<Person> peopleBottomEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
             if (p.getLocation() != null && p.getLocation().y - bottomYBoundary < 2) {
@@ -163,7 +149,7 @@ public class LayoutChunk implements Runnable {
         return ret;
     }
 
-    private int chunkSize() {
+    public int chunkSize() {
         return (int) chunks[0].bottomYBoundary;
     }
 
