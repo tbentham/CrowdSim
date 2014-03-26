@@ -1,12 +1,15 @@
 package WorldRepresentation;
 
+import NewDijkstra.aConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.vecmath.Point3d;
 import java.util.ArrayList;
 import java.util.concurrent.CyclicBarrier;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
@@ -19,6 +22,7 @@ public class LayoutChunkTest {
     public void setUp() throws Exception {
         World world = new World(100, 1);
         world.getPeople().add(mock(Person.class));
+        world.setUp();
         layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
     }
 
@@ -101,9 +105,89 @@ public class LayoutChunkTest {
     }
 
     @Test
+    public void peopleBottomEdgeTest() {
+        ArrayList<Person> bottomEdgeArray = layoutChunk.peopleBottomEdge();
+        assertTrue(bottomEdgeArray.isEmpty());
+    }
+
+    @Test
     public void chunkSizeTest() {
         layoutChunk.chunks = new LayoutChunk[]{layoutChunk};
         assertTrue(layoutChunk.chunkSize() == 100);
+    }
+
+    @Test
+    public void sendTopOverlapTest() {
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk};
+        layoutChunk.sendTopOverlap();
+    }
+
+    @Test
+    public void sendBottomOverlapTest() {
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk};
+        layoutChunk.sendBottomOverlap();
+    }
+
+    @Test
+    public void addOverLapPeopleTest() {
+        layoutChunk.addOverlapPeople();
+    }
+
+    @Test
+    public void addOverlapTest() {
+        layoutChunk.addOverlapPeople();
+    }
+
+    @Test
+    public void sendOverlapsTest() {
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk};
+        layoutChunk.sendOverlaps();
+    }
+
+    @Test
+    public void addDensityMapTest() {
+        layoutChunk.addDensityMap(new int[1][1][1]);
+    }
+
+    @Test
+    public void getAllPeopleTest() {
+        assertTrue(layoutChunk.getAllPeople().isEmpty());
+    }
+
+    @Test
+    public void validXYLocationWithNoWallsTest() {
+        int[] validLocation = layoutChunk.validXYLocation(new Person(5, 5, 0, 0));
+        assertTrue(validLocation[0] == 5);
+        assertTrue(validLocation[1] == 5);
+    }
+
+    @Test
+    public void validXYLocationWithWallTest() {
+        World world = new World(100, 1);
+        world.addWall(0, 0, 1, 1, 0);
+        world.getPeople().add(mock(Person.class));
+        layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
+        int[] validLocation = layoutChunk.validXYLocation(new Person(1, 1, 0, 0));
+
+        ArrayList<aConnection> aConn = layoutChunk.getChunkStar().getConnections().get(
+                0 * (100 * 100) + validLocation[0] * 100 + validLocation[1]);
+        assertNotNull(aConn);
+    }
+
+    @Test
+    public void updatePersonWithEvacPathTest() throws Exception {
+        World world = new World(100, 1);
+        world.getPeople().add(mock(Person.class));
+        world.setUp();
+        ArrayList<Point3d> goals = new ArrayList<>();
+        goals.add(new Point3d(0, 0, 0));
+        goals.add(new Point3d(1, 1, 0));
+        ArrayList<Point3d> poi = new ArrayList<>();
+        poi.add(new Point3d(10, 10, 0));
+        poi.add(new Point3d(0, 0, 0));
+        world.computeDijsktraTowards(goals, poi);
+        layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
+        layoutChunk.updatePersonWithEvacPath(new Person(5, 5, 0, 0));
     }
 
 }

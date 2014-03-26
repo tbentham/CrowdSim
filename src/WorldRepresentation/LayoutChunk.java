@@ -94,15 +94,18 @@ public class LayoutChunk implements Runnable {
     }
 
     public boolean isPointInside(double x, double y) {
-        return (y >= topYBoundary && y <= bottomYBoundary && x <= rightXBoundary && x >= leftXBoundary);
+        return (y >= topYBoundary && y <= bottomYBoundary &&
+                x <= rightXBoundary && x >= leftXBoundary);
     }
 
     public boolean intersectsTop(Wall w) {
-        return (w.intersects(new Point2d(leftXBoundary, topYBoundary), new Point2d(rightXBoundary, topYBoundary)));
+        return (w.intersects(new Point2d(leftXBoundary, topYBoundary),
+                new Point2d(rightXBoundary, topYBoundary)));
     }
 
     public boolean intersectsBottom(Wall w) {
-        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary), new Point2d(rightXBoundary, bottomYBoundary)));
+        return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary),
+                new Point2d(rightXBoundary, bottomYBoundary)));
     }
 
     public int numberOfIntersects(Wall w) {
@@ -153,7 +156,7 @@ public class LayoutChunk implements Runnable {
         return (int) chunks[0].bottomYBoundary;
     }
 
-    private void sendTopOverlap() {
+    public void sendTopOverlap() {
         ArrayList<Person> t = peopleTopEdge();
 
         int yIndex = (int) topYBoundary / chunkSize();
@@ -164,7 +167,7 @@ public class LayoutChunk implements Runnable {
         chunks[yIndex - 1].qOverlap.addAll(t);
     }
 
-    private void sendBottomOverlap() {
+    public void sendBottomOverlap() {
         ArrayList<Person> b = peopleBottomEdge();
 
         int yIndex = (int) topYBoundary / chunkSize();
@@ -175,28 +178,28 @@ public class LayoutChunk implements Runnable {
         chunks[yIndex + 1].qOverlap.addAll(b);
     }
 
-    private void addOverlapPeople() {
+    public void addOverlapPeople() {
         overlapPeople.addAll(qOverlap);
         qOverlap.clear();
     }
 
-    private void sendOverlaps() {
+    public void sendOverlaps() {
         sendBottomOverlap();
         sendTopOverlap();
     }
 
-    private void addDensityMap(int[][][] densityMap) {
+    public void addDensityMap(int[][][] densityMap) {
         allDensityMaps.add(densityMap);
     }
 
-    private ArrayList<Person> getAllPeople() {
+    public ArrayList<Person> getAllPeople() {
         ArrayList<Person> allPeople = new ArrayList<Person>();
         allPeople.addAll(people);
         allPeople.addAll(overlapPeople);
         return allPeople;
     }
 
-    private int[] validXYLocation(Person p) {
+    public int[] validXYLocation(Person p) {
         int x = (int) Math.round(p.getLocation().x);
         int y = (int) Math.round(p.getLocation().y);
 
@@ -205,21 +208,23 @@ public class LayoutChunk implements Runnable {
         if (y < 0)
             y = 0;
 
-        ArrayList<aConnection> aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + x * w.getSideLength() + y);
+        ArrayList<aConnection> aConns = chunkStar.getConnections().get(
+                p.floor * (w.sideLength * w.sideLength) + x * w.getSideLength() + y);
         int rand1 = x;
         int rand2 = y;
 
-        while (aconn == null) {
+        while (aConns == null) {
             rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
             rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
 
-            aconn = chunkStar.getConnections().get(p.floor * (w.sideLength * w.sideLength) + rand1 * w.getSideLength() + rand2);
+            aConns = chunkStar.getConnections().get(
+                    p.floor * (w.sideLength * w.sideLength) + rand1 * w.getSideLength() + rand2);
         }
 
         return new int[]{rand1, rand2};
     }
 
-    private void updatePersonWithEvacPath(Person p) throws RoutesNotComputedException {
+    public void updatePersonWithEvacPath(Person p) throws RoutesNotComputedException {
         int[] xy = validXYLocation(p);
         int x = xy[0];
         int y = xy[1];
@@ -305,9 +310,9 @@ public class LayoutChunk implements Runnable {
 
             ArrayList<Person> allPeople = getAllPeople();
 
-            if ( i % 5 == 0 ) {
-            	populateDensityMap();
-            	addDensityMap(densityMap);
+            if (i % 5 == 0) {
+                populateDensityMap();
+                addDensityMap(densityMap);
             }
 
             ArrayList<Person> toRemove = new ArrayList<Person>();
@@ -520,5 +525,9 @@ public class LayoutChunk implements Runnable {
             p.stuckOnWallSince = 0;
         }
         return p.stuckOnWallSince > time;
+    }
+
+    public AStar getChunkStar() {
+        return chunkStar;
     }
 }
