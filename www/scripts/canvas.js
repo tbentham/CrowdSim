@@ -31,6 +31,7 @@ var debugOn = false;
 var click = false;
 
 var time = -1; // For the "step" button
+var currentDensityTime = -1;
 var playInterval;
 
 var currentLine;
@@ -43,26 +44,31 @@ var cursorItemPixel; // This needs another tidy session
 function init() {
 
     stage = new createjs.Stage("mainCanvas");
-    setDrawMode(0);
+    setDrawMode(WALL_MODE);
     canvasFeatures.push(new Array());
     stage.update();
 }
 
-function populate(time, clear) {
+function populate(popTime) {
 
-    if ( people.length == 0 || time >= people[0].length )
+    if ( people.length == 0 || popTime >= people[0].length )
 	return false;
     
     if ( dynamicDensityOn ) {
-	if ( time % 5 != 0 )
-	    return false;  // only display density map at every 5th step
+	// only display density map at every 5th step
+	popTime -= popTime % 5;
+	
+	if ( popTime == currentDensityTime )
+	    return false;
 
 	if ( canvasDensity && stage.contains(canvasDensity[0][0]) )
 	    for (var i = 0; i < canvasDensity.length; i++)
 		for (var j = 0; j < canvasDensity[i].length; j++)
 		    canvasDensity[i][j].graphics.clear();
 
-	drawDensityMap(dynamicDensity[time]);
+	drawDensityMap(dynamicDensity[popTime/5], 5);
+	
+	currentDensityTime = popTime;
     }
     else {
 	if ( staticDensityOn )
@@ -83,16 +89,16 @@ function populate(time, clear) {
 		canvasPeople[i].graphics.clear();
 
 	for (var i = 0; i < canvasPeople.length; i++) { 
-	    if (people[i][time] != null) {
-		if (people[i][time].z == floor) {
+	    if (people[i][popTime] != null) {
+		if (people[i][popTime].z == floor) {
 
-		    if (blockages[i][time] == true) {
+		    if (blockages[i][popTime] == true) {
 			//Consider removing, now that people are multi coloured again.
-			canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+			canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][popTime].x*10, people[i][popTime].y*10, 5);
 		    }
 		    else {
-			canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
-			// canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][time].x*10, people[i][time].y*10, 5);
+			canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][popTime].x*10, people[i][popTime].y*10, 5);
+			// canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][popTime].x*10, people[i][popTime].y*10, 5);
 		    }
 		}
 	    }
@@ -108,14 +114,18 @@ function togglePlay() {
 	return false;
 
     if ( playOn ) {
-	window.clearInterval(playInterval);
 	playOn = false;
+	window.clearInterval(playInterval);
 	console.log("Play off");
     }
     else {
 	playOn = true;
+
+	if ( staticDensityOn )
+	    toggleStaticDensity();
+
 	playInterval = window.setInterval(function() {
-	    if ( time >= people[0].length ) {
+	    if ( time >= people[0].length || staticDensityOn ) {
 		togglePlay();
 		return false;
 	    }
@@ -154,7 +164,8 @@ function toFinish() {
     time = people[0].length - 1;
     $(".slider").slider({value: time});
     $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
-    populate(time);
+    if ( !staticDensityOn )
+	populate(time);
 }
 
 function upstairs() {
@@ -325,7 +336,7 @@ function toggleStaticDensity() {
 	    for (var i = 0; i < canvasPeople.length; i++)
 		canvasPeople[i].graphics.clear();
 
-	drawDensityMap(staticDensity);
+	drawDensityMap(staticDensity, 1500);
 
 	console.log("Static density on");
     }
@@ -338,6 +349,8 @@ function toggleDynamicDensity() {
 
     if ( dynamicDensityOn ) {
 	dynamicDensityOn = false;
+	
+	currentDensityTime = -1;
 
 	if ( canvasDensity && stage.contains(canvasDensity[0][0]) )
 	    for (var i = 0; i < canvasDensity.length; i++)
@@ -356,13 +369,13 @@ function toggleDynamicDensity() {
 	if ( canvasPeople && stage.contains(canvasPeople[0]) )
 	    for (var i = 0; i < canvasPeople.length; i++)
 		canvasPeople[i].graphics.clear();
-	populate(time - time % 5);
+	populate(time);
 
 	console.log("Dynamic density on");
     }
 }
 
-function drawDensityMap(density) {
+function drawDensityMap(density, divisor) {
 
     if ( !canvasDensity || !stage.contains(canvasDensity[0][0]) ) {
 	canvasDensity = new Array();
@@ -378,7 +391,7 @@ function drawDensityMap(density) {
     
     for (var i = 0; i < canvasDensity.length; i++)
 	for (var j = 0; j < canvasDensity[i].length; j++)
-	  canvasDensity[i][j].graphics.beginRadialGradientFill(["rgba(255,0,0,"+Math.min(density[i][j][floor]/1000,1)*0.9+")","rgba(255,0,0,0)"],[0,1],i*10+5,j*10+5,0,i*10+5,j*10+5,15).drawRect(i*10-10,j*10-10,40,30);
+	  canvasDensity[i][j].graphics.beginFill("rgba(255,0,0,"+Math.min(density[i][j][floor]/divisor,1)*0.9+")").drawRect(i*10,j*10,10,10);
     
     stage.update();
 }

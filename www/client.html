@@ -54,7 +54,6 @@
             <button class="btn btn-sm btn-primary" onclick="receiveFeatures()">Recieve</button><br/>
             <button class="btn btn-sm btn-primary" onclick="toggleStaticDensity()">Static Density</button>
             <button class="btn btn-sm btn-primary" onclick="toggleDynamicDensity()">Dynamic Density</button><br/>
-    		<button class="btn btn-sm btn-primary" onclick="setDrawMode(9)">Kill Mode</button>
             <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button><br/><br/>
 
             <form name="times">
@@ -78,7 +77,10 @@
 			&#x25B2;
 		</td></tr>
         <tr id="row3"><td id="specificControls">
-        	<div id="doorControls"><button class="btn btn-sm btn-primary" onclick="rotate()">Rotate door 90&deg;</button></div>
+        	<div id="doorControls">
+	    		<button class="btn btn-sm btn-primary" onclick="setDrawMode(9)">Remove item</button>
+        		<button class="btn btn-sm btn-primary" onclick="rotate()">Rotate door 90&deg;</button>
+        	</div>
 		</td></tr>
 
     	<tr><td id="toggle4" class="optionToggle" onclick="toggleOption(this.id,'row4')">
