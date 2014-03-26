@@ -40,7 +40,7 @@
             
             <div class="slider slider-horizontal"></div><br/>
             <div id="timestep"></div>
-            <div id="floor">Floor 0</div>
+            <div>Floor <span id="floor">0</span></div>
             <button class="btn btn-sm btn-primary" onclick="upstairs();stage.update();">Up</button>
             <button class="btn btn-sm btn-primary" onclick="downstairs();stage.update();">Down</button><br/>
 		</td></tr>
@@ -51,10 +51,10 @@
     	<tr id="row2"><td id="generalControls">
     		<!-- Feel free to move this to somewhere you feel it belongs. -->
             <button class="btn btn-sm btn-primary" onclick="sendFeatures()">Send</button>
-            <button class="btn btn-sm btn-primary" onclick="receive()">Recieve</button><br/>
+            <button class="btn btn-sm btn-primary" onclick="receiveFeatures()">Recieve</button><br/>
             <button class="btn btn-sm btn-primary" onclick="toggleStaticDensity()">Static Density</button>
             <button class="btn btn-sm btn-primary" onclick="toggleDynamicDensity()">Dynamic Density</button><br/>
-    		<button class="btn btn-sm btn-primary" onclick="drawMode(99)">Kill Mode</button>
+    		<button class="btn btn-sm btn-primary" onclick="setDrawMode(9)">Kill Mode</button>
             <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button><br/><br/>
 
             <form name="times">
@@ -86,23 +86,23 @@
 		</td></tr>
         <tr id="row4"><td id="dragItems">
             <div class="dragobject">
-            	<image src="images/dragobjects/wall.png" onclick="drawMode(0)"/>
+            	<image src="images/dragobjects/wall.png" onclick="setDrawMode(0)"/>
             	Wall
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/door.png" onclick="drawMode(1)"/>
+            	<image src="images/dragobjects/door.png" onclick="setDrawMode(1)"/>
             	Door
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/stairs.png" onclick="drawMode(4)"/>
+            	<image src="images/dragobjects/stairs.png" onclick="setDrawMode(2)"/>
             	Staircase
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/interest.png" onclick="drawMode(2)"/>
+            	<image src="images/dragobjects/interest.png" onclick="setDrawMode(3)"/>
             	Point of Interest
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/evac.png" onclick="drawMode(3)"/>
+            	<image src="images/dragobjects/evac.png" onclick="setDrawMode(4)"/>
             	Evacuation Point
             </div>
 		</td></tr>
