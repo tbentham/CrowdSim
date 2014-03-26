@@ -319,9 +319,10 @@ public class LayoutChunk implements Runnable {
 
             ArrayList<Person> allPeople = getAllPeople();
 
-            populateDensityMap();
-
-            addDensityMap(densityMap);
+            if ( i % 5 == 0 ) {
+            	populateDensityMap();
+            	addDensityMap(densityMap);
+            }
 
             ArrayList<Person> toRemove = new ArrayList<Person>();
             for (Person p : people) {
