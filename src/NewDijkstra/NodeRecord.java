@@ -1,5 +1,7 @@
 package NewDijkstra;
 
+// Used to represent <Node,Key,Predecessor> tuples, in order for search to operate and
+// paths to be constructed
 public class NodeRecord implements Comparable<NodeRecord> {
 
     public Integer node;
