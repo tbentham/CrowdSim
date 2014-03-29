@@ -29,16 +29,13 @@ public class Path {
             Node lastVertex = vertices.get(0);
             Node curVertex = vertices.get(1);
 
-            double lastDiffX;  // last difference in x-coord value
-            double lastDiffY;  // last difference in y-coord value
-
             double curDiffX = lastVertex.getX() - curVertex.getX();
             double curDiffY = lastVertex.getY() - curVertex.getY();
 
             for (int i = 2; i < vertices.size(); i++) {
                 // current differences are now last differences
-                lastDiffX = curDiffX;
-                lastDiffY = curDiffY;
+                double lastDiffX = curDiffX; // last difference in x-coord value
+                double lastDiffY = curDiffY; // last difference in y-coord value
 
                 lastVertex = curVertex;
                 curVertex = vertices.get(i);
