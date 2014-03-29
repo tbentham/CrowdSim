@@ -2,6 +2,7 @@ package WorldRepresentation;
 
 import javax.vecmath.Point2d;
 
+// Represents any way that people can move between floors
 public class FloorConnection {
 
     public Point2d location;
