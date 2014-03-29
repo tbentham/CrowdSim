@@ -2,6 +2,7 @@ package NewDijkstra;
 
 import javax.vecmath.Point2d;
 
+// Used to represent integer Nodes in FastDijsktra
 public class Node {
 
     private Integer x;
