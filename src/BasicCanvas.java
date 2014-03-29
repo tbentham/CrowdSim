@@ -166,12 +166,11 @@ public class BasicCanvas {
         for (int i = 0; i < PEOPLE; i++) {
             try {
                 int num = (int) Math.round(Math.random() * (poi.size() - 1));
-                // world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), 1, num, evacBool);
                 world.addNewPersonAt((int) (Math.random() * 100), (int) (Math.random() * 100), (int) (Math.random() * numFloors), num, evacBool);
-
             } catch (PersonOverlapException ignored) {
-
+                i--;
             } catch (WallOverlapException ignored) {
+                i--;
             }
         }
 
@@ -319,17 +318,17 @@ public class BasicCanvas {
 
         /* TOTAL DENSITY MAP */
         ArrayList<int[][][]> totalDensityMaps = new ArrayList<int[][][]>();
-        for (int i = 0; i < TIME_STEPS/5 + 1; i++) {
+        for (int i = 0; i < TIME_STEPS / 5 + 1; i++) {
             totalDensityMaps.add(new int[world.sideLength][world.sideLength][numFloors]);
         }
         for (LayoutChunk c : chunks) {
             ArrayList<int[][][]> densityMaps = c.getAllDensityMaps();
-            for (int i = 0; i < TIME_STEPS/5; i++) {
+            for (int i = 0; i < TIME_STEPS / 5; i++) {
                 for (int j = 0; j < world.getSideLength(); j++) {
                     for (int k = 0; k < world.getSideLength(); k++) {
                         for (int l = 0; l < numFloors; l++) {
                             if (densityMaps.get(i)[j][k][l] != 0)
-                                totalDensityMaps.get(i+1)[j][k][l] = densityMaps.get(i)[j][k][l];
+                                totalDensityMaps.get(i + 1)[j][k][l] = densityMaps.get(i)[j][k][l];
                         }
                     }
                 }
