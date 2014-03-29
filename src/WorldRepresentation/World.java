@@ -260,7 +260,7 @@ public class World {
 
     public int[][][] getStaticDensityMap() throws RoutesNotComputedException {
         if (!routesComputed) {
-            throw new RoutesNotComputedException("getPath called before routes were computed");
+            throw new RoutesNotComputedException("getStaticDensityMap called before routes were computed");
         }
         if (fdEvacList.size() == 0) {
             return new int[sideLength][sideLength][numFloors];
@@ -300,10 +300,6 @@ public class World {
         return staticDensityMap;
     }
 
-    public int getStaticDensity(int i, int j, int z) throws RoutesNotComputedException {
-        return (getStaticDensityMap())[i][j][z];
-    }
-
     public int getSideLength() {
         return this.sideLength;
     }
@@ -312,28 +308,8 @@ public class World {
         return walls;
     }
 
-    public int[][][] getFloorPlan() {
-        return floorPlan;
-    }
-
-    public Vertex[][][] getNodeArray() {
-        return nodeArray;
-    }
-
-    public ArrayList<Vertex> getNodes() {
-        return nodes;
-    }
-
     public ArrayList<Edge> getEdges() {
         return edges;
-    }
-
-    public boolean isSetUp() {
-        return isSetUp;
-    }
-
-    public boolean areRoutesComputed() {
-        return routesComputed;
     }
 
     public ArrayList<Person> getPeople() {
@@ -342,10 +318,6 @@ public class World {
 
     public void setEvac(Point3d evac) {
         this.evac = evac;
-    }
-
-    public void addFloorConnection(FloorConnection floorConnection) {
-        floorConnections.add(floorConnection);
     }
 
     public void addFloorConnections(ArrayList<FloorConnection> floorConnections) {
