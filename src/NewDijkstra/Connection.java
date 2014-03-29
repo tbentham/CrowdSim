@@ -2,6 +2,8 @@ package NewDijkstra;
 
 import org.jgrapht.util.FibonacciHeapNode;
 
+// Used to represent connections in FastDijkstra, since connections need to be referenced
+// by FibonacciHeapNodes
 public class Connection {
 
     private double cost;
