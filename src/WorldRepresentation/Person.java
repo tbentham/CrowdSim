@@ -1,7 +1,6 @@
 package WorldRepresentation;
 
 import Exceptions.NaNException;
-import Exceptions.NoGoalException;
 import Exceptions.PersonOverlapException;
 import Exceptions.RoutesNotComputedException;
 import ForceModel.Model;
@@ -81,7 +80,7 @@ public class Person {
     }
 
     public Point2d advance(ArrayList<ArrayList<Wall>> walls, ArrayList<Person> people, double timeStep, World w) throws NaNException,
-            PersonOverlapException, NoGoalException, RoutesNotComputedException {
+            PersonOverlapException, RoutesNotComputedException {
 
         if (goalIndex == goalList.size() || (location.distance(goalList.getLast().toPoint2d()) < (size * 2.0) && floor == goalList.getLast().getZ())) {
             if (evacBool) {

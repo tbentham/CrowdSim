@@ -1,5 +1,8 @@
 package WorldRepresentation;
 
+import Exceptions.RoutesNotComputedException;
+import Exceptions.WallOverlapException;
+import Exceptions.WorldNotSetUpException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +54,25 @@ public class WorldTest {
     @Test
     public void setEvacTest() {
         world.setEvac(new Point3d(0, 0, 0));
+    }
+
+    @Test(expected = WallOverlapException.class)
+    public void wallOverlapExceptionTest() throws Exception {
+        world.addWall(0, 0, 10, 10, 0);
+        world.setUp();
+        world.computeDijsktraTowards(new ArrayList<Point3d>(), new ArrayList<Point3d>());
+        world.addNewPersonAt(5, 5, 0, 0, false);
+    }
+
+    @Test(expected = RoutesNotComputedException.class)
+    public void routesNotComputedExceptionTest() throws Exception {
+        world.addNewPersonAt(5, 5, 0, 0, false);
+    }
+
+    @Test(expected = WorldNotSetUpException.class)
+    public void worldNotSetUpExceptionTest() throws Exception {
+        world = new World(100, 1);
+        world.printFloorPlan();
     }
 
 }
