@@ -100,9 +100,6 @@ public class Person {
                         tGoalID = (int) Math.round(Math.random() * (w.fdPOIList.size() - 1));
                     }
                 }
-                if (tGoalID == -1) {
-                    System.out.println("");
-                }
                 Path path = w.getPath((int) Math.round(location.x), (int) Math.round(location.y), floor, tGoalID, evacBool);
                 this.goalID = tGoalID;
                 this.setGoalList(path.getSubGoals());
@@ -112,7 +109,6 @@ public class Person {
             }
         }
 
-        int currentGoal = goalIndex;
         goalUpdate();
 
 
@@ -148,13 +144,12 @@ public class Person {
             motion.scale(timeStep);
 
             location.add(motion);
-
         }
 
         locations.add(new Point2d(location.x, location.y));
         floors.add(floor);
 
-        currentGoal = goalIndex;
+        int currentGoal = goalIndex;
         goalUpdate();
         if (goalIndex != currentGoal) {
             distanceToNextGoal = location.distance(goalList.get(goalIndex).toPoint2d());
@@ -164,11 +159,6 @@ public class Person {
 
         blockedList.add(false);
         return location;
-    }
-
-    public Point2d advance(World world, ArrayList<Person> people, double timeStep) throws NaNException,
-            PersonOverlapException, NoGoalException, RoutesNotComputedException {
-        return advance(world.getWalls(), people, timeStep, world);
     }
 
     public int getGoalIndex() {
@@ -189,37 +179,11 @@ public class Person {
         return v;
     }
 
-    public boolean goalVisible(int index, ArrayList<Wall> walls, double addedLength) {
-        if (0 <= index && index < goalList.size()) {
-            for (Wall w : walls) {
-                if (w.intersects(location, goalList.get(index).toPoint2d(), addedLength)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean goalVisible(int index, ArrayList<Wall> walls) {
-        return goalVisible(index, walls, 0.0);
-    }
-
     public Vector2d getDesiredDirection() {
         Vector2d v = new Vector2d(getNextGoal());
         v.sub(new Vector2d(location));
         v.normalize();
         return v;
-    }
-
-    public double getNextSpeed() {
-        goalUpdate();
-        if (goalIndex == goalList.size())
-            return 0;
-        Vector2d nextVelocity = new Vector2d(actualVelocity);
-        nextVelocity.add(desiredAcceleration());
-        return nextVelocity.length();
     }
 
     public Point2d getNextGoal() {
@@ -251,22 +215,8 @@ public class Person {
         return size;
     }
 
-    public Vector2d getDirection() {
-        Vector2d v = new Vector2d(actualVelocity);
-        v.normalize();
-        return v;
-    }
-
     public Vector2d getVelocity() {
         return actualVelocity;
-    }
-
-    public double getSpeed() {
-        return actualVelocity.length();
-    }
-
-    public void setActualVelocity(Vector2d velocity) {
-        actualVelocity = velocity;
     }
 
     public double getDesiredSpeed() {

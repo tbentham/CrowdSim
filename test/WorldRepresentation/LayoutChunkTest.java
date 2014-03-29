@@ -251,6 +251,7 @@ public class LayoutChunkTest {
         world.computeDijsktraTowards(goals, poi);
         layoutChunk.chunks = new LayoutChunk[]{layoutChunk, layoutChunk};
         layoutChunk.setSteps(1);
+        layoutChunk.setEvacTime(10);
         layoutChunk.addPerson(new Person(5, 5, 0, 0));
         layoutChunk.run();
     }
