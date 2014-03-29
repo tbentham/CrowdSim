@@ -17,10 +17,11 @@ import static org.mockito.Mockito.mock;
 public class LayoutChunkTest {
 
     private LayoutChunk layoutChunk;
+    private World world;
 
     @Before
     public void setUp() throws Exception {
-        World world = new World(100, 1);
+        world = new World(100, 1);
         world.getPeople().add(mock(Person.class));
         world.setUp();
         layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
@@ -168,9 +169,8 @@ public class LayoutChunkTest {
         world.getPeople().add(mock(Person.class));
         layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
         int[] validLocation = layoutChunk.validXYLocation(new Person(1, 1, 0, 0));
-
         ArrayList<aConnection> aConn = layoutChunk.getChunkStar().getConnections().get(
-                0 * (100 * 100) + validLocation[0] * 100 + validLocation[1]);
+                0 + validLocation[0] * 100 + validLocation[1]);
         assertNotNull(aConn);
     }
 
@@ -186,8 +186,73 @@ public class LayoutChunkTest {
         poi.add(new Point3d(10, 10, 0));
         poi.add(new Point3d(0, 0, 0));
         world.computeDijsktraTowards(goals, poi);
-        layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class), 100, world, 0, 1, 5, 1);
+        layoutChunk = new LayoutChunk(0, 100, 0, 100, mock(CyclicBarrier.class),
+                100, world, 0, 1, 5, 1);
         layoutChunk.updatePersonWithEvacPath(new Person(5, 5, 0, 0));
+    }
+
+    @Test
+    public void isStuckTest() {
+        Person p = new Person(0, 0, 0, 0);
+        layoutChunk.setAStar(0);
+        assertFalse(layoutChunk.isStuck(p, 1));
+        layoutChunk.setAStar(1);
+        assertFalse(layoutChunk.isStuck(p, 1));
+        layoutChunk.setEvacTime(100);
+        assertFalse(layoutChunk.isStuck(p, 1));
+    }
+
+    @Test
+    public void waitBarrierTest() {
+        layoutChunk.waitBarrier();
+    }
+
+    @Test
+    public void threadIDTest() {
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk};
+        assertTrue(layoutChunk.threadID() == 1);
+    }
+
+    @Test
+    public void putPersonInCorrespondingChunksListTest() {
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk, layoutChunk};
+        layoutChunk.putPersonInCorrespondingChunksList(new Person(500, 5000, 0, 0),
+                new ArrayList<Person>());
+    }
+
+    @Test
+    public void aStarTest() throws Exception {
+        ArrayList<Point3d> goals = new ArrayList<>();
+        goals.add(new Point3d(0, 0, 0));
+        goals.add(new Point3d(1, 1, 0));
+        ArrayList<Point3d> poi = new ArrayList<>();
+        poi.add(new Point3d(10, 10, 0));
+        poi.add(new Point3d(0, 0, 0));
+        world.computeDijsktraTowards(goals, poi);
+        Person p = new Person(5, 5, 0, 0);
+        p.setGoalList(world.getPath(5, 5, 0, 0, false).getSubGoals());
+        layoutChunk.aStar(p);
+    }
+
+    @Test
+    public void populateDensityMapTest() {
+        layoutChunk.addPerson(new Person(0, 0, 0, 0));
+        layoutChunk.populateDensityMap();
+    }
+
+    @Test
+    public void runTest() throws Exception {
+        ArrayList<Point3d> goals = new ArrayList<>();
+        goals.add(new Point3d(0, 0, 0));
+        goals.add(new Point3d(1, 1, 0));
+        ArrayList<Point3d> poi = new ArrayList<>();
+        poi.add(new Point3d(10, 10, 0));
+        poi.add(new Point3d(0, 0, 0));
+        world.computeDijsktraTowards(goals, poi);
+        layoutChunk.chunks = new LayoutChunk[]{layoutChunk, layoutChunk};
+        layoutChunk.setSteps(1);
+        layoutChunk.addPerson(new Person(5, 5, 0, 0));
+        layoutChunk.run();
     }
 
 }

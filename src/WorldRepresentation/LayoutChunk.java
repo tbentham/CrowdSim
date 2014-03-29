@@ -246,7 +246,7 @@ public class LayoutChunk implements Runnable {
         p.evacBool = true;
     }
 
-    private boolean isStuck(Person p, Integer i) {
+    public boolean isStuck(Person p, Integer i) {
         if (ASTAR != 1)
             return false;
         if (Math.abs(evacTime - i) < 3)
@@ -260,7 +260,7 @@ public class LayoutChunk implements Runnable {
         return stuckOnWall(p, i);
     }
 
-    private void waitBarrier() {
+    public void waitBarrier() {
         try {
             barrier.await();
         } catch (InterruptedException e) {
@@ -272,12 +272,13 @@ public class LayoutChunk implements Runnable {
         }
     }
 
-    private int threadID() {
+    public int threadID() {
         return (int) bottomYBoundary / chunkSize();
     }
 
-    private void putPersonInCorrespondingChunksList(Person p, ArrayList<Person> toRemove) {
-        if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) && p.getLocation().x > 0 && p.getLocation().y > 0) {
+    public void putPersonInCorrespondingChunksList(Person p, ArrayList<Person> toRemove) {
+        if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) &&
+                p.getLocation().x > 0 && p.getLocation().y > 0) {
             int xIndex = (int) p.getLocation().x / chunkSize();
             int yIndex = (int) p.getLocation().y / chunkSize();
             if (xIndex > 1) {
@@ -363,7 +364,7 @@ public class LayoutChunk implements Runnable {
         }
     }
 
-    private void aStar(Person p) throws Exception {
+    public void aStar(Person p) throws Exception {
         int[] xy = validXYLocation(p);
         int x = xy[0];
         int y = xy[1];
@@ -387,7 +388,7 @@ public class LayoutChunk implements Runnable {
 
     }
 
-    private void populateDensityMap() {
+    public void populateDensityMap() {
         int sideLength = w.getSideLength();
         densityMap = new int[sideLength][sideLength][numFloors];
 
@@ -529,5 +530,17 @@ public class LayoutChunk implements Runnable {
 
     public AStar getChunkStar() {
         return chunkStar;
+    }
+
+    public void setAStar(int num) {
+        ASTAR = num;
+    }
+
+    public void setEvacTime(int time) {
+        evacTime = time;
+    }
+
+    public void setSteps(int steps) {
+        this.steps = steps;
     }
 }
