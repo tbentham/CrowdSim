@@ -109,7 +109,7 @@ public class World {
                     floorPlan[i][j][z] = 0;
                     for (Wall wall : walls.get(z)) {
                         Point2d point2d = new Point2d(i, j);
-                        if (wall.touches(point2d, 1)) {
+                        if (wall.touches(point2d, 0.75)) {
                             floorPlan[i][j][z] = 1;
                             break;
                         }
