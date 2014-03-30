@@ -9,7 +9,7 @@ import NewDijkstra.aConnection;
 import javax.vecmath.Point2d;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.LinkedList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -33,7 +33,7 @@ public class LayoutChunk implements Runnable {
     private ArrayList<Edge> edges;
     private Vertex[][][] nodes;
     LayoutChunk[] chunks;
-    public ArrayBlockingQueue<Person> qOverlap;
+    public LinkedList<Person> qOverlap;
     public ArrayList<Person> q;
     private AStar chunkStar;
     private Integer evacTime;
@@ -69,7 +69,8 @@ public class LayoutChunk implements Runnable {
         this.w = w;
         this.barrier = barrier;
         this.steps = steps;
-        qOverlap = new ArrayBlockingQueue<Person>(w.getPeople().size());
+        // qOverlap = new ArrayBlockingQueue<Person>(w.getPeople().size());
+        qOverlap = new LinkedList<>();
         q = new ArrayList<Person>();
 
         populateFloorPlan();
@@ -135,7 +136,7 @@ public class LayoutChunk implements Runnable {
     public ArrayList<Person> peopleTopEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
-            if (p.getLocation() != null && topYBoundary - p.getLocation().y < 2) {
+            if (p.getLocation() != null && Math.abs(topYBoundary - p.getLocation().y) < 2) {
                 ret.add(p);
             }
         }
@@ -145,7 +146,7 @@ public class LayoutChunk implements Runnable {
     public ArrayList<Person> peopleBottomEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
-            if (p.getLocation() != null && p.getLocation().y - bottomYBoundary < 2) {
+            if (p.getLocation() != null && Math.abs(p.getLocation().y - bottomYBoundary) < 2) {
                 ret.add(p);
             }
         }
@@ -307,6 +308,7 @@ public class LayoutChunk implements Runnable {
 
             finished = true;
 
+            System.out.println("ThreadID: " + threadID() + " qOverlap size: " + qOverlap.size());
             addOverlapPeople();
 
             ArrayList<Person> allPeople = getAllPeople();
