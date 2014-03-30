@@ -129,7 +129,7 @@ public class World {
                     if (floorPlan[j][i][z] == 0) {
                         System.out.print('\267');
                     } else {
-                        System.out.print(floorPlan[j][i]);
+                        System.out.print(floorPlan[j][i][z]);
                     }
                 }
                 System.out.println();
