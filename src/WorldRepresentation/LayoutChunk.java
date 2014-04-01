@@ -372,7 +372,7 @@ public class LayoutChunk implements Runnable {
         int y = xy[1];
         int sideLength = w.getSideLength();
         int startNode = (p.floor * sideLength * sideLength) + x * sideLength + y;
-        int goalNode = p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
+        int goalNode = (p.getGoalList().getLast().getZ()) + p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
         int goalZ = goalNode / (sideLength * sideLength);
         int goalX = (goalNode % (sideLength * sideLength)) / sideLength;
         int goalY = goalNode % sideLength;
