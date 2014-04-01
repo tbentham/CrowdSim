@@ -70,7 +70,7 @@ public class LayoutChunk implements Runnable {
         this.barrier = barrier;
         this.steps = steps;
         // qOverlap = new ArrayBlockingQueue<Person>(w.getPeople().size());
-        qOverlap = new LinkedList<>();
+        qOverlap = new LinkedList<Person>();
         q = new ArrayList<Person>();
 
         populateFloorPlan();

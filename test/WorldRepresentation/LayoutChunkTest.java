@@ -179,10 +179,10 @@ public class LayoutChunkTest {
         World world = new World(100, 1);
         world.getPeople().add(mock(Person.class));
         world.setUp();
-        ArrayList<Point3d> goals = new ArrayList<>();
+        ArrayList<Point3d> goals = new ArrayList<Point3d>();
         goals.add(new Point3d(0, 0, 0));
         goals.add(new Point3d(1, 1, 0));
-        ArrayList<Point3d> poi = new ArrayList<>();
+        ArrayList<Point3d> poi = new ArrayList<Point3d>();
         poi.add(new Point3d(10, 10, 0));
         poi.add(new Point3d(0, 0, 0));
         world.computeDijsktraTowards(goals, poi);
@@ -222,10 +222,10 @@ public class LayoutChunkTest {
 
     @Test
     public void aStarTest() throws Exception {
-        ArrayList<Point3d> goals = new ArrayList<>();
+        ArrayList<Point3d> goals = new ArrayList<Point3d>();
         goals.add(new Point3d(0, 0, 0));
         goals.add(new Point3d(1, 1, 0));
-        ArrayList<Point3d> poi = new ArrayList<>();
+        ArrayList<Point3d> poi = new ArrayList<Point3d>();
         poi.add(new Point3d(10, 10, 0));
         poi.add(new Point3d(0, 0, 0));
         world.computeDijsktraTowards(goals, poi);
@@ -242,10 +242,10 @@ public class LayoutChunkTest {
 
     @Test
     public void runTest() throws Exception {
-        ArrayList<Point3d> goals = new ArrayList<>();
+        ArrayList<Point3d> goals = new ArrayList<Point3d>();
         goals.add(new Point3d(0, 0, 0));
         goals.add(new Point3d(1, 1, 0));
-        ArrayList<Point3d> poi = new ArrayList<>();
+        ArrayList<Point3d> poi = new ArrayList<Point3d>();
         poi.add(new Point3d(10, 10, 0));
         poi.add(new Point3d(0, 0, 0));
         world.computeDijsktraTowards(goals, poi);
