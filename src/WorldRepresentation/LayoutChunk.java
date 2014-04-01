@@ -245,6 +245,8 @@ public class LayoutChunk implements Runnable {
 
         p.setGoalList(thisPath.getSubGoals());
         p.evacBool = true;
+        p.distanceToNextGoal = p.location.distance(p.getGoalList().get(p.getGoalIndex()).toPoint2d());
+        p.expectedTimeStepAtNextGoal = (p.distanceToNextGoal / (p.getDesiredSpeed() * 0.1)) + 5 + (p.locations.size());
     }
 
     public boolean isStuck(Person p, Integer i) {
@@ -321,9 +323,6 @@ public class LayoutChunk implements Runnable {
             ArrayList<Person> toRemove = new ArrayList<Person>();
             for (Person p : people) {
                 try {
-                    if (i == evacTime) {
-                        updatePersonWithEvacPath(p);
-                    }
 
                     if (p.getLocation() == null) {
                         continue;
@@ -333,7 +332,9 @@ public class LayoutChunk implements Runnable {
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
                     }
 
-                    if (isStuck(p, i)) {
+                    if (i == evacTime) {
+                        updatePersonWithEvacPath(p);
+                    } else if (isStuck(p, i)) {
 
                         p.blockedList.set(p.blockedList.size() - 1, true);
 
@@ -372,7 +373,7 @@ public class LayoutChunk implements Runnable {
         int y = xy[1];
         int sideLength = w.getSideLength();
         int startNode = (p.floor * sideLength * sideLength) + x * sideLength + y;
-        int goalNode = p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
+        int goalNode = (p.getGoalList().getLast().getZ()) + p.getGoalList().getLast().getX() * sideLength + p.getGoalList().getLast().getY();
         int goalZ = goalNode / (sideLength * sideLength);
         int goalX = (goalNode % (sideLength * sideLength)) / sideLength;
         int goalY = goalNode % sideLength;
