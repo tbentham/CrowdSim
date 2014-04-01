@@ -116,9 +116,14 @@ public class Person {
             accTerm.add(desiredAcceleration());
 
             for (Person p : people) {
-                if (this != p && p.getLocation() != null && p.floor == this.floor) {
-                    accTerm.add(forceModel.socialForce(this, p));
+                try {
+                    if (this != p && p.getLocation() != null && p.floor == this.floor) {
+                        accTerm.add(forceModel.socialForce(this, p));
+                    }
+                } catch (NullPointerException ignored) {
+                    // This simply avoids null pointer exceptions when != null fails
                 }
+
             }
 
             for (Wall wall : walls.get(floor)) {
