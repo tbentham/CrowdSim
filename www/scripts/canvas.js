@@ -115,25 +115,29 @@ function togglePlay() {
 
     if ( playOn ) {
 	playOn = false;
+	
 	window.clearInterval(playInterval);
+	
 	console.log("Play off");
     }
     else {
-	playOn = true;
-
 	if ( staticDensityOn )
 	    toggleStaticDensity();
 
+	playOn = true;
+
 	playInterval = window.setInterval(function() {
-	    if ( time >= people[0].length || staticDensityOn ) {
+	    if ( time >= people[0].length ) {
 		togglePlay();
 		return false;
 	    }
 	    $(".slider").slider({value: time});
 	    $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
 	    populate(time);
-	    time++;
+	    if ( time < people[0].length - 1 )
+		time++;
 	}, 100);
+	
 	console.log("Play on");
     }
 }
@@ -214,8 +218,11 @@ function redrawCanvas() {
 	staticDensityOn = false;
 	toggleStaticDensity();
     }
-    else
+    else {
+	if ( dynamicDensityOn )
+	    currentDensityTime = -1;
 	populate(time);
+    }
 
     stage.update();
 }
@@ -283,7 +290,7 @@ function receiveFeatures() {
 	people = JSON.parse(data.toString().trim());
 	$(".slider").slider({min: 0, max: people[0].length-1});
 	$(".slider").slider({slide: function( event, ui ) {
-	    if ( playOn )
+	    if ( time == people[0].length - 1 && playOn )
 		togglePlay();
 	    time = ui.value;
 	    $("#timestep")[0].textContent = (time*0.1).toFixed(2) + 's';
@@ -324,13 +331,13 @@ function toggleStaticDensity() {
 	console.log("Static density off");
     }
     else {
-	staticDensityOn = true;
-
 	if ( playOn )
-	    togglePlay;
+	    togglePlay();
 
 	if ( dynamicDensityOn )
 	    toggleDynamicDensity();
+
+	staticDensityOn = true;
 
 	if ( canvasPeople && stage.contains(canvasPeople[0]) )
 	    for (var i = 0; i < canvasPeople.length; i++)
@@ -361,10 +368,10 @@ function toggleDynamicDensity() {
 	console.log("Dynamic density off");
     }
     else {
-	dynamicDensityOn = true;
-
 	if ( staticDensityOn )
 	    toggleStaticDensity();
+
+	dynamicDensityOn = true;
 
 	if ( canvasPeople && stage.contains(canvasPeople[0]) )
 	    for (var i = 0; i < canvasPeople.length; i++)
