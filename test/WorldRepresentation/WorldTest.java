@@ -27,9 +27,9 @@ public class WorldTest {
 
     @Test
     public void addNewPersonAtTest() throws Exception {
-        ArrayList<Point3d> goals = new ArrayList<>();
+        ArrayList<Point3d> goals = new ArrayList<Point3d>();
         goals.add(new Point3d(1, 1, 0));
-        ArrayList<Point3d> poi = new ArrayList<>();
+        ArrayList<Point3d> poi = new ArrayList<Point3d>();
         poi.add(new Point3d(10, 10, 0));
         world.computeDijsktraTowards(goals, poi);
         world.addNewPersonAt(0, 0, 0, 0, false);
@@ -42,9 +42,9 @@ public class WorldTest {
 
     @Test
     public void getStaticDensityMapTest() throws Exception {
-        ArrayList<Point3d> goals = new ArrayList<>();
+        ArrayList<Point3d> goals = new ArrayList<Point3d>();
         goals.add(new Point3d(1, 1, 0));
-        ArrayList<Point3d> poi = new ArrayList<>();
+        ArrayList<Point3d> poi = new ArrayList<Point3d>();
         poi.add(new Point3d(10, 10, 0));
         poi.add(new Point3d(5, 5, 0));
         world.computeDijsktraTowards(goals, poi);
