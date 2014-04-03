@@ -214,12 +214,19 @@ public class LayoutChunk implements Runnable {
         int rand1 = x;
         int rand2 = y;
 
+        int start = 2;
+        int count = 1;
         while (aConns == null) {
-            rand1 = (int) Math.round((Math.random() * 2) - 1) + x;
-            rand2 = (int) Math.round((Math.random() * 2) - 1) + y;
+            if (count % 10 == 0) {
+                count = 1;
+                start++;
+            }
+            rand1 = (int) Math.round((Math.random() * start) - 1) + x;
+            rand2 = (int) Math.round((Math.random() * start) - 1) + y;
 
             aConns = chunkStar.getConnections().get(
                     p.floor * (w.sideLength * w.sideLength) + rand1 * w.getSideLength() + rand2);
+            count++;
         }
 
         return new int[]{rand1, rand2};
