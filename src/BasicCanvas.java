@@ -31,7 +31,7 @@ public class BasicCanvas {
         boolean interactive = true;
         String objectsFileName = "";
         String configFileName = "";
-        int NUM_THREADS = 4;
+        int NUM_THREADS = 2;
         if (args.length > 5 && args[0].equals("-o") && args[2].equals("-c") && args[4].equals("-n")) {
             objectsFileName = args[1];
             configFileName = args[3];
@@ -162,6 +162,7 @@ public class BasicCanvas {
 
         System.out.println("Dijsktra's Executed in: " + (System.currentTimeMillis() - d)
                 + "ms");
+        d = System.currentTimeMillis();
 
         for (int i = 0; i < PEOPLE; i++) {
             try {

@@ -7,14 +7,17 @@ public class ChunkSync implements Runnable {
     int num;
     private ArrayList<LayoutChunk> chunks;
     private int stopped;
+    long start;
 
     public ChunkSync() {
         this.num = 0;
+        start = System.currentTimeMillis();
     }
 
     public void run() {
         //Do inter-chunk communication here.
         System.out.println("I have hit the barrier:" + num);
+        System.out.println("Time elapsed" + (System.currentTimeMillis() - start));
         num++;
 
         for (LayoutChunk c : chunks) {

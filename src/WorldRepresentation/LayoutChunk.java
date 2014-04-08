@@ -306,7 +306,7 @@ public class LayoutChunk implements Runnable {
 
     public void run() {
         for (i = 0; i < this.steps; i++) {
-            System.out.println(i);
+            // System.out.println(i);
 
             addPeople();
             sendOverlaps();
@@ -315,7 +315,7 @@ public class LayoutChunk implements Runnable {
 
             finished = true;
 
-            System.out.println("ThreadID: " + threadID() + " qOverlap size: " + qOverlap.size());
+            // System.out.println("ThreadID: " + threadID() + " qOverlap size: " + qOverlap.size());
             addOverlapPeople();
 
             ArrayList<Person> allPeople = getAllPeople();
@@ -361,13 +361,13 @@ public class LayoutChunk implements Runnable {
             }
             if (i != this.steps - 1) {
                 people.removeAll(toRemove);
-                System.out.println("People size: " + people.size());
+                // System.out.println("People size: " + people.size());
             }
-            long start = System.currentTimeMillis();
-            System.out.println("I am thread " + threadID() + " and I am waiting at the bottom");
+            // long start = System.currentTimeMillis();
+            // System.out.println("I am thread " + threadID() + " and I am waiting at the bottom");
             waitBarrier();
-            long end = System.currentTimeMillis();
-            System.out.println("I am thread " + threadID() + " and I waited at the bottom for " + (end - start) + "ms");
+            //long end = System.currentTimeMillis();
+            //System.out.println("I am thread " + threadID() + " and I waited at the bottom for " + (end - start) + "ms");
 
             // System.out.println(people.size());
         }
