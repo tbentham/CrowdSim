@@ -180,6 +180,7 @@ public class LayoutChunk implements Runnable {
     }
 
     public void addOverlapPeople() {
+        overlapPeople.clear();
         overlapPeople.addAll(qOverlap);
         qOverlap.clear();
     }
@@ -294,9 +295,6 @@ public class LayoutChunk implements Runnable {
             if (xIndex > 1) {
                 xIndex = 1;
             }
-            if (yIndex > 1) {
-                yIndex = 1;
-            }
             if (!(xIndex < 0 || yIndex < 0)) {
                 toRemove.add(p);
                 chunks[yIndex].putPerson(p);
@@ -329,6 +327,7 @@ public class LayoutChunk implements Runnable {
 
             ArrayList<Person> toRemove = new ArrayList<Person>();
             for (Person p : people) {
+
                 try {
 
                     if (p.getLocation() == null) {
