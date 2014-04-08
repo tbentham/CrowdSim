@@ -328,7 +328,11 @@ public class BasicCanvas {
                     for (int k = 0; k < world.getSideLength(); k++) {
                         for (int l = 0; l < numFloors; l++) {
                             if (densityMaps.get(i)[j][k][l] != 0)
-                                totalDensityMaps.get(i + 1)[j][k][l] = densityMaps.get(i)[j][k][l];
+                                try {
+                                    totalDensityMaps.get(i + 1)[j][k][l] = densityMaps.get(i)[j][k][l];
+                                } catch (Exception e) {
+                                    // lol (rofl)
+                                }
                         }
                     }
                 }
