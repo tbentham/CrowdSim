@@ -60,14 +60,15 @@ function toggleOption(toggleId, elemId) {
 
     var elemDiv = document.getElementById(elemId);
     var toggleDiv = document.getElementById(toggleId);
+    var innerh = toggleDiv.innerHTML;
 
     if ( elemDiv.style.visibility == 'collapse' ) {
 	elemDiv.style.visibility = 'inherit';
-	toggleDiv.innerHTML= '&#x25B2;';
+	toggleDiv.innerHTML= innerh;
     }
     else {
 	elemDiv.style.visibility = 'collapse';
-	toggleDiv.innerHTML= '&#x25BC;';
+	toggleDiv.innerHTML= innerh; 
     }
 }
 

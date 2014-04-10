@@ -13,14 +13,13 @@ td {
 	left: 0;
 	right: 280px;
 	overflow: scroll;
-	background-color: lightgray;
+	background-color: #EEEEEE;
 }
 
 #mainCanvas {
 	height: 300;
 	width: 300;
 	margin: 10px;
-	border: 2px solid black;
 	background-color: white;
 }
 
@@ -34,9 +33,9 @@ td {
 	padding: 4px;
 	text-align: center;
 	font-weight: bold;
-	border-left: 2px solid black;
-	border-right: 2px solid black;
-	background-color: lightblue;
+	border-left: 1px solid black;
+	/*border-right: 2px solid black;*/
+	background-color: white;
 }
 
 #toggleinner {
@@ -57,29 +56,29 @@ td {
 #simulationButtons {
 	padding: 4px;
 	text-align: center;
-	border-bottom: 1px solid black;
+	/*border-bottom: 1px solid black;*/
 }
 
 #generalControls {
 	padding: 4px;
-	border-bottom: 1px solid black;
+	/*border-bottom: 1px solid black;*/
 	text-align: center;
 }
 
 #specificControls {
 	padding: 4px;
-	border-bottom: 1px solid black;
+	/*border-bottom: 1px solid black;*/
 	text-align: center;
 }
 
 #dragItems {
 	padding: 8px;
-	border-bottom: 1px solid black;
+	/*border-bottom: 1px solid black;*/
 }
 
 .optionToggle {
 	padding: 8px;
-	border-top: 1px solid black;
-	border-bottom: 1px solid black;
-	background-color: lightcyan;
+	/*border-top: 1px solid black;
+	border-bottom: 1px solid black;*/
+	background-color: white;
 }
