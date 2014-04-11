@@ -41,6 +41,7 @@ var angle = 0;
 var cursorItem;
 var cursorItemPixel; // This needs another tidy session
 
+
 function init() {
 
     stage = new createjs.Stage("mainCanvas");
@@ -80,7 +81,8 @@ function populate(popTime) {
 	    for (var i = 0; i < people.length; i++) {
 		s = new createjs.Shape();
 		canvasPeople.push(s);
-		canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
+		//canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
+		canvasPeople_colours.push("rgba(0, 0, 0, 1)");
 		stage.addChild(s);
 	    }
 	}
