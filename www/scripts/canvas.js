@@ -768,9 +768,13 @@ function mouseEvac(e) {
 
 function removeItem(e) {
 
-    for (var i = 0; i < canvasFeatures[floor].length; i++)
-	if (canvasFeatures[floor][i].id == e.currentTarget.id)
+    for (var i = 0; i < canvasFeatures[floor].length; i++){
+	if (canvasFeatures[floor][i].id == e.currentTarget.id){
 	    stage.removeChild(canvasFeatures[floor][i]);
+	    features.splice(i, 1)
+	}
+    }
+
     stage.update();
 }
 
