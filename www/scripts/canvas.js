@@ -771,7 +771,7 @@ function removeItem(e) {
     for (var i = 0; i < canvasFeatures[floor].length; i++){
 		if (canvasFeatures[floor][i].id == e.currentTarget.id){
 		    stage.removeChild(canvasFeatures[floor][i]);
-		    canvasFeatures.splice(i, 1);
+		    canvasFeatures[floor].splice(i, 1);
 		    features.splice(i, 1)
 		}
     }
