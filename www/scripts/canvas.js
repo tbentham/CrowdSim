@@ -81,8 +81,8 @@ function populate(popTime) {
 	    for (var i = 0; i < people.length; i++) {
 		s = new createjs.Shape();
 		canvasPeople.push(s);
-		//canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
-		canvasPeople_colours.push("rgba(0, 0, 0, 1)");
+		canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random()*255))+ "," + String(Math.floor(Math.random()*255)) + "," + String(Math.floor(Math.random()*255)) + ",1)")
+		//canvasPeople_colours.push("rgba(0, 0, 0, 1)");
 		stage.addChild(s);
 	    }
 	}
@@ -769,10 +769,11 @@ function mouseEvac(e) {
 function removeItem(e) {
 
     for (var i = 0; i < canvasFeatures[floor].length; i++){
-	if (canvasFeatures[floor][i].id == e.currentTarget.id){
-	    stage.removeChild(canvasFeatures[floor][i]);
-	    features.splice(i, 1)
-	}
+		if (canvasFeatures[floor][i].id == e.currentTarget.id){
+		    stage.removeChild(canvasFeatures[floor][i]);
+		    canvasFeatures.splice(i, 1);
+		    features.splice(i, 1)
+		}
     }
 
     stage.update();
