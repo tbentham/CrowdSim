@@ -1,10 +1,9 @@
-<!DOCTYPE html
-	PUBLIC "-//W3C//DTD HTML 4.01//EN"
-	"http://www.w3.org/TR/html4/strict.dtd">
-	
+<!doctype html>
 
 <html lang="en-US">
-<head profile="http://www.w3.org/2005/10/profile">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 	<title>CrowdSim Client</title>
 	<link rel="icon" type="image/png" href="images/favicon.png">
 	<link rel="stylesheet" type="text/css" href="css/client.css">
@@ -24,6 +23,8 @@
 
 </head>
 
+
+
 <body onload="javascript:init()">
     <div id="main">
     	<canvas id="mainCanvas"></canvas>
@@ -35,7 +36,7 @@
 	
     <table id="panel">
     	<tr>
-    		<td><image src="images/crowdsim.png" alt="CrowdSim"/></td>
+    		<td><img src="images/crowdsim.png" alt="CrowdSim"/></td>
     	</tr>
     	<tr><td id="toggle1" class="optionToggle" onclick="toggleOption(this.id,'row1')">
 			&#x25BC; Simulation Control
@@ -96,23 +97,23 @@
 		</td></tr>
         <tr id="row4"><td id="dragItems">
             <div class="dragobject">
-            	<image src="images/dragobjects/wall.png" onclick="setDrawMode(0)"/>
+            	<img src="images/dragobjects/wall.png" alt="wall.png" onclick="setDrawMode(0)"/>
             	Wall
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/door.png" onclick="setDrawMode(1)"/>
+            	<img src="images/dragobjects/door.png" alt="door.png" onclick="setDrawMode(1)"/>
             	Door
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/stairs.png" onclick="setDrawMode(2)"/>
+            	<img src="images/dragobjects/stairs.png" alt="stairs.png" onclick="setDrawMode(2)"/>
             	Staircase
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/interest.png" onclick="setDrawMode(3)"/>
+            	<img src="images/dragobjects/interest.png" alt="interest.png" onclick="setDrawMode(3)"/>
             	Point of Interest
             </div>
             <div class="dragobject">
-            	<image src="images/dragobjects/evac.png" onclick="setDrawMode(4)"/>
+            	<img src="images/dragobjects/evac.png" alt="evac.png" onclick="setDrawMode(4)"/>
             	Evacuation Point
             </div>
 		</td></tr>
