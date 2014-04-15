@@ -5,6 +5,7 @@ import NewDijkstra.Node;
 import java.util.LinkedList;
 import java.util.List;
 
+// Represents a path for a person as a list of vertices
 public class Path {
     private LinkedList<Node> vertices;
     private LinkedList<Node> subgoals;
@@ -24,6 +25,7 @@ public class Path {
         return subgoals;
     }
 
+    // Creates a subgoal list which is the subset of vertices at which the path changes direction
     private void generateSubGoals() {
         if (vertices.size() > 2) {
             Node lastVertex = vertices.get(0);

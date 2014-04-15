@@ -216,7 +216,7 @@ public class LayoutChunkTest {
     @Test
     public void putPersonInCorrespondingChunksListTest() {
         layoutChunk.chunks = new LayoutChunk[]{layoutChunk, layoutChunk};
-        layoutChunk.putPersonInCorrespondingChunksList(new Person(500, 5000, 0, 0),
+        layoutChunk.putPersonInCorrespondingChunksList(new Person(0, 0, 0, 0),
                 new ArrayList<Person>());
     }
 

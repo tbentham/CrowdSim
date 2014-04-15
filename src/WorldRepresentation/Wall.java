@@ -3,8 +3,11 @@ package WorldRepresentation;
 import javax.vecmath.Point2d;
 import javax.vecmath.Vector2d;
 
+// Represents walls in the building layout mainly as vectors, this allows for force calculations to be done
+// as well as collision and intersection calculations
 public class Wall {
 
+    // Record the starting and ending position of the wall
     private Vector2d startVector;
     private Vector2d endVector;
 
@@ -13,7 +16,7 @@ public class Wall {
         endVector = new Vector2d(x2, y2);
     }
 
-    // Returns the shortest distance between the wall and @point
+    // Returns the shortest distance between the wall and the given point
     public double distance(Point2d point) {
         double a = this.length();
 
@@ -52,6 +55,8 @@ public class Wall {
         return distance(person.getLocation());
     }
 
+    // Returns the closest x, y coordinate point on the wall to the given point
+    // This is used to allow the force that a wall exerts on a person to be applied in a specific direction
     public Point2d nearestPoint(Point2d point) {
         // Get lengths of triangle
         Vector2d startToEnd = new Vector2d(endVector);
@@ -95,6 +100,7 @@ public class Wall {
         return new Point2d(startToEnd);
     }
 
+    // Returns true if the given points when represented as a wall would intersect this wall
     public boolean intersects(Point2d p1, Point2d p2, double addedLength) {
         double x1 = startVector.x;
         double y1 = startVector.y;

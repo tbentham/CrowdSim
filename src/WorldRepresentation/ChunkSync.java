@@ -2,6 +2,7 @@ package WorldRepresentation;
 
 import java.util.ArrayList;
 
+// This class is the synchronisation point for all the threads, this class is run when a barrier is hit
 public class ChunkSync implements Runnable {
 
     int num;
@@ -14,8 +15,8 @@ public class ChunkSync implements Runnable {
         start = System.currentTimeMillis();
     }
 
+    // Simply records the number of barriers that have been hit
     public void run() {
-        //Do inter-chunk communication here.
         System.out.println("I have hit the barrier:" + num);
         System.out.println("Time elapsed" + (System.currentTimeMillis() - start));
         num++;

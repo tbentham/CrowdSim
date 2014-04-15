@@ -15,29 +15,43 @@ import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import java.util.ArrayList;
 
+// This class is intended to be a representation of the building layout which is feasible to perform simulation
+// across and perform path finding on
 public class World {
 
+    // Represents the length of one side of the entire world
     public int sideLength;
 
+    // Stores all the walls as a list
     private ArrayList<ArrayList<Wall>> walls;
+    // Stores 0 and 1 values which represent whether or not there is a node on the graph at that corresponding
+    // coordinate point
     private int[][][] floorPlan;
 
+    // Stores the node objects which represent each integer point in the world
     private Vertex[][][] nodeArray;
+    // Stores a reference to these vertices as a list
     private ArrayList<Vertex> nodes;
+    // Stores the edges in the world in a list
     private ArrayList<Edge> edges;
     public Point3d evac;
 
+    // Stores the collected density information through analysis of the calculated Dijkstra paths
     private int[][][] staticDensityMap;
 
+    // Represents whether set up has been run on the world
     private boolean isSetUp;
+    // Represents whether the paths have been computed on this world
     private boolean routesComputed;
+    // Stores the Dijkstra objects which encode the calculated paths to each evacuation point and point of interest
+    // in accessible lists
     public ArrayList<FastDijkstra> fdPOIList;
     public ArrayList<FastDijkstra> fdEvacList;
-
+    // Stores all the people in the simulation in a list
     private ArrayList<Person> people;
-
+    // Stores how many floors this simulation is concerned with
     public int numFloors;
-
+    // Stores all the objects which can be viewed as staircases
     public ArrayList<FloorConnection> floorConnections;
 
     public World(int sideLength, int numFloors) {
@@ -48,6 +62,7 @@ public class World {
         this.numFloors = numFloors;
         this.sideLength = sideLength;
 
+        // Sets up a new list of walls for each floor in the simulation
         walls = new ArrayList<ArrayList<Wall>>();
         for (int i = 0; i < numFloors; i++) {
             walls.add(new ArrayList<Wall>());
@@ -72,6 +87,9 @@ public class World {
         walls.get(floor).add(new Wall(x1, y1, x2, y2));
     }
 
+    // Attempts to add a new person at the given location and assigns them an initial path
+    // This will throw expections if the method is called at a location where a person already exists
+    // or there is a wall
     public void addNewPersonAt(int x, int y, int floor, int goalID, boolean evac) throws RoutesNotComputedException,
             PersonOverlapException, WallOverlapException {
         if (!routesComputed) {
@@ -89,11 +107,13 @@ public class World {
                 throw new WallOverlapException("Cannot add person at " + x + " , " + y + " because wall exists there");
             }
         }
+        // Once it has been determined that the person can be created, assign them with a path to their goal
         Path p1 = getPath(x, y, floor, goalID, evac);
         person.setGoalList(p1.getSubGoals());
         people.add(person);
     }
 
+    // Perform each of the set up steps
     public void setUp() {
         populateFloorPlan();
         populateNodeArray();
@@ -102,6 +122,7 @@ public class World {
         routesComputed = false;
     }
 
+    // Populate the array with 0 and 1s if there is a node on the map
     private void populateFloorPlan() {
         for (int i = 0; i < sideLength; i++) {
             for (int j = 0; j < sideLength; j++) {
@@ -119,6 +140,7 @@ public class World {
         }
     }
 
+    // Simply print a representation of the world, mainly for debugging
     public void printFloorPlan() throws WorldNotSetUpException {
         if (!isSetUp)
             throw new WorldNotSetUpException("printFloorPlan called before setting up world");
@@ -137,6 +159,7 @@ public class World {
         }
     }
 
+    // Create a node object at each coordinate point
     private void populateNodeArray() {
         for (int z = 0; z < numFloors; z++) {
             for (int i = 0; i < sideLength; i++) {
@@ -151,6 +174,9 @@ public class World {
         }
     }
 
+    // Walks through the nodes in the world, adding edges between them if it is valid to do so.
+    // Starts in the top left of the building for each floor and adds edges right and down until
+    // all the nodes have been visited
     private void createEdges() {
         for (int z = 0; z < numFloors; z++) {
             for (int i = 0; i < sideLength; i++) {
@@ -185,6 +211,8 @@ public class World {
         setUpFloorConnections();
     }
 
+    // Walks over each of the goals on the building layout and performs Dijkstras towards each one, storing the
+    // resulting paths in an accessible list
     public void computeDijsktraTowards(ArrayList<Point3d> goals, ArrayList<Point3d> evacuationPoints) throws WorldNotSetUpException {
         if (!isSetUp)
             throw new WorldNotSetUpException("computerDijsktraTowards called before setting up world");
@@ -223,7 +251,7 @@ public class World {
         routesComputed = true;
     }
 
-
+    // Queries the Dijkstras objects and returns the path from the given coordinate to the given goal
     public Path getPath(int x, int y, int z, int goalID, boolean evac) throws RoutesNotComputedException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("getPath called before routes were computed");
@@ -257,7 +285,7 @@ public class World {
         return new Path(nodeList);
     }
 
-
+    // Computes the density map by querying each Dijkstra object and adding all the information together
     public int[][][] getStaticDensityMap() throws RoutesNotComputedException {
         if (!routesComputed) {
             throw new RoutesNotComputedException("getStaticDensityMap called before routes were computed");
@@ -275,8 +303,7 @@ public class World {
                     if (floorPlan[i][j][z] != 0)
                         continue;  // if node (i,j) is a wall, skip it
 
-    				/* Add whole path from (i,j) to density map */
-
+                    // Add whole path from (i,j) to density map
                     Path thisPath = getPath(i, j, z, 0, true);
                     int pathLength = thisPath.getNodes().size();
                     if (fdEvacList.size() > 1) {
@@ -324,6 +351,7 @@ public class World {
         this.floorConnections.addAll(floorConnections);
     }
 
+    // Creates edges for each of the floorConnection objects
     public void setUpFloorConnections() {
         for (FloorConnection fc : floorConnections) {
             edges.add(new Edge(nodeArray[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],

@@ -13,35 +13,58 @@ import java.util.LinkedList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
+// Represents the abstraction of the main World into threadable instances
 public class LayoutChunk implements Runnable {
 
-    private ArrayList<ArrayList<Wall>> lWalls;
+    // Stores the walls across the entire building
     private ArrayList<ArrayList<Wall>> gWalls;
+    // Stores a local copy of the walls to avoid concurrency modification errors
+    private ArrayList<ArrayList<Wall>> lWalls;
+    // Stores the information representing the area for which each thread is responsible
     private double topYBoundary;
     private double bottomYBoundary;
     private double rightXBoundary;
     private double leftXBoundary;
+    // Stores the people that this chunk is currently simulating
     private ArrayList<Person> people;
+    // Stores the people just over the boundary of this chunk
     private ArrayList<Person> overlapPeople;
+    // Boolean which represents if chunk is currently performing simulation
     boolean finished;
+    // Reference to the synchronisation barrier
     private CyclicBarrier barrier;
+    // Number of timesteps that this simulation will perform
     private int steps;
+    // Node array which represents the graph of the building in binary, mainly for printing
     private int[][][] floorPlan;
+    // Stores the density at each point on the graph
     private int[][][] densityMap;
+    // Stores a reference to all the density information for previous time intervals
     private ArrayList<int[][][]> allDensityMaps;
+    // Stores a reference to the original world to callback for paths
     private World w;
+    // Stores all the unidirectional edges on the graph
     private ArrayList<Edge> edges;
+    // Stores the nodes which represent the graph of the building
     private Vertex[][][] nodes;
+    // References to all the other chunks in the simulation
     LayoutChunk[] chunks;
+    // Queue which represents the people other chunks have determined are just over this chunks boundary
     public LinkedList<Person> qOverlap;
+    // Queue which is a temporary storage for people who will be moved into this chunk
     public ArrayList<Person> q;
+    // AStar object used for recomputing paths
     private AStar chunkStar;
+    // Time at which the simulation will switch to an evacuation
     private Integer evacTime;
+    // Represents the status of A* in this simulation
     private Integer ASTAR;
+    // Represents how many timesteps there should be between each A* computation
     private Integer ASTAR_FREQUENCY;
     public int i;
     public int numFloors;
 
+    // Constructor which for the most part takes aspects of the original world and stores the useful information
     public LayoutChunk(double leftXBoundary, double rightXBoundary, double topYBoundary, double bottomYBoundary,
                        CyclicBarrier barrier, int steps, World w, Integer evacTime,
                        Integer astarToggle, Integer astarFreq, int numFloors) {
@@ -69,19 +92,19 @@ public class LayoutChunk implements Runnable {
         this.w = w;
         this.barrier = barrier;
         this.steps = steps;
-        // qOverlap = new ArrayBlockingQueue<Person>(w.getPeople().size());
         qOverlap = new LinkedList<Person>();
         q = new ArrayList<Person>();
-
         populateFloorPlan();
         createEdges();
         chunkStar = new AStar(w.getSideLength() * w.getSideLength() * numFloors, edges, w.getSideLength());
     }
 
+    // Adds a wall to this chunk
     public void addWall(double x1, double y1, double x2, double y2, int floor) {
         lWalls.get(floor).add(new Wall(x1, y1, x2, y2));
     }
 
+    // Adds a person to this chunk
     public void addPerson(Person p) {
         people.add(p);
     }
@@ -94,21 +117,25 @@ public class LayoutChunk implements Runnable {
         return allDensityMaps;
     }
 
+    // Returns true if the point given is within the boundaries of this chunk
     public boolean isPointInside(double x, double y) {
         return (y >= topYBoundary && y <= bottomYBoundary &&
                 x <= rightXBoundary && x >= leftXBoundary);
     }
 
+    // Returns true if the given wall passes through the top of this chunk
     public boolean intersectsTop(Wall w) {
         return (w.intersects(new Point2d(leftXBoundary, topYBoundary),
                 new Point2d(rightXBoundary, topYBoundary)));
     }
 
+    // Returns true if the given wall passes through the bottom of the chunk
     public boolean intersectsBottom(Wall w) {
         return (w.intersects(new Point2d(leftXBoundary, bottomYBoundary),
                 new Point2d(rightXBoundary, bottomYBoundary)));
     }
 
+    // Counts the number of times this wall intersects the boundaries of this chunk
     public int numberOfIntersects(Wall w) {
         int num = 0;
         if (intersectsBottom(w)) {
@@ -120,19 +147,23 @@ public class LayoutChunk implements Runnable {
         return num;
     }
 
+    // Function to store a reference to the other chunks
     public void addChunks(LayoutChunk[] chunks) {
         this.chunks = chunks;
     }
 
+    // Function is called by other chunks when a person has passed into this chunk
     public void putPerson(Person p) {
         this.q.add(p);
     }
 
+    // Shifts all the people other chunks have determined are in this chunk into the set of people for this chunk
     public void addPeople() {
         this.people.addAll(q);
         q.clear();
     }
 
+    // Returns all the people who are close to the top edge of the chunk
     public ArrayList<Person> peopleTopEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
@@ -143,6 +174,7 @@ public class LayoutChunk implements Runnable {
         return ret;
     }
 
+    // Returns all the people who are close to the bottom edge of the chunk
     public ArrayList<Person> peopleBottomEdge() {
         ArrayList<Person> ret = new ArrayList<Person>();
         for (Person p : people) {
@@ -153,10 +185,13 @@ public class LayoutChunk implements Runnable {
         return ret;
     }
 
+    // Returns the height of the chunk in this simulation
     public int chunkSize() {
         return (int) chunks[0].bottomYBoundary;
     }
 
+    // Sends all the people who are determined to be close to the top boundary to the overlap of the
+    // neighbouring chunk
     public void sendTopOverlap() {
         ArrayList<Person> t = peopleTopEdge();
 
@@ -168,6 +203,8 @@ public class LayoutChunk implements Runnable {
         chunks[yIndex - 1].qOverlap.addAll(t);
     }
 
+    // Sends all the people who are determined to be close to the bottom boundary to the overlap of the
+    // neighbouring chunk
     public void sendBottomOverlap() {
         ArrayList<Person> b = peopleBottomEdge();
 
@@ -179,21 +216,25 @@ public class LayoutChunk implements Runnable {
         chunks[yIndex + 1].qOverlap.addAll(b);
     }
 
+    // Adds the people that other chunks have identified near a boundary into the actual boundary list
     public void addOverlapPeople() {
         overlapPeople.clear();
         overlapPeople.addAll(qOverlap);
         qOverlap.clear();
     }
 
+    // Communicate the overlap people to other chunks
     public void sendOverlaps() {
         sendBottomOverlap();
         sendTopOverlap();
     }
 
+    // Adds the current density map to the list of density maps over time
     public void addDensityMap(int[][][] densityMap) {
         allDensityMaps.add(densityMap);
     }
 
+    // Returns all the people that this chunk is aware of
     public ArrayList<Person> getAllPeople() {
         ArrayList<Person> allPeople = new ArrayList<Person>();
         allPeople.addAll(people);
@@ -201,6 +242,7 @@ public class LayoutChunk implements Runnable {
         return allPeople;
     }
 
+    // Returns an integer x, y coordinate that is as close as possible to the person given but is not inside a wall
     public int[] validXYLocation(Person p) {
         int x = (int) Math.round(p.getLocation().x);
         int y = (int) Math.round(p.getLocation().y);
@@ -217,6 +259,7 @@ public class LayoutChunk implements Runnable {
 
         int start = 2;
         int count = 1;
+        // Loops through the nodes around the specified point in a spiral until a valid node is found.
         while (aConns == null) {
             if (count % 10 == 0) {
                 count = 1;
@@ -233,6 +276,7 @@ public class LayoutChunk implements Runnable {
         return new int[]{rand1, rand2};
     }
 
+    // Assign the given person a path towards the closest evacuation point
     public void updatePersonWithEvacPath(Person p) throws RoutesNotComputedException {
         int[] xy = validXYLocation(p);
         int x = xy[0];
@@ -257,6 +301,7 @@ public class LayoutChunk implements Runnable {
         p.expectedTimeStepAtNextGoal = (p.distanceToNextGoal / (p.getDesiredSpeed() * 0.1)) + 5 + (p.locations.size());
     }
 
+    // Return true if a person is stuck
     public boolean isStuck(Person p, Integer i) {
         if (ASTAR != 1)
             return false;
@@ -271,6 +316,7 @@ public class LayoutChunk implements Runnable {
         return stuckOnWall(p, i);
     }
 
+    // Wait within this method until all other chunks have reached it
     public void waitBarrier() {
         try {
             barrier.await();
@@ -283,10 +329,12 @@ public class LayoutChunk implements Runnable {
         }
     }
 
+    // Returns the unique ID associated with this chunk
     public int threadID() {
         return (int) bottomYBoundary / chunkSize();
     }
 
+    // Communicate people to the chunks that should be responsible for their simulation
     public void putPersonInCorrespondingChunksList(Person p, ArrayList<Person> toRemove) {
         if (p.getLocation() != null && !isPointInside(p.getLocation().x, p.getLocation().y) &&
                 p.getLocation().x > 0 && p.getLocation().y > 0) {
@@ -304,75 +352,68 @@ public class LayoutChunk implements Runnable {
         }
     }
 
+    // This is the main computation of the simulation
     public void run() {
         for (i = 0; i < this.steps; i++) {
-            // System.out.println(i);
-
             addPeople();
             sendOverlaps();
-
+            // Wait here until all the overlap queues have been filled
             waitBarrier();
-
+            // Mark that a timestep simulation has started
             finished = true;
-
-            // System.out.println("ThreadID: " + threadID() + " qOverlap size: " + qOverlap.size());
+            // Add the people identified near a boundary to the boundary list
             addOverlapPeople();
-
             ArrayList<Person> allPeople = getAllPeople();
-
+            // Store the density map at every 5 time intervals
             if (i % 5 == 0) {
                 populateDensityMap();
                 addDensityMap(densityMap);
             }
-
+            // Initialise storage for references to people who should be removed from this chunk
             ArrayList<Person> toRemove = new ArrayList<Person>();
             for (Person p : people) {
-
                 try {
-
+                    // Don't advance people if they have evacuated
                     if (p.getLocation() == null) {
                         continue;
                     }
-
+                    // Debug printing
                     if (stuckOnWall(p, i)) {
                         System.out.println("I am stuck on wall at: " + p.location.x + "," + p.location.y);
                     }
-
+                    // If the simulation is switching to an evacuation at this point, assign a new path to this person
                     if (i == evacTime) {
                         updatePersonWithEvacPath(p);
                     } else if (isStuck(p, i)) {
-
+                        // Stores whether or not the person is blocked at this point in time
                         p.blockedList.set(p.blockedList.size() - 1, true);
-
+                        // Only perform A* if it has not been done recently
                         if (p.lastAStar + ASTAR_FREQUENCY < i) {
                             aStar(p);
                             p.lastAStar = i;
                         }
                     }
 
+                    // If the person has moved over the boundary, put that person in the boundary list for that chunk
                     putPersonInCorrespondingChunksList(p, toRemove);
-
+                    // Finally, advance the person using the force model
                     p.advance(gWalls, allPeople, 0.1, w);
+                    // Flag that computation at this time interval has finished
                     finished = false;
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            // Remove all the people who have moved out of this chunk from the list of people being simulated
             if (i != this.steps - 1) {
                 people.removeAll(toRemove);
-                // System.out.println("People size: " + people.size());
             }
-            // long start = System.currentTimeMillis();
-            // System.out.println("I am thread " + threadID() + " and I am waiting at the bottom");
+            // Wait here until all the other chunks have finished for this timestep
             waitBarrier();
-            //long end = System.currentTimeMillis();
-            //System.out.println("I am thread " + threadID() + " and I waited at the bottom for " + (end - start) + "ms");
-
-            // System.out.println(people.size());
         }
     }
 
+    // Perform A* towards their goal for the given person
     public void aStar(Person p) throws Exception {
         int[] xy = validXYLocation(p);
         int x = xy[0];
@@ -383,7 +424,7 @@ public class LayoutChunk implements Runnable {
         int goalZ = goalNode / (sideLength * sideLength);
         int goalX = (goalNode % (sideLength * sideLength)) / sideLength;
         int goalY = goalNode % sideLength;
-        p.astarCheck = true;
+        // p.astarCheck = true;
 
         if (chunkStar.getConnections().get(startNode) == null) {
             System.out.println("Tried to do AStar from " + x + ", " + y + " but couldn't find any connections");
@@ -397,6 +438,7 @@ public class LayoutChunk implements Runnable {
 
     }
 
+    // Record the density of the world at each point on the layout
     public void populateDensityMap() {
         int sideLength = w.getSideLength();
         densityMap = new int[sideLength][sideLength][numFloors];
@@ -438,7 +480,8 @@ public class LayoutChunk implements Runnable {
         }
     }
 
-
+    // Fill the floorplan with flags that determine if there is a node at this point
+    // Fill the node array with references to vertices for that coordinate
     private void populateFloorPlan() {
         int sideLength = w.getSideLength();
         for (int z = 0; z < numFloors; z++) {
@@ -460,6 +503,7 @@ public class LayoutChunk implements Runnable {
         }
     }
 
+    // Create all the edges in the world
     private void createEdges() {
         int sideLength = w.getSideLength();
         for (int z = 0; z < numFloors; z++) {
@@ -492,14 +536,15 @@ public class LayoutChunk implements Runnable {
                 }
             }
         }
+        // Add edges which represent staircases
         for (FloorConnection fc : w.floorConnections) {
             edges.add(new Edge(nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor],
                     nodes[(int) fc.location.x][(int) fc.location.y][fc.fromFloor + 1], 2, fc.fromFloor));
         }
     }
 
+    // Returns true if there is a blockage visible in front of the given person
     public Point2d visibleBlockage(Person p) {
-
         if (p.getLocation() == null) {
             return null;
         }
@@ -521,8 +566,8 @@ public class LayoutChunk implements Runnable {
         return null;
     }
 
+    // Returns true if the person has been too close to a wall for a long time
     boolean stuckOnWall(Person p, int time) {
-
         boolean allwalls = false;
         for (Wall w : lWalls.get(p.floor)) {
             if (w.distance(p) < 0.7) {

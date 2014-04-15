@@ -249,6 +249,7 @@ public class AStar {
         return keyArray;
     }
 
+    // Returns the closest staircase to the given node
     private FloorConnection closestFloorConnection(ArrayList<FloorConnection> floorConnections, Integer startNode) {
         Integer startX = (startNode % (sideLength * sideLength)) / sideLength;
         Integer startY = startNode % sideLength;
