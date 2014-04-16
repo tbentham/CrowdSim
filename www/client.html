@@ -2,121 +2,150 @@
 
 <html lang="en-US">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-	<title>CrowdSim Client</title>
-	<link rel="icon" type="image/png" href="images/favicon.png">
-	<link rel="stylesheet" type="text/css" href="css/client.css">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
+    <title>CrowdSim Client</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" type="text/css" href="css/client.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="css/slider.css">
     <link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.10.3.custom.min.css">
 
-	<script src="resources/jquery.min.js"></script>
+    <script src="resources/jquery.min.js"></script>
     <script src="resources/easeljs.js"></script>
     <script src="resources/bootstrap-slider.js"></script>
     <script src="resources/jquery-ui-1.10.3.custom.min.js"></script>
-	<script src="scripts/person.js"></script>
-	<script src="scripts/json.js"></script>
-	<script src="scripts/interface.js"></script>
-	<script src="scripts/canvas.js"></script>	
+    <script src="scripts/person.js"></script>
+    <script src="scripts/json.js"></script>
+    <script src="scripts/interface.js"></script>
+    <script src="scripts/canvas.js"></script>
 
 </head>
 
 
-
 <body onload="javascript:init()">
-    <div id="main">
-    	<canvas id="mainCanvas"></canvas>
-    </div>
-    
-	<div id="panelToggle" onclick="togglePanel()">
-		<div id="toggleinner">&gt;&gt;</div>
-	</div>
-	
-    <table id="panel">
-    	<tr>
-    		<td><img src="images/crowdsim.png" alt="CrowdSim"/></td>
-    	</tr>
-    	<tr><td id="toggle1" class="optionToggle" onclick="toggleOption(this.id,'row1')">
-			&#x25BC; Simulation Control
-		</td></tr>
-    	<tr id="row1"><td id="simulationButtons">
+<div id="main">
+    <canvas id="mainCanvas"></canvas>
+</div>
+
+<div id="panelToggle" onclick="togglePanel()">
+    <div id="toggleinner">&gt;&gt;</div>
+</div>
+
+<table id="panel">
+    <tr>
+        <td><img src="images/crowdsim.png" alt="CrowdSim"/></td>
+    </tr>
+    <tr>
+        <td id="toggle1" class="optionToggle" onclick="toggleOption(this.id,'row1')">
+            &#x25BC; Simulation Control
+        </td>
+    </tr>
+    <tr id="row1">
+        <td id="simulationButtons">
             <button class="btn btn-sm btn-warning" onclick="toStart()">Start</button>
-    		<button type="button" class="btn btn-lg btn-success" onclick="togglePlay()">Play/Pause</button>
-            <button class="btn btn-sm btn-warning" onclick="toFinish()">Finish</button><br/>
-            
-            <div class="slider slider-horizontal"></div><br/>
+            <button type="button" class="btn btn-lg btn-success" onclick="togglePlay()">Play/Pause</button>
+            <button class="btn btn-sm btn-warning" onclick="toFinish()">Finish</button>
+            <br/>
+
+            <div class="slider slider-horizontal"></div>
+            <br/>
+
             <div id="timestep"></div>
             <div>Floor <span id="floor">0</span></div>
             <button class="btn btn-sm btn-primary" onclick="upstairs();stage.update();">Up</button>
-            <button class="btn btn-sm btn-primary" onclick="downstairs();stage.update();">Down</button><br/>
-		</td></tr>
+            <button class="btn btn-sm btn-primary" onclick="downstairs();stage.update();">Down</button>
+            <br/>
+        </td>
+    </tr>
 
-    	<tr><td id="toggle2" class="optionToggle" onclick="toggleOption(this.id,'row2')">
-			&#x25BC; Simulation configuration
-		</td></tr>
-    	<tr id="row2"><td id="generalControls">
-    		<!-- Feel free to move this to somewhere you feel it belongs. -->
+    <tr>
+        <td id="toggle2" class="optionToggle" onclick="toggleOption(this.id,'row2')">
+            &#x25BC; Simulation configuration
+        </td>
+    </tr>
+    <tr id="row2">
+        <td id="generalControls">
+            <!-- Feel free to move this to somewhere you feel it belongs. -->
             <button class="btn btn-sm btn-primary" onclick="sendFeatures()">Send</button>
-            <button class="btn btn-sm btn-primary" onclick="receiveFeatures()">Receive</button><br/>
+            <button class="btn btn-sm btn-primary" onclick="receiveFeatures()">Receive</button>
+            <br/>
             <button class="btn btn-sm btn-primary" onclick="toggleStaticDensity()">Static Density</button>
-            <button class="btn btn-sm btn-primary" onclick="toggleDynamicDensity()">Dynamic Density</button><br/>
-            <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button><br/><br/>
+            <button class="btn btn-sm btn-primary" onclick="toggleDynamicDensity()">Dynamic Density</button>
+            <br/>
+            <button class="btn btn-sm btn-primary" onclick="cursorPixelToggle()">Debug Mode</button>
+            <br/><br/>
 
             <form name="times">
                 Total simulation time: <span id="totalTimeVal">20</span>s<br/>
-                <input type="range" min="0" max="1000" value="200" step="10" name="totalTime" onchange="updateVal(this.value*0.1,'totalTimeVal')"><br/>
-                
+                <input type="range" min="0" max="1000" value="200" step="10" name="totalTime"
+                       onchange="updateVal(this.value*0.1,'totalTimeVal')"><br/>
+
                 Time of evacuation: <span id="evacTimeVal">10</span>s<br/>
-                <input type="range" min="0" max="1000" value="100" step="10" name="evacTime" onchange="updateVal(this.value*0.1,'evacTimeVal')"><br/>
-                
+                <input type="range" min="0" max="1000" value="100" step="10" name="evacTime"
+                       onchange="updateVal(this.value*0.1,'evacTimeVal')"><br/>
+
                 Number of people: <span id="numPeopleVal">100</span><br/>
-                <input type="range" min="0" max="2000" value="100" step="10" name="numPeople" onchange="updateVal(this.value,'numPeopleVal')"><br/>
-                
+                <input type="range" min="0" max="2000" value="100" step="10" name="numPeople"
+                       onchange="updateVal(this.value,'numPeopleVal')"><br/>
+
                 A*? <input type="text" value="0" name="astarToggle" id="astaron"><br/>
-                
+
                 A* frequency: <span id="astarFreqVal">5</span> steps<br/>
-                <input type="range" min="1" max="40" value="5" name="astarFreq" onchange="updateVal(this.value,'astarFreqVal')"><br/>
+                <input type="range" min="1" max="40" value="5" name="astarFreq"
+                       onchange="updateVal(this.value,'astarFreqVal')"><br/>
+
+                Full Simulation? <input type="text" value="0" name="performSimulation" id="performSimulation"><br/>
+
             </form>
             <div id="prediction">0</div>
-		</td></tr>
+        </td>
+    </tr>
 
-    	<tr><td id="toggle3" class="optionToggle" onclick="toggleOption(this.id,'row3')">
-			&#x25BC; Drawing Control
-		</td></tr>
-        <tr id="row3"><td id="specificControls">
-        	<div id="doorControls">
-	    		<button class="btn btn-sm btn-primary" onclick="setDrawMode(9)">Remove item</button>
-        		<button class="btn btn-sm btn-primary" onclick="rotate()">Rotate door 90&deg;</button>
-        	</div>
-		</td></tr>
+    <tr>
+        <td id="toggle3" class="optionToggle" onclick="toggleOption(this.id,'row3')">
+            &#x25BC; Drawing Control
+        </td>
+    </tr>
+    <tr id="row3">
+        <td id="specificControls">
+            <div id="doorControls">
+                <button class="btn btn-sm btn-primary" onclick="setDrawMode(9)">Remove item</button>
+                <button class="btn btn-sm btn-primary" onclick="rotate()">Rotate door 90&deg;</button>
+            </div>
+        </td>
+    </tr>
 
-    	<tr><td id="toggle4" class="optionToggle" onclick="toggleOption(this.id,'row4')">
-			&#x25BC;Draw Modes
-		</td></tr>
-        <tr id="row4"><td id="dragItems">
+    <tr>
+        <td id="toggle4" class="optionToggle" onclick="toggleOption(this.id,'row4')">
+            &#x25BC;Draw Modes
+        </td>
+    </tr>
+    <tr id="row4">
+        <td id="dragItems">
             <div class="dragobject">
-            	<img src="images/dragobjects/wall.png" alt="wall.png" onclick="setDrawMode(0)"/>
-            	Wall
+                <img src="images/dragobjects/wall.png" alt="wall.png" onclick="setDrawMode(0)"/>
+                Wall
             </div>
             <div class="dragobject">
-            	<img src="images/dragobjects/door.png" alt="door.png" onclick="setDrawMode(1)"/>
-            	Door
+                <img src="images/dragobjects/door.png" alt="door.png" onclick="setDrawMode(1)"/>
+                Door
             </div>
             <div class="dragobject">
-            	<img src="images/dragobjects/stairs.png" alt="stairs.png" onclick="setDrawMode(2)"/>
-            	Staircase
+                <img src="images/dragobjects/stairs.png" alt="stairs.png" onclick="setDrawMode(2)"/>
+                Staircase
             </div>
             <div class="dragobject">
-            	<img src="images/dragobjects/interest.png" alt="interest.png" onclick="setDrawMode(3)"/>
-            	Point of Interest
+                <img src="images/dragobjects/interest.png" alt="interest.png" onclick="setDrawMode(3)"/>
+                Point of Interest
             </div>
             <div class="dragobject">
-            	<img src="images/dragobjects/evac.png" alt="evac.png" onclick="setDrawMode(4)"/>
-            	Evacuation Point
+                <img src="images/dragobjects/evac.png" alt="evac.png" onclick="setDrawMode(4)"/>
+                Evacuation Point
             </div>
-		</td></tr>
-    </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>
