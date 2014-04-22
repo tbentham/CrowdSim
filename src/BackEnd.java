@@ -86,6 +86,7 @@ public class BackEnd {
                 ASTAR_FREQUENCY = ((Double) jettyHandle.getConfig().get("astarFreq")).intValue();
                 numFloors = ((Double) jettyHandle.getConfig().get("numFloors")).intValue();
                 performSimulation = ((Double) jettyHandle.getConfig().get("performSimulation")).intValue() > 0 ? true : false;
+                NUM_THREADS = ((Double) jettyHandle.getConfig().get("numThreads")).intValue();
             } else {
                 // If the server is using a commandline input, parse that input
                 // Convert object file input into string and store in objects
@@ -120,6 +121,7 @@ public class BackEnd {
                 ASTAR = conf.get("astarToggle").intValue();
                 ASTAR_FREQUENCY = conf.get("astarFreq").intValue();
                 numFloors = conf.get("numFloors").intValue();
+                NUM_THREADS = conf.get("numThreads").intValue();
                 performSimulation = true;
             }
 

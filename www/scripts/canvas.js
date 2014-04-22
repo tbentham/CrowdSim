@@ -252,16 +252,17 @@ function sendFeatures() {
     astarToggle = $("[name=astarToggle]").val();
     astarFreq = $("[name=astarFreq]").val();
     performSimulation = $("[name=performSimulation]").val();
+    numThreads = $("[name=numThreads]").val();
 
     //Workout how many floors there are.
     var numFloors = floorCalc();
     console.log(numFloors);
 
-    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', "numFloors":' + numFloors + ', "performSimulation":' + performSimulation + '}'});
+    $.post("/", {objects: jsonDump(), config: '{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', "numFloors":' + numFloors + ', "performSimulation":' + performSimulation + ', "numThreads":' + numThreads + '}'});
     console.log("Objects");
     console.log(jsonDump());
     console.log("Config");
-    console.log('{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', "numFloors":' + numFloors + ', "performSimulation":' + performSimulation + '}');
+    console.log('{"totalTime": ' + totalTime.toString() + ', "evacTime":' + evacTime.toString() + ', "numPeople":' + numPeople + ', "astarToggle":' + astarToggle + ', "astarFreq":' + astarFreq + ', "numFloors":' + numFloors + ', "performSimulation":' + performSimulation + ', "numThreads":' + numThreads + '}');
 }
 
 function floorCalc() {
