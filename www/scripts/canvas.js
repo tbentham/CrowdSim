@@ -39,7 +39,7 @@ var currentCanvasLine;
 var angle = 0;
 
 var cursorItem;
-var cursorItemPixel; // This needs another tidy session
+var cursorItemPixel;
 
 
 function init() {
@@ -82,7 +82,6 @@ function populate(popTime) {
                 s = new createjs.Shape();
                 canvasPeople.push(s);
                 canvasPeople_colours.push("rgba(" + String(Math.floor(Math.random() * 255)) + "," + String(Math.floor(Math.random() * 255)) + "," + String(Math.floor(Math.random() * 255)) + ",1)")
-                //canvasPeople_colours.push("rgba(0, 0, 0, 1)");
                 stage.addChild(s);
             }
         }
@@ -95,12 +94,10 @@ function populate(popTime) {
                 if (people[i][popTime].z == floor) {
 
                     if (blockages[i][popTime] == true) {
-                        //Consider removing, now that people are multi coloured again.
                         canvasPeople[i].graphics.beginFill("rgba(255, 0, 0, 1)").drawCircle(people[i][popTime].x * 10, people[i][popTime].y * 10, 5);
                     }
                     else {
                         canvasPeople[i].graphics.beginFill(canvasPeople_colours[i]).drawCircle(people[i][popTime].x * 10, people[i][popTime].y * 10, 5);
-                        // canvasPeople[i].graphics.beginFill("rgba(0, 0, 0, 1)").drawCircle(people[i][popTime].x*10, people[i][popTime].y*10, 5);
                     }
                 }
             }
@@ -448,14 +445,12 @@ function cursorPixels(e) {
 }
 
 // Function used by the html to increment the angle variable, to change the way objects appear on the canvas. This has nothing to do with the rotation of coordinates.
-//TODO: hotkey this and make it finer opposed to 90 degree jumps.
 function rotate() {
 
     angle = (angle + Math.PI / 2) % (Math.PI * 2);
     console.log(angle.toString());
 }
 
-//This whole drawmodes thing is silly, because I still have to manually define which events are attached to what. Investigate the event listeners and see if they can be stored and added to the stage as objects without calling this method.
 function setDrawMode(mode) {
 
     if (mode == WALL_MODE) {
@@ -527,7 +522,6 @@ function drawLine(e) {
     if (click && stage.mouseInBounds) {
 
         //Increases readability since they are accessed multiple times.
-//        var line = features[features.length-1];
         var line = currentLine;
         var canvasLine = currentCanvasLine;
 
@@ -581,8 +575,6 @@ function drawDoor(e) {
     door = new createjs.Shape();
     arc = new createjs.Shape();
 
-    // This is just a rectangle, consider using premade Rectangle objects that may handle rotations and will fess up their vertices on demand.
-    //TODO: consider a translation method, this way I can keep all the graphics transformations in one tidy place.
     var hinge = spin(new Coordinate(-25, 0), angle);
     hinge[0] = hinge[0] + e.stageX;
     hinge[1] = hinge[1] + e.stageY;
@@ -613,7 +605,6 @@ function drawDoor(e) {
     stage.update();
 }
 
-// Can maybe do wall highlighting, with some computation.
 function mouseDoor(e) {
 
     if (cursorItem)
@@ -621,7 +612,6 @@ function mouseDoor(e) {
     cursorItem = new createjs.Shape();
 
     //Find the coordinates of a door after it has been rotated, remember to add StageX and Y to translate from the origin to the mouse pointer.
-    //TODO: consider a translation method, this way we can keep all the graphics transformations in one tidy place.
     var from = spin(new Coordinate(-25, 0), angle);
     from[0] = from[0] + e.stageX;
     from[1] = from[1] + e.stageY;
@@ -637,10 +627,9 @@ function mouseDoor(e) {
     stage.update();
 }
 
-// 2D rotation of a pair of coordinates. Some graphics shit.
+// 2D rotation of a pair of coordinates.
 function spin(coord, angle) {
 
-    //TODO: change this to return type COORDINATE - otherwise developers will begin to feel uncertain about things whilst pouring their coffee.
     return[Math.cos(angle) * coord.getX() + ((-Math.sin(angle)) * coord.getY()), Math.sin(angle) * coord.getX() + Math.cos(angle) * coord.getY()]
 }
 
@@ -700,8 +689,6 @@ function drawInterest(e) {
     if (stage.mouseInBounds) {
 
         //Increases readability since they are accessed multiple times.
-        // features.push(new Feature(featureID, 2)); canvasFeatures.push(new createjs.Shape());
-
 
         var canvasCircle = new createjs.Shape();
         canvasFeatures[floor].push(canvasCircle);
@@ -727,7 +714,6 @@ function drawInterest(e) {
     }
 }
 
-//TODO: Consider mouseObject method which handles all possible cursor objects
 function mouseInterest(e) {
 
     if (cursorItem)
@@ -800,19 +786,3 @@ function removeItem(e) {
 function showBlockages() {
 
 }
-
-/*
- client todo list.
-
- mouse scroll - cba
-
- COMPLETELY REDESIGN how people are being drawn on the canvas. (to reduce lag)
-
- kill mode bug
-
- feedback from the server (only useful when server webserver component has been remodelled.)
-
- sending num floors
-
- speed up sim
- */

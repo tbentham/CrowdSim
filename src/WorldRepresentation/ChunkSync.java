@@ -18,7 +18,7 @@ public class ChunkSync implements Runnable {
     // Simply records the number of barriers that have been hit
     public void run() {
         System.out.println("I have hit the barrier:" + num);
-        System.out.println("Time elapsed" + (System.currentTimeMillis() - start));
+        System.out.println("Time elapsed " + (System.currentTimeMillis() - start));
         num++;
 
         for (LayoutChunk c : chunks) {
